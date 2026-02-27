@@ -5,6 +5,7 @@
  * Skills provide specialized capabilities and domain knowledge.
  */
 
+import path from 'path'
 import { getLocalCommands, findCommand } from '../cli/commands.mjs'
 import { getSkill as getDiscoveredSkill } from './skills-discovery.mjs'
 
@@ -160,8 +161,12 @@ export function createSkillTool(dependencies = {}) {
         if (!skillDef) {
           const discovered = getDiscoveredSkill(skillName)
           if (discovered) {
+            // Prepend the skill's base directory so the agent can resolve any
+            // relative paths (e.g. ./rules/subtitles.md) referenced in the skill body.
+            // Fix for: https://github.com/jasonkneen/open-claude-code/issues/1
+            const skillDir = path.dirname(discovered.path)
             skillDef = {
-              content: discovered.prompt,
+              content: `Base directory for this skill: ${skillDir}\n\n${discovered.prompt}`,
               allowedTools: discovered.allowedTools,
               context: discovered.context,
             }
