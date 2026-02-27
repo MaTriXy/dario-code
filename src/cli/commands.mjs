@@ -1045,7 +1045,7 @@ export const exportCommand = {
           exportFilename = filename || `session-${Date.now()}.json`
         } else {
           // Markdown format
-          let md = '# Dario Code Session Export\n\n'
+          let md = '# Claude Session Export\n\n'
           md += `Exported: ${new Date().toISOString()}\n\n`
           md += '---\n\n'
 
@@ -1292,7 +1292,7 @@ function handleCompact(messages) {
  * Handle /version command
  */
 function handleVersion() {
-  ui.print(`Dario version: ${VERSION}`)
+  ui.print(`Claude v${VERSION}`)
   return true
 }
 
@@ -1324,13 +1324,13 @@ async function handleInit() {
   // Check all recognised memory file aliases — don't overwrite any existing one
   for (const fname of ['AGENTS.md', 'CLAUDE.md', 'DARIO.md']) {
     if (existsSync(join(process.cwd(), fname))) {
-      return `${fname} already exists. Use a text editor to modify it.\n\nNote: AGENTS.md, CLAUDE.md and DARIO.md are all treated as the same file — Dario loads whichever it finds first.`
+      return `${fname} already exists. Use a text editor to modify it.\n\nNote: AGENTS.md, CLAUDE.md and DARIO.md are all treated as the same file — Claude loads whichever it finds first.`
     }
   }
 
   const darioMdPath = join(process.cwd(), 'AGENTS.md')
 
-  const template = `# Dario Code Development Guide
+  const template = `# Claude Development Guide
 
 ## Commands
 - Build: \`npm run build\`
@@ -1344,7 +1344,7 @@ async function handleInit() {
 - Add comments for complex logic
 
 ## Project-Specific Instructions
-Add your project-specific instructions here for Dario to follow when working on this codebase.
+Add your project-specific instructions here for Claude to follow when working on this codebase.
 
 ## Architecture Notes
 Describe your project's architecture, key components, and design patterns here.
@@ -1358,7 +1358,7 @@ _CLAUDE.md and DARIO.md are also recognised as aliases._
 
   try {
     writeFileSync(darioMdPath, template, 'utf8')
-    return `✓ Created AGENTS.md in ${process.cwd()}\n\nEdit this file to add project-specific instructions for Dario.\nCLAUDE.md and DARIO.md are also recognised as aliases.`
+    return `✓ Created AGENTS.md in ${process.cwd()}\n\nEdit this file to add project-specific instructions for Claude.\nCLAUDE.md and DARIO.md are also recognised as aliases.`
   } catch (error) {
     return `✗ Failed to create AGENTS.md: ${error.message}`
   }
@@ -1382,7 +1382,7 @@ function handleClear() {
 export const initCommand = {
   type: 'local',
   name: 'init',
-  description: 'Create an AGENTS.md file with instructions for Dario',
+  description: 'Create an AGENTS.md file with instructions for Claude',
   isEnabled: true,
   userFacingName() {
     return 'init'
@@ -1614,7 +1614,7 @@ export const doctorCommand = {
     return 'doctor'
   },
   async call() {
-    let output = '🏥 Dario Health Check\n\n'
+    let output = '🏥 Claude Health Check\n\n'
     let hasIssues = false
 
     // Check Node.js version
@@ -2208,7 +2208,7 @@ export const vimCommand = {
 export const terminalSetupCommand = {
   type: 'local',
   name: 'terminal-setup',
-  description: 'Configure shell integration for Dario Code',
+  description: 'Configure shell integration for Claude',
   isEnabled: true,
   userFacingName() { return 'terminal-setup' },
 
@@ -2237,7 +2237,7 @@ export const terminalSetupCommand = {
       output += `  ✓ Shell integration already configured in ~/${rcFile}\n`
     } else {
       output += `  To set up shell integration, add to ~/${rcFile}:\n\n`
-      output += `    # Dario Code CLI\n`
+      output += `    # Claude CLI\n`
       output += `    alias claude='dario'\n`
       if (shellName === 'fish') {
         output += `    # For fish shell:\n`
@@ -2278,7 +2278,7 @@ export const bugCommand = {
     output += `\n  File an issue at:\n`
     output += `  https://github.com/jkneen/dario-code/issues\n\n`
     output += `  Include this info:\n`
-    output += `    Version:  Dario v${VERSION}\n`
+    output += `    Version:  Claude v${VERSION}\n`
     output += `    Node:     ${process.version}\n`
     output += `    Platform: ${os.platform()} ${os.arch()}\n`
     output += `    Model:    ${currentModel}\n`
@@ -2396,7 +2396,7 @@ export const debugCommand = {
 
     // Environment
     output += `\n  Environment\n`
-    output += `    Version:    Dario v${VERSION}\n`
+    output += `    Version:    Claude v${VERSION}\n`
     output += `    Node:       ${process.version}\n`
     output += `    Platform:   ${os.platform()} ${os.arch()}\n`
     output += `    Shell:      ${process.env.SHELL || 'unknown'}\n`

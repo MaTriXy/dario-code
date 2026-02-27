@@ -457,7 +457,7 @@ const standardCommands = [
         ['terminal-setup', 'Configure shell integration'],
         ['bug',            'Report a bug'],
         ['version',        'Show version information'],
-        ['quit',           'Exit Dario'],
+        ['quit',           'Exit Claude'],
       ]
 
       const maxCmd = Math.max(...commandHelp.map(([c]) => c.length))
@@ -465,7 +465,7 @@ const standardCommands = [
         `  /${cmd.padEnd(maxCmd + 1)} ${desc}`
       ).join('\n')
 
-      return `Dario Help
+      return `Claude Help
 ${'─'.repeat(56)}
 
 Commands:
@@ -486,7 +486,7 @@ Get started:
   {
     name: 'quit',
     aliases: ['exit', 'q'],
-    description: 'Exit Dario',
+    description: 'Exit Claude',
     isEnabled: true,
     userFacingName() { return 'quit' },
     async call() {
@@ -500,7 +500,7 @@ Get started:
     isEnabled: true,
     userFacingName() { return 'version' },
     async call() {
-      return `Dario v${VERSION || '1.0.0'}`
+      return `Claude v${VERSION || '1.0.0'}`
     }
   },
   // Overlay wrappers — these show interactive TUI overlays when called without args,
@@ -869,7 +869,7 @@ function WelcomeBanner({ mcpClients = [], isDefaultModel = true }) {
       React.createElement(Text, { key: 'title' },
         React.createElement(Text, { color: THEME.claude }, '✻'),
         ' Welcome to ',
-        React.createElement(Text, { bold: true }, 'Dario Code'),
+        React.createElement(Text, { bold: true }, 'Claude'),
         React.createElement(Text, null, '!')
       ),
       React.createElement(Box, {
@@ -931,7 +931,7 @@ function WorkspaceTips({ workspaceDir }) {
     React.createElement(Box, { key: 'tips', flexDirection: 'column', paddingLeft: 2 },
       React.createElement(Text, { key: 'tip1', color: THEME.secondaryText },
         '• Run ', React.createElement(Text, { color: THEME.text }, '/init'),
-        ' to create an AGENTS.md file with instructions for Dario.'
+        ' to create an AGENTS.md file with instructions for Claude.'
       ),
       React.createElement(Text, { key: 'tip2', color: THEME.secondaryText },
         '• Ask Claude questions about your codebase.'
