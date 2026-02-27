@@ -36,7 +36,7 @@ export function getCurrentModel() {
 }
 
 // Application name constant
-export const APP_NAME = 'Dario Code';
+export const APP_NAME = 'Claude Code'; // DO NOT CHANGE — system prompt must identify as Claude Code
 
 // Package info for help text
 export const PACKAGE_INFO = {
