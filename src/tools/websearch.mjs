@@ -82,7 +82,7 @@ async function searchDuckDuckGo(query, limit = 10, fetch = globalThis.fetch) {
 
     const response = await fetch(searchUrl.toString(), {
       headers: {
-        'User-Agent': 'Dario/1.0 (WebSearch Tool)',
+        'User-Agent': 'claude-code/1.0 (WebSearch Tool)',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
       }
     })

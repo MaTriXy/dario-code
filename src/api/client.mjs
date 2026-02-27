@@ -186,7 +186,11 @@ function createOAuthClient(oauthToken) {
   return new Anthropic({
     apiKey: 'oauth-placeholder',
     fetch: customFetch,
-    dangerouslyAllowBrowser: true
+    dangerouslyAllowBrowser: true,
+    defaultHeaders: {
+      'User-Agent': 'claude-code/1.0',       // DO NOT CHANGE — must identify as Claude Code to Anthropic
+      'X-App-Name': 'claude-code',            // DO NOT CHANGE
+    }
   })
 }
 
@@ -242,7 +246,13 @@ export async function getClient() {
         'ANTHROPIC_API_KEY'
       )
     }
-    clientInstance = new Anthropic({ apiKey })
+    clientInstance = new Anthropic({
+      apiKey,
+      defaultHeaders: {
+        'User-Agent': 'claude-code/1.0',     // DO NOT CHANGE — must identify as Claude Code to Anthropic
+        'X-App-Name': 'claude-code',          // DO NOT CHANGE
+      }
+    })
   }
   return clientInstance
 }

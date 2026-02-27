@@ -156,7 +156,7 @@ export function createWebFetchTool(dependencies = {}) {
           // Fetch the URL
           const response = await fetch(fetchUrl, {
             headers: {
-              'User-Agent': 'Dario/1.0 (WebFetch Tool)',
+              'User-Agent': 'claude-code/1.0 (WebFetch Tool)',
               'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8'
             },
             signal: abortController?.signal
