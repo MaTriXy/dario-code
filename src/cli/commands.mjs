@@ -1149,7 +1149,7 @@ const COMMANDS = {
     handler: (input) => exportCommand.call(input.slice('/export'.length).trim())
   },
   init: {
-    description: 'Create DARIO.md file with instructions (also reads AGENTS.md + CLAUDE.md)',
+    description: 'Create AGENTS.md file with instructions (CLAUDE.md + DARIO.md also recognised)',
     handler: handleInit
   },
   clear: {
@@ -1197,7 +1197,7 @@ const COMMANDS = {
     handler: (input) => permissionsCommand.call(null, { args: input.slice('/permissions'.length).trim().split(/\s+/) })
   },
   memory: {
-    description: 'Show or edit memory files (DARIO.md / AGENTS.md / CLAUDE.md)',
+    description: 'Show or edit AGENTS.md memory file (CLAUDE.md + DARIO.md also recognised)',
     handler: (input) => memoryCommand.call(null, { args: input.slice('/memory'.length).trim().split(/\s+/) })
   },
   vim: {
@@ -1321,14 +1321,14 @@ async function handleInit() {
   const { existsSync, writeFileSync } = await import('fs')
   const { join } = await import('path')
 
-  // Check all recognised memory files — don't overwrite any existing one
-  for (const fname of ['DARIO.md', 'AGENTS.md', 'CLAUDE.md']) {
+  // Check all recognised memory file aliases — don't overwrite any existing one
+  for (const fname of ['AGENTS.md', 'CLAUDE.md', 'DARIO.md']) {
     if (existsSync(join(process.cwd(), fname))) {
-      return `${fname} already exists in this directory. Use a text editor to modify it.\n\nDario reads AGENTS.md, CLAUDE.md, and DARIO.md — all are supported.`
+      return `${fname} already exists. Use a text editor to modify it.\n\nNote: AGENTS.md, CLAUDE.md and DARIO.md are all treated as the same file — Dario loads whichever it finds first.`
     }
   }
 
-  const darioMdPath = join(process.cwd(), 'DARIO.md')
+  const darioMdPath = join(process.cwd(), 'AGENTS.md')
 
   const template = `# Dario Code Development Guide
 
@@ -1353,14 +1353,14 @@ Describe your project's architecture, key components, and design patterns here.
 Describe your testing requirements and conventions here.
 
 ---
-_Dario also reads AGENTS.md and CLAUDE.md if present._
+_CLAUDE.md and DARIO.md are also recognised as aliases._
 `
 
   try {
     writeFileSync(darioMdPath, template, 'utf8')
-    return `✓ Created DARIO.md in ${process.cwd()}\n\nEdit this file to add project-specific instructions for Dario.\nDario also reads AGENTS.md and CLAUDE.md if present.`
+    return `✓ Created AGENTS.md in ${process.cwd()}\n\nEdit this file to add project-specific instructions for Dario.\nCLAUDE.md and DARIO.md are also recognised as aliases.`
   } catch (error) {
-    return `✗ Failed to create DARIO.md: ${error.message}`
+    return `✗ Failed to create AGENTS.md: ${error.message}`
   }
 }
 
@@ -1382,7 +1382,7 @@ function handleClear() {
 export const initCommand = {
   type: 'local',
   name: 'init',
-  description: 'Create a DARIO.md file with instructions for Dario',
+  description: 'Create an AGENTS.md file with instructions for Dario',
   isEnabled: true,
   userFacingName() {
     return 'init'
@@ -2035,11 +2035,12 @@ export const memoryCommand = {
     const arg = context?.args?.[0]?.toLowerCase()
     const argKey = context?.args?.[1]
 
-    // Collect all recognised memory files that exist, in priority order
+    // Find which memory file alias exists per location (AGENTS.md > CLAUDE.md > DARIO.md)
     const memoryFilenames = ['AGENTS.md', 'CLAUDE.md', 'DARIO.md']
+    const findMemoryFile = (dir) => memoryFilenames.map(f => join(dir, f)).find(p => existsSync(p)) || join(dir, 'AGENTS.md')
     const locations = [
-      ...memoryFilenames.map(f => ({ label: `Project (${f})`, path: join(cwd, f), source: 'PRJ' })),
-      ...memoryFilenames.map(f => ({ label: `User (${f})`, path: join(getConfigDir(), f), source: 'OC' })),
+      { label: 'Project (AGENTS.md)', path: findMemoryFile(cwd), source: 'PRJ' },
+      { label: 'User (AGENTS.md)', path: findMemoryFile(getConfigDir()), source: 'OC' },
       { label: 'User (CC)', path: join(getClaudeConfigDir(), 'CLAUDE.md'), source: 'CC' },
     ]
 

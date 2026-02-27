@@ -24,9 +24,11 @@ const CLAUDE_DIR = path.join(HOME_DIR, '.claude') // Read-only
 // Configuration file names
 const CONFIG_FILE = 'config.json'
 const SETTINGS_FILE = 'settings.json'
-// All memory/instruction filenames Dario recognises, in priority order (last wins)
+// All memory/instruction filenames Dario recognises — treated as the SAME file.
+// AGENTS.md is the canonical name. CLAUDE.md and DARIO.md are aliases.
+// Only the first one found per directory is loaded (no duplicates).
 const MEMORY_FILES = ['AGENTS.md', 'CLAUDE.md', 'DARIO.md']
-const CLAUDE_MD_FILE = 'CLAUDE.md' // kept for legacy single-file references
+const CLAUDE_MD_FILE = 'AGENTS.md' // canonical name going forward
 
 /**
  * Ensure the Dario config directory exists
@@ -272,38 +274,39 @@ export function removeCustomContextItem(itemId) {
 }
 
 /**
- * Load memory/instruction files (AGENTS.md, CLAUDE.md, DARIO.md) from all locations.
- * Supports @import syntax for including other files.
+ * Load the memory/instruction file from all locations.
+ * AGENTS.md, CLAUDE.md, and DARIO.md are treated as the SAME file — just
+ * different names for the same concept. Only the first one found per directory
+ * is loaded (so a project with CLAUDE.md doesn't double-load if AGENTS.md
+ * also exists — whichever comes first in MEMORY_FILES wins).
  *
- * Load order (lowest → highest priority, later entries appended/override):
- *   ~/.claude/AGENTS.md, ~/.claude/CLAUDE.md, ~/.claude/DARIO.md
- *   ~/.dario/AGENTS.md,  ~/.dario/CLAUDE.md,  ~/.dario/DARIO.md
- *   ./AGENTS.md, ./CLAUDE.md, ./DARIO.md  (project root)
+ * Search locations (lowest → highest priority):
+ *   ~/.claude/   ~/.dario/   ./  (project root)
  */
 export function loadClaudeMd(projectDir = process.cwd()) {
   const contents = []
 
-  const loadMemoryFile = (dir, filename, source) => {
-    const filePath = path.join(dir, filename)
-    if (fileExists(filePath)) {
-      contents.push({
-        source,
-        path: filePath,
-        content: processImports(readFile(filePath), dir)
-      })
+  // Find the first recognised memory filename in a directory and load it.
+  // Returns true if a file was found and loaded.
+  const loadFirstFound = (dir, source) => {
+    for (const filename of MEMORY_FILES) {
+      const filePath = path.join(dir, filename)
+      if (fileExists(filePath)) {
+        contents.push({
+          source,
+          path: filePath,
+          filename, // so callers can see which alias was used
+          content: processImports(readFile(filePath), dir)
+        })
+        return true // stop at first match — they're all the same file
+      }
     }
+    return false
   }
 
-  // Global — ~/.claude then ~/.dario, all three filenames
-  for (const filename of MEMORY_FILES) {
-    loadMemoryFile(CLAUDE_DIR, filename, 'global-claude')
-    loadMemoryFile(DARIO_DIR,  filename, 'global-dario')
-  }
-
-  // Project root — all three filenames
-  for (const filename of MEMORY_FILES) {
-    loadMemoryFile(projectDir, filename, 'project')
-  }
+  loadFirstFound(CLAUDE_DIR,  'global-claude')
+  loadFirstFound(DARIO_DIR,   'global-dario')
+  loadFirstFound(projectDir,  'project')
 
   // Rules directories — read from both .claude/rules/ and .dario/rules/
   // .dario/rules/ loaded second so it takes precedence on filename collision.

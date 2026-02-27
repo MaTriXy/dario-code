@@ -428,7 +428,7 @@ const standardCommands = [
       // Build help dynamically from all available commands
       const commandHelp = [
         ['help',           'Show this help message'],
-        ['init',           'Create a DARIO.md file for this project'],
+        ['init',           'Create an AGENTS.md file for this project'],
         ['model',          'Switch AI models (or /model <name>)'],
         ['login',          'Sign in to Claude (OAuth or API key)'],
         ['logout',         'Sign out of Claude'],
@@ -442,7 +442,7 @@ const standardCommands = [
         ['approved-tools', 'Manage tool approvals (list/remove)'],
         ['mcp',            'Manage MCP servers (list/add/remove)'],
         ['fast',           'Toggle fast mode'],
-        ['memory',         'Show or edit memory files (DARIO.md / AGENTS.md / CLAUDE.md)'],
+        ['memory',         'Show or edit AGENTS.md memory file'],
         ['context',        'Show context window usage'],
         ['doctor',         'Run system health check'],
         ['resume',         'Resume a previous session'],
@@ -931,7 +931,7 @@ function WorkspaceTips({ workspaceDir }) {
     React.createElement(Box, { key: 'tips', flexDirection: 'column', paddingLeft: 2 },
       React.createElement(Text, { key: 'tip1', color: THEME.secondaryText },
         '• Run ', React.createElement(Text, { color: THEME.text }, '/init'),
-        ' to create a DARIO.md file with instructions for Dario.'
+        ' to create an AGENTS.md file with instructions for Dario.'
       ),
       React.createElement(Text, { key: 'tip2', color: THEME.secondaryText },
         '• Ask Dario questions about your codebase.'
