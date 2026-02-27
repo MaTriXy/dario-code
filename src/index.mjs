@@ -1,8 +1,8 @@
 /**
- * OpenClaude Main Entry Point
+ * Dario Main Entry Point
  *
- * This module initializes and exports all OpenClaude subsystems.
- * It sets up globalThis.__openclaude for runtime access.
+ * This module initializes and exports all Dario subsystems.
+ * It sets up globalThis.__dario for runtime access.
  */
 
 // Core modules
@@ -32,7 +32,7 @@ import * as wasm from './wasm/index.mjs'
 import * as integration from './integration/index.mjs'
 
 // Initialize global API with all subsystems
-const openclaude = initializeGlobalAPI({
+const dario = initializeGlobalAPI({
   plan,
   agents,
   tasks,
@@ -82,4 +82,4 @@ export {
 }
 
 // Default export is the initialized global API
-export default openclaude
+export default dario

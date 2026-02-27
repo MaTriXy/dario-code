@@ -1,5 +1,5 @@
 /**
- * Core Utilities for OpenClaude
+ * Core Utilities for Dario
  *
  * Shared utility functions used across all tools and modules.
  */

@@ -44,12 +44,12 @@ let activeConfig = ANTHROPIC_CONFIG
 let oauthMode = 'anthropic'
 
 // Token storage
-const TOKEN_PATH = path.join(os.homedir(), '.openclaude', 'oauth-token.json')
+const TOKEN_PATH = path.join(os.homedir(), '.dario', 'oauth-token.json')
 
 // Config functions (will be set by caller)
 let getConfig = () => {
   try {
-    const configPath = path.join(os.homedir(), '.openclaude', 'config.json')
+    const configPath = path.join(os.homedir(), '.dario', 'config.json')
     if (fs.existsSync(configPath)) {
       return JSON.parse(fs.readFileSync(configPath, 'utf8'))
     }
@@ -59,7 +59,7 @@ let getConfig = () => {
 
 let saveConfig = (config) => {
   try {
-    const configPath = path.join(os.homedir(), '.openclaude', 'config.json')
+    const configPath = path.join(os.homedir(), '.dario', 'config.json')
     const dir = path.dirname(configPath)
     if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
     fs.writeFileSync(configPath, JSON.stringify(config, null, 2))
@@ -533,7 +533,7 @@ export function logout() {
 }
 
 export function getAuthInfo() {
-  // Check OpenClaude's own token
+  // Check Dario's own token
   const token = loadToken()
   if (token) {
     const expiresAt = token.expires || (token.savedAt + (token.expires_in || 3600) * 1000)
@@ -569,9 +569,9 @@ export function getAuthInfo() {
     }
   } catch {}
 
-  // Check OpenClaude config
+  // Check Dario config
   try {
-    const configPath = path.join(os.homedir(), '.openclaude', 'config.json')
+    const configPath = path.join(os.homedir(), '.dario', 'config.json')
     if (fs.existsSync(configPath)) {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
       if (config.oauthTokens?.access) {

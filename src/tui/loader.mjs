@@ -17,8 +17,8 @@ const __dirname = dirname(__filename)
 const AVAILABLE_TUIS = {
   claude: {
     id: 'claude',
-    name: 'Open Claude Code',
-    description: 'Open Claude Code TUI',
+    name: 'Dario Code',
+    description: 'Dario Code TUI',
     path: './claude/index.mjs'
   },
   minimal: {
@@ -91,7 +91,7 @@ export function listAvailableTUIs() {
 export function getTUIFromConfig(config = {}) {
   // Priority: env var > config > default
   return (
-    process.env.OPENCLAUDE_TUI ||
+    process.env.DARIO_TUI ||
     config.tui ||
     'claude'
   )

@@ -1,10 +1,10 @@
 # Eval System
 
-Comprehensive evaluation system for OpenClaude CLI that runs tests, captures logs, judges results, and generates improvement feedback.
+Comprehensive evaluation system for Dario CLI that runs tests, captures logs, judges results, and generates improvement feedback.
 
 ## Features
 
-1. **CLI Streaming** - Run CLI with `--output-format stream-json` like Open Claude Code
+1. **CLI Streaming** - Run CLI with `--output-format stream-json` like Dario Code
 2. **Log Capture** - Captures all messages, tool calls, and results
 3. **Automated Judging** - Scores based on success, tool usage, efficiency, methodology
 4. **Feedback Loop** - Analyzes failures and generates improvement plans
@@ -24,7 +24,7 @@ This will:
 - Generate improvement plan
 - Save logs to `.evals/`
 
-### CLI Options (Matching Open Claude Code)
+### CLI Options (Matching Dario Code)
 
 ```bash
 # Text output (default)

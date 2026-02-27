@@ -9,14 +9,14 @@ The background tasks system lets you run long-running commands without blocking 
 ### Spawning a Task
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test')
+const task = globalThis.__dario.tasks.spawn('npm test')
 console.log(`Task ${task.id} spawned`)
 ```
 
 ### Checking Task Status
 
 ```javascript
-const status = globalThis.__openclaude.tasks.getStatus(task.id)
+const status = globalThis.__dario.tasks.getStatus(task.id)
 console.log(`Status: ${status.status}`)      // "running", "completed", "failed", "killed"
 console.log(`PID: ${status.pid}`)
 console.log(`Exit code: ${status.exitCode}`) // 0 = success
@@ -26,11 +26,11 @@ console.log(`Exit code: ${status.exitCode}`) // 0 = success
 
 ```javascript
 // As array of lines
-const lines = globalThis.__openclaude.tasks.getOutput(task.id)
+const lines = globalThis.__dario.tasks.getOutput(task.id)
 lines.forEach(line => console.log(line))
 
 // As single string
-const output = globalThis.__openclaude.tasks.getOutputAsString(task.id)
+const output = globalThis.__dario.tasks.getOutputAsString(task.id)
 console.log(output)
 ```
 
@@ -38,7 +38,7 @@ console.log(output)
 
 ```javascript
 // Wait up to 30 seconds for task to finish
-const completed = await globalThis.__openclaude.tasks.wait(task.id, 30000)
+const completed = await globalThis.__dario.tasks.wait(task.id, 30000)
 console.log(`Task completed: ${completed.status}`)
 console.log(`Exit code: ${completed.exitCode}`)
 ```
@@ -47,26 +47,26 @@ console.log(`Exit code: ${completed.exitCode}`)
 
 ```javascript
 // All tasks
-const all = globalThis.__openclaude.tasks.list()
+const all = globalThis.__dario.tasks.list()
 
 // Only running tasks
-const running = globalThis.__openclaude.tasks.list({ status: 'running' })
+const running = globalThis.__dario.tasks.list({ status: 'running' })
 
 // Only completed tasks
-const completed = globalThis.__openclaude.tasks.list({ status: 'completed' })
+const completed = globalThis.__dario.tasks.list({ status: 'completed' })
 ```
 
 ### Killing a Task
 
 ```javascript
-const success = globalThis.__openclaude.tasks.kill(task.id)
+const success = globalThis.__dario.tasks.kill(task.id)
 console.log(success ? 'Task terminated' : 'Kill failed')
 ```
 
 ### Getting Statistics
 
 ```javascript
-const stats = globalThis.__openclaude.tasks.getStatistics()
+const stats = globalThis.__dario.tasks.getStatistics()
 console.log(`Running: ${stats.running}`)
 console.log(`Completed: ${stats.completed}`)
 console.log(`Failed: ${stats.failed}`)
@@ -77,11 +77,11 @@ console.log(`Total output lines: ${stats.totalOutputLines}`)
 
 ```javascript
 // Remove tasks older than 1 hour
-const removed = globalThis.__openclaude.tasks.cleanup(3600000)
+const removed = globalThis.__dario.tasks.cleanup(3600000)
 console.log(`Cleaned up ${removed} tasks`)
 
 // Remove all completed tasks
-const removed = globalThis.__openclaude.tasks.cleanup(0)
+const removed = globalThis.__dario.tasks.cleanup(0)
 ```
 
 ## Common Patterns
@@ -89,11 +89,11 @@ const removed = globalThis.__openclaude.tasks.cleanup(0)
 ### Pattern 1: Fire and Forget (with periodic checks)
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm run build')
+const task = globalThis.__dario.tasks.spawn('npm run build')
 
 // Check status periodically
 setInterval(() => {
-  const status = globalThis.__openclaude.tasks.getStatus(task.id)
+  const status = globalThis.__dario.tasks.getStatus(task.id)
   console.log(`Build status: ${status.status}`)
 
   if (status.status !== 'running') {
@@ -107,10 +107,10 @@ setInterval(() => {
 
 ```javascript
 try {
-  const task = globalThis.__openclaude.tasks.spawn('npm test')
-  const completed = await globalThis.__openclaude.tasks.wait(task.id, 60000)
+  const task = globalThis.__dario.tasks.spawn('npm test')
+  const completed = await globalThis.__dario.tasks.wait(task.id, 60000)
 
-  const output = globalThis.__openclaude.tasks.getOutputAsString(task.id)
+  const output = globalThis.__dario.tasks.getOutputAsString(task.id)
   console.log('Test output:')
   console.log(output)
 } catch (err) {
@@ -122,14 +122,14 @@ try {
 
 ```javascript
 const tasks = [
-  globalThis.__openclaude.tasks.spawn('npm run build:web'),
-  globalThis.__openclaude.tasks.spawn('npm run build:cli'),
-  globalThis.__openclaude.tasks.spawn('npm run test')
+  globalThis.__dario.tasks.spawn('npm run build:web'),
+  globalThis.__dario.tasks.spawn('npm run build:cli'),
+  globalThis.__dario.tasks.spawn('npm run test')
 ]
 
 // Wait for all
 const results = await Promise.all(
-  tasks.map(t => globalThis.__openclaude.tasks.wait(t.id))
+  tasks.map(t => globalThis.__dario.tasks.wait(t.id))
 )
 
 // Check results
@@ -141,11 +141,11 @@ results.forEach((task, i) => {
 ### Pattern 4: Real-time Output Streaming
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test')
+const task = globalThis.__dario.tasks.spawn('npm test')
 let lastIndex = 0
 
 const watcher = setInterval(() => {
-  const output = globalThis.__openclaude.tasks.getOutput(task.id)
+  const output = globalThis.__dario.tasks.getOutput(task.id)
   const newLines = output.slice(lastIndex)
 
   // Print new lines
@@ -153,7 +153,7 @@ const watcher = setInterval(() => {
   lastIndex = output.length
 
   // Stop when done
-  const status = globalThis.__openclaude.tasks.getStatus(task.id)
+  const status = globalThis.__dario.tasks.getStatus(task.id)
   if (status.status !== 'running') {
     clearInterval(watcher)
   }
@@ -163,24 +163,24 @@ const watcher = setInterval(() => {
 ### Pattern 5: Timeout with Cleanup
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('long-running-command')
+const task = globalThis.__dario.tasks.spawn('long-running-command')
 
 try {
-  await globalThis.__openclaude.tasks.wait(task.id, 300000) // 5 minutes
+  await globalThis.__dario.tasks.wait(task.id, 300000) // 5 minutes
 } catch (err) {
   // Timeout
   console.log('Command timeout, killing...')
-  globalThis.__openclaude.tasks.kill(task.id)
+  globalThis.__dario.tasks.kill(task.id)
 }
 
 // Clean up old tasks
-globalThis.__openclaude.tasks.cleanup(3600000)
+globalThis.__dario.tasks.cleanup(3600000)
 ```
 
 ## Task Statuses
 
 ```javascript
-const TaskStatus = globalThis.__openclaude.tasks.TaskStatus
+const TaskStatus = globalThis.__dario.tasks.TaskStatus
 
 // TaskStatus.RUNNING    - Task is currently running
 // TaskStatus.COMPLETED  - Task finished successfully (exit code 0)
@@ -261,28 +261,28 @@ Stop all tasks and clear
 ```javascript
 // Spawn multiple tasks in parallel
 const [task1, task2, task3] = [
-  globalThis.__openclaude.tasks.spawn('npm run build:web'),
-  globalThis.__openclaude.tasks.spawn('npm run build:cli'),
-  globalThis.__openclaude.tasks.spawn('npm run build:mobile')
+  globalThis.__dario.tasks.spawn('npm run build:web'),
+  globalThis.__dario.tasks.spawn('npm run build:cli'),
+  globalThis.__dario.tasks.spawn('npm run build:mobile')
 ]
 
 // Wait for all in parallel
 await Promise.all([
-  globalThis.__openclaude.tasks.wait(task1.id),
-  globalThis.__openclaude.tasks.wait(task2.id),
-  globalThis.__openclaude.tasks.wait(task3.id)
+  globalThis.__dario.tasks.wait(task1.id),
+  globalThis.__dario.tasks.wait(task2.id),
+  globalThis.__dario.tasks.wait(task3.id)
 ])
 ```
 
 ### Conditional Execution
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test')
-const result = await globalThis.__openclaude.tasks.wait(task.id, 60000)
+const task = globalThis.__dario.tasks.spawn('npm test')
+const result = await globalThis.__dario.tasks.wait(task.id, 60000)
 
 if (result.status === 'completed' && result.exitCode === 0) {
   console.log('Tests passed, proceeding with build...')
-  const buildTask = globalThis.__openclaude.tasks.spawn('npm run build')
+  const buildTask = globalThis.__dario.tasks.spawn('npm run build')
   // ...
 }
 ```
@@ -290,8 +290,8 @@ if (result.status === 'completed' && result.exitCode === 0) {
 ### Output Filtering
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test -- --reporter=json')
-const output = globalThis.__openclaude.tasks.getOutputAsString(task.id)
+const task = globalThis.__dario.tasks.spawn('npm test -- --reporter=json')
+const output = globalThis.__dario.tasks.getOutputAsString(task.id)
 
 // Find test results in output
 const lines = output.split('\n')
@@ -304,7 +304,7 @@ results.forEach(r => console.log(r))
 ```javascript
 // Every 10 minutes, cleanup tasks older than 1 hour
 setInterval(() => {
-  const removed = globalThis.__openclaude.tasks.cleanup(3600000)
+  const removed = globalThis.__dario.tasks.cleanup(3600000)
   if (removed > 0) {
     console.log(`Cleaned up ${removed} old tasks`)
   }

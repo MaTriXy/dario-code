@@ -174,8 +174,8 @@ export function discoverSkills(projectDir = process.cwd()) {
   }
 
   // Additional directories
-  if (process.env.OPENCLAUDE_ADD_DIRS) {
-    for (const addDir of process.env.OPENCLAUDE_ADD_DIRS.split(':').filter(Boolean)) {
+  if (process.env.DARIO_ADD_DIRS) {
+    for (const addDir of process.env.DARIO_ADD_DIRS.split(':').filter(Boolean)) {
       const addSkillsDir = path.join(addDir, CLAUDE_DIR_NAME, SKILLS_DIR_NAME)
       for (const skill of scanSkillsDir(addSkillsDir, 'additional')) {
         allSkills.set(skill.name, skill)
@@ -253,8 +253,8 @@ export function startSkillsHotReload(projectDir = process.cwd()) {
     path.join(projectDir, CLAUDE_DIR_NAME, SKILLS_DIR_NAME),
   ]
 
-  if (process.env.OPENCLAUDE_ADD_DIRS) {
-    for (const addDir of process.env.OPENCLAUDE_ADD_DIRS.split(':').filter(Boolean)) {
+  if (process.env.DARIO_ADD_DIRS) {
+    for (const addDir of process.env.DARIO_ADD_DIRS.split(':').filter(Boolean)) {
       dirsToWatch.push(path.join(addDir, CLAUDE_DIR_NAME, SKILLS_DIR_NAME))
     }
   }

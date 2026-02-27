@@ -22,7 +22,7 @@ let originalCwd
  * are created in an isolated project folder, not the real one.
  */
 beforeAll(async () => {
-  TEST_CWD = await fs.mkdtemp(path.join(os.tmpdir(), 'openclaude-test-sessions-'))
+  TEST_CWD = await fs.mkdtemp(path.join(os.tmpdir(), 'dario-test-sessions-'))
   PROJECT_DIR = sessions.getProjectDir(TEST_CWD)
   originalCwd = process.cwd
   process.cwd = () => TEST_CWD

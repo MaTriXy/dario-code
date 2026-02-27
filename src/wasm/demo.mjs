@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * WASM UI Demo for Open Claude Code
+ * WASM UI Demo for Dario Code
  * Run this script to see a demo of the WASM UI capabilities
  */
 

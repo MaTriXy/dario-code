@@ -1,5 +1,5 @@
 /**
- * OpenClaude UI Module
+ * Dario UI Module
  * Status line and theme exports used by cli.mjs
  */
 

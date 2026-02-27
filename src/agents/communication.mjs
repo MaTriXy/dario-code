@@ -1,5 +1,5 @@
 /**
- * OpenClaude Agent Communication Module
+ * Dario Agent Communication Module
  *
  * This module handles message formatting and tool result processing between
  * the main agent and the API. It provides utilities for:

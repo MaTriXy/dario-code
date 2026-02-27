@@ -98,7 +98,7 @@ const ids = session.cleanupOldSessions(30)
 ## Storage
 
 ```
-~/.openclaude/sessions/
+~/.dario/sessions/
 ├── session_1732104825123_abc123def456.json
 ├── session_1732104722019_xyz789uvw012.json
 └── session_1732104619847_ghi345jkl678.json
@@ -110,19 +110,19 @@ Each session is a separate JSON file. Directory is auto-created.
 
 ```bash
 # Continue last session
-openclaude --continue
+dario --continue
 
 # Resume specific session
-openclaude --resume session_id
+dario --resume session_id
 
 # Start new session (explicit)
-openclaude --new
+dario --new
 
 # List all sessions
-openclaude --list
+dario --list
 
 # Clean old sessions
-openclaude --cleanup
+dario --cleanup
 ```
 
 ## Proposed Commands
@@ -285,7 +285,7 @@ console.log('Deleted OK')
 2. Update `src/cli/app.mjs` - Handle flags, save after messages
 3. Update `src/cli/commands.mjs` - Add `/resume` command
 4. Test with actual conversations
-5. Export to `globalThis.__openclaude.session` (optional)
+5. Export to `globalThis.__dario.session` (optional)
 
 ## Performance
 
@@ -338,7 +338,7 @@ console.log(`Deleted ${deleted.length} old sessions`)
 ## Notes
 
 - Session IDs are auto-generated: `session_${timestamp}_${randomHash}`
-- Directory auto-created: `~/.openclaude/sessions/`
+- Directory auto-created: `~/.dario/sessions/`
 - No database required: Just JSON files
 - No external dependencies: Uses only Node.js built-ins
 - Thread-safe for basic operations

@@ -1,43 +1,43 @@
 {
-  "name": "openclaude",
+  "name": "dario-code",
   "version": "1.0.0",
   "bin": {
-    "openclaude": "openclaude.mjs",
-    "claude": "cli.mjs"
+    "dario": "dario.mjs",
+    "dario-code": "cli.mjs"
   },
   "engines": {
     "node": ">=18.0.0"
   },
   "type": "module",
-  "author": "OpenClaude Contributors",
+  "author": "Dario Code Contributors",
   "license": "MIT",
-  "description": "Open Claude Code - An open source CLI for Claude. Use Claude AI right from your terminal with full codebase understanding.",
-  "homepage": "https://github.com/jkneen/openclaude",
+  "description": "Dario Code - An open source CLI coding agent for Claude. Use Claude AI right from your terminal with full codebase understanding.",
+  "homepage": "https://github.com/jkneen/dario-code",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jkneen/openclaude.git"
+    "url": "https://github.com/jkneen/dario-code.git"
   },
   "bugs": {
-    "url": "https://github.com/jkneen/openclaude/issues"
+    "url": "https://github.com/jkneen/dario-code/issues"
   },
   "scripts": {
     "start": "./cli.mjs",
-    "dev": "OPENCLAUDE_TUI=claude ./cli.mjs",
-    "dev:minimal": "OPENCLAUDE_TUI=minimal ./cli.mjs",
-    "dev:custom": "OPENCLAUDE_TUI=custom ./cli.mjs",
-    "dev:readable": "OPENCLAUDE_USE_READABLE_TOOLS=1 OPENCLAUDE_TUI=claude ./cli.mjs",
-    "dev:debug": "DEBUG=true OPENCLAUDE_USE_READABLE_TOOLS=1 OPENCLAUDE_TUI=claude ./cli.mjs",
+    "dev": "DARIO_TUI=claude ./cli.mjs",
+    "dev:minimal": "DARIO_TUI=minimal ./cli.mjs",
+    "dev:custom": "DARIO_TUI=custom ./cli.mjs",
+    "dev:readable": "DARIO_USE_READABLE_TOOLS=1 DARIO_TUI=claude ./cli.mjs",
+    "dev:debug": "DEBUG=true DARIO_USE_READABLE_TOOLS=1 DARIO_TUI=claude ./cli.mjs",
     "tui:list": "echo 'Available TUIs:' && ls -1 src/tui/ | grep -v interface.mjs | grep -v loader.mjs",
     "test": "node tests/integration.test.mjs",
     "test:unit": "vitest run",
-    "test:readable": "OPENCLAUDE_USE_READABLE_TOOLS=1 node tests/integration.test.mjs",
-    "test:debug": "DEBUG=true OPENCLAUDE_USE_READABLE_TOOLS=1 node tests/integration.test.mjs",
+    "test:readable": "DARIO_USE_READABLE_TOOLS=1 node tests/integration.test.mjs",
+    "test:debug": "DEBUG=true DARIO_USE_READABLE_TOOLS=1 node tests/integration.test.mjs",
     "test:all": "npm test && npm run test:unit"
   },
   "main": "src/index.mjs",
   "files": [
     "cli.mjs",
-    "openclaude.mjs",
+    "dario.mjs",
     "src/**/*",
     "docs/**/*"
   ],

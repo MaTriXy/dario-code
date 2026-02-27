@@ -9,7 +9,7 @@ import path from 'path'
 import os from 'os'
 
 // Path to approved tools config
-const APPROVED_TOOLS_PATH = path.join(os.homedir(), '.openclaude', 'approved-tools.json')
+const APPROVED_TOOLS_PATH = path.join(os.homedir(), '.dario', 'approved-tools.json')
 
 /**
  * Execute a tool use
@@ -359,7 +359,7 @@ export function hasPermissionsToUseTool(toolName) {
 }
 
 /**
- * Load the approved-tools list from ~/.openclaude/approved-tools.json.
+ * Load the approved-tools list from ~/.dario/approved-tools.json.
  * Returns an empty array when the file is missing or corrupt.
  *
  * @returns {string[]}

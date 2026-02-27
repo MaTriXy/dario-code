@@ -122,7 +122,7 @@
 
 ## Remaining Gaps (Only 5 Features)
 
-1. **`mcp serve`** - Not applicable (OpenClaude is MCP client, not server)
+1. **`mcp serve`** - Not applicable (Dario is MCP client, not server)
 2. **Message selector** - Fork conversation UI (power user feature)
 3. **Full keyboard modes** - Complete Emacs/Vim implementations
 4. **`doctor`** - Health check command
@@ -170,7 +170,7 @@ All implemented features tested successfully:
 
 ## Next Steps
 
-**OpenClaude is now FEATURE-COMPLETE for all essential CLI operations.**
+**Dario is now FEATURE-COMPLETE for all essential CLI operations.**
 
 Remaining work is purely optional UI polish:
 1. Message selector UI (conversation forking) - Power user feature

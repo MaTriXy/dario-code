@@ -2,7 +2,7 @@
   "name": "code-stats",
   "version": "1.0.0",
   "description": "Counts lines of code, functions, and classes across your project. Adds a line_counter tool.",
-  "author": "openclaude",
+  "author": "dario",
   "license": "MIT",
   "entry": "index.mjs",
   "commands": [],

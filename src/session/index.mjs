@@ -1,5 +1,5 @@
 /**
- * Session management module for OpenClaude
+ * Session management module for Dario
  * Exports all session-related functions
  */
 

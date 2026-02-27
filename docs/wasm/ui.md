@@ -1,6 +1,6 @@
 # WASM UI Framework
 
-The Open Claude Code WASM UI framework provides a flexible, efficient way to create rich terminal user interfaces powered by WebAssembly. This document explains how to use the framework and its components.
+The Dario Code WASM UI framework provides a flexible, efficient way to create rich terminal user interfaces powered by WebAssembly. This document explains how to use the framework and its components.
 
 ## Architecture
 

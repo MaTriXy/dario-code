@@ -1,5 +1,5 @@
 /**
- * Todo List Module for OpenClaude
+ * Todo List Module for Dario
  *
  * Provides todo list functionality for tracking tasks during a session.
  * The AI can write/update todos, and users can view them in the UI.

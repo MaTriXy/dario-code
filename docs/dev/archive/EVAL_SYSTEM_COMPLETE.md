@@ -6,7 +6,7 @@
 ```bash
 node cli.mjs -p "Your prompt" --output-format stream-json
 ```
-- Matches Open Claude Code API exactly
+- Matches Dario Code API exactly
 - Outputs JSON lines for each message
 - Works like subagents
 
@@ -48,7 +48,7 @@ node cli.mjs -p "Your prompt" --output-format stream-json
 
 ### Iteration 3: Verify
 - Confirmed stream-json working
-- Verified CLI matches Open Claude Code
+- Verified CLI matches Dario Code
 - All components functional
 
 ### Iteration 4: Prove Loop

@@ -2,7 +2,7 @@
 
 ## Project Completion
 
-Sandbox Mode for OpenClaude has been fully implemented with comprehensive security features, extensive documentation, and production-ready code.
+Sandbox Mode for Dario has been fully implemented with comprehensive security features, extensive documentation, and production-ready code.
 
 ## What Was Delivered
 
@@ -53,7 +53,7 @@ Sandbox Mode for OpenClaude has been fully implemented with comprehensive securi
 #### 3. cli.mjs (Modified)
 **Changes**:
 - Added sandbox module import (line 40)
-- Exported all functions to `globalThis.__openclaude.sandbox` (lines 125-136)
+- Exported all functions to `globalThis.__dario.sandbox` (lines 125-136)
 - Functions accessible globally for tools and extensions
 
 ### Documentation (4 files, 1,350 lines)
@@ -184,7 +184,7 @@ Quick reference for developers
 
 All functions available via:
 ```javascript
-globalThis.__openclaude.sandbox.functionName()
+globalThis.__dario.sandbox.functionName()
 ```
 
 Or imported directly:
@@ -195,7 +195,7 @@ import { functionName } from './src/sandbox/index.mjs'
 ## File Structure
 
 ```
-open_claude_code/
+dario_code/
 ├── src/
 │   └── sandbox/
 │       ├── sandbox.mjs          (408 lines - core implementation)

@@ -1,10 +1,10 @@
 # WASM Integration Points
 
-This document describes how the WebAssembly components integrate with the rest of the Open Claude Code application.
+This document describes how the WebAssembly components integrate with the rest of the Dario Code application.
 
 ## Overview
 
-The WASM components in Open Claude Code are integrated at several key points:
+The WASM components in Dario Code are integrated at several key points:
 
 1. **Initialization**: Loading WASM modules at startup
 2. **Terminal UI**: Rendering the terminal interface
@@ -229,7 +229,7 @@ export async function createConversationUI(conversation, sendMessage) {
 
 ## Fallback Mechanisms
 
-Open Claude Code implements a robust, multi-layered fallback system for when WebAssembly is not available or fails to load:
+Dario Code implements a robust, multi-layered fallback system for when WebAssembly is not available or fails to load:
 
 1. **Mock Implementation**: Instead of attempting to load the actual WASM module, a JavaScript mock implementation is used
 2. **Error Recovery**: Each component has error handling that ensures the application continues to function

@@ -1,5 +1,5 @@
 /**
- * Sandbox Module for OpenClaude
+ * Sandbox Module for Dario
  *
  * Exports all sandbox functionality for command execution security
  */

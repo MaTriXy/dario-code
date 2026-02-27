@@ -143,8 +143,8 @@ export function discoverAgents(projectDir = process.cwd()) {
   searchDirs.push({ dir: projectAgentsDir, scope: 'project' })
 
   // Additional directories
-  if (process.env.OPENCLAUDE_ADD_DIRS) {
-    for (const addDir of process.env.OPENCLAUDE_ADD_DIRS.split(':').filter(Boolean)) {
+  if (process.env.DARIO_ADD_DIRS) {
+    for (const addDir of process.env.DARIO_ADD_DIRS.split(':').filter(Boolean)) {
       const addAgentsDir = path.join(addDir, '.claude', 'agents')
       searchDirs.push({ dir: addAgentsDir, scope: 'additional' })
     }

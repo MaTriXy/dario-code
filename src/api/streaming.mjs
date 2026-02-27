@@ -379,7 +379,7 @@ export async function* streamConversation(
     }
 
     // Check max turns limit (--max-turns flag)
-    const maxTurns = parseInt(process.env.OPENCLAUDE_MAX_TURNS || '0', 10)
+    const maxTurns = parseInt(process.env.DARIO_MAX_TURNS || '0', 10)
     if (maxTurns > 0 && sessionUsage.turns >= maxTurns) {
       // Hit turn limit — yield final message and stop
       if (toolUses.length > 0) {

@@ -2,7 +2,7 @@
 
 ## Overview
 
-A complete background task management system has been implemented for OpenClaude, enabling long-running commands to execute without blocking the main conversation loop.
+A complete background task management system has been implemented for Dario, enabling long-running commands to execute without blocking the main conversation loop.
 
 ## Files Created
 
@@ -60,11 +60,11 @@ Updated main CLI entry point to integrate background tasks
 **Additions:**
 - Import of all background task functions and constants
 - Setup hook for process cleanup on exit
-- Export to `globalThis.__openclaude.tasks` object
+- Export to `globalThis.__dario.tasks` object
 
 **New Global API:**
 ```javascript
-globalThis.__openclaude.tasks = {
+globalThis.__dario.tasks = {
   TaskStatus,           // Enum: RUNNING, COMPLETED, FAILED, KILLED
   manager,              // BackgroundTaskManager instance
   spawn,                // spawnBackgroundTask function
@@ -168,32 +168,32 @@ All functionality has been tested and verified:
 
 ### Spawn a Background Task
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test')
+const task = globalThis.__dario.tasks.spawn('npm test')
 console.log(`Task ${task.id} spawned with PID ${task.pid}`)
 ```
 
 ### Wait for Task Completion
 ```javascript
-const completed = await globalThis.__openclaude.tasks.wait(taskId, 30000)
+const completed = await globalThis.__dario.tasks.wait(taskId, 30000)
 console.log(`Task finished: ${completed.status}`)
 ```
 
 ### Retrieve Task Output
 ```javascript
-const output = globalThis.__openclaude.tasks.getOutputAsString(taskId)
+const output = globalThis.__dario.tasks.getOutputAsString(taskId)
 console.log('Output:')
 console.log(output)
 ```
 
 ### List Running Tasks
 ```javascript
-const running = globalThis.__openclaude.tasks.list({ status: 'running' })
+const running = globalThis.__dario.tasks.list({ status: 'running' })
 console.log(`${running.length} tasks currently running`)
 ```
 
 ### Monitor Task Statistics
 ```javascript
-const stats = globalThis.__openclaude.tasks.getStatistics()
+const stats = globalThis.__dario.tasks.getStatistics()
 console.log(`Total: ${stats.total}, Running: ${stats.running}`)
 ```
 
@@ -201,7 +201,7 @@ console.log(`Total: ${stats.total}, Running: ${stats.running}`)
 
 The background task system is integrated at multiple levels:
 
-1. **Global API**: Available via `globalThis.__openclaude.tasks`
+1. **Global API**: Available via `globalThis.__dario.tasks`
 2. **Module Import**: Can be imported directly from `src/tasks/index.mjs`
 3. **Process Lifecycle**: Hooks into CLI exit handlers for cleanup
 4. **Event System**: Can listen to task events via the manager instance
@@ -243,6 +243,6 @@ The background task system is integrated at multiple levels:
 
 ## Summary
 
-The background task management system provides a robust, production-ready foundation for managing long-running processes in OpenClaude. It follows Node.js conventions, integrates cleanly with the existing codebase, and provides a comprehensive API for task management, output buffering, and event handling.
+The background task management system provides a robust, production-ready foundation for managing long-running processes in Dario. It follows Node.js conventions, integrates cleanly with the existing codebase, and provides a comprehensive API for task management, output buffering, and event handling.
 
-All code is syntactically valid, thoroughly tested, and ready for integration into the Open Claude Code platform.
+All code is syntactically valid, thoroughly tested, and ready for integration into the Dario Code platform.

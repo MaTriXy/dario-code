@@ -1,6 +1,6 @@
-# Template Plugin for OpenClaude
+# Template Plugin for Dario
 
-This is a template plugin demonstrating the structure and capabilities of the OpenClaude plugin system.
+This is a template plugin demonstrating the structure and capabilities of the Dario plugin system.
 
 ## Structure
 
@@ -141,8 +141,8 @@ Plugins can define default configuration values:
 
 Configuration is merged from multiple sources:
 1. Plugin manifest defaults
-2. Global settings in ~/.openclaude/settings.json
-3. Project-specific settings in .openclaude/settings.json
+2. Global settings in ~/.dario/settings.json
+3. Project-specific settings in .dario/settings.json
 
 ## Installation
 
@@ -183,4 +183,4 @@ See the template files in this directory for a complete example.
 ## Resources
 
 - [Plugin System Documentation](../../docs/plugins.md)
-- [OpenClaude GitHub](https://github.com/jkneen/openclaude)
+- [Dario GitHub](https://github.com/jkneen/dario)

@@ -1,6 +1,6 @@
 # Error Handling Utilities
 
-Centralized error handling system for OpenClaude with custom error types, formatting, and utilities.
+Centralized error handling system for Dario with custom error types, formatting, and utilities.
 
 ## Custom Error Classes
 

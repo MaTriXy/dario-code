@@ -1,21 +1,21 @@
 # WebAssembly Components Overview
 
-Open Claude Code uses WebAssembly (WASM) to enhance terminal rendering capabilities and achieve consistent UI experiences across different platforms. This document provides an overview of the WASM components used in Open Claude Code.
+Dario Code uses WebAssembly (WASM) to enhance terminal rendering capabilities and achieve consistent UI experiences across different platforms. This document provides an overview of the WASM components used in Dario Code.
 
 ## What is WebAssembly?
 
 WebAssembly is a binary instruction format designed as a portable target for the compilation of high-level languages like C, C++, and Rust. It enables deployment on the web for client and server applications.
 
-In Open Claude Code, WebAssembly allows us to:
+In Dario Code, WebAssembly allows us to:
 - Use complex layout algorithms efficiently in a terminal environment
 - Provide consistent rendering across different terminal emulators
 - Achieve near-native performance for computationally intensive tasks
 
-## WASM Components in Open Claude Code
+## WASM Components in Dario Code
 
 ### 1. Yoga Layout Engine
 
-The primary WASM component in Open Claude Code is the [Yoga Layout Engine](https://yogalayout.com/), a cross-platform layout engine that implements Flexbox.
+The primary WASM component in Dario Code is the [Yoga Layout Engine](https://yogalayout.com/), a cross-platform layout engine that implements Flexbox.
 
 #### Implementation Details
 
@@ -25,7 +25,7 @@ The primary WASM component in Open Claude Code is the [Yoga Layout Engine](https
 
 #### Purpose
 
-Yoga enables Open Claude Code to:
+Yoga enables Dario Code to:
 - Create complex, responsive terminal layouts
 - Calculate precise text positioning
 - Maintain consistent rendering across platforms
@@ -54,7 +54,7 @@ console.log(node.getComputedLeft(), node.getComputedTop());
 
 ### 2. Text Processing Components
 
-For advanced text handling, Open Claude Code uses custom WASM modules for:
+For advanced text handling, Dario Code uses custom WASM modules for:
 
 1. **Syntax Highlighting**: Optimized code highlighting for multiple languages
 2. **Unicode Processing**: Efficient handling of complex Unicode operations
@@ -62,7 +62,7 @@ For advanced text handling, Open Claude Code uses custom WASM modules for:
 
 ## WASM Loading and Error Handling
 
-Open Claude Code implements a sophisticated strategy for WASM module management:
+Dario Code implements a sophisticated strategy for WASM module management:
 
 1. **Lazy Loading**: WASM components are loaded only when needed
 2. **Caching**: Modules are cached in memory for subsequent use
@@ -105,7 +105,7 @@ WebAssembly modules require careful memory management:
 └────────────────────────────────┘
 ```
 
-Open Claude Code follows these memory management practices:
+Dario Code follows these memory management practices:
 - Explicit deallocation of WASM-allocated objects
 - Reference counting for shared resources
 - Periodic garbage collection triggers
@@ -141,7 +141,7 @@ For debugging WASM components and their fallbacks:
    NODE_OPTIONS='--experimental-wasm-eh' DEBUG=claude:wasm* claude
    ```
 
-2. Use the `/debug wasm` command within Open Claude Code to get runtime statistics.
+2. Use the `/debug wasm` command within Dario Code to get runtime statistics.
 
 3. For testing fallback mechanisms, you can force the system to use fallbacks:
    ```
@@ -172,5 +172,5 @@ Planned enhancements for WASM components:
 ## Related Documentation
 
 - [Yoga Layout Engine](./yoga.md) - Detailed documentation on Yoga integration
-- [WASM Integration Points](./integration.md) - How WASM interfaces with the rest of Open Claude Code
+- [WASM Integration Points](./integration.md) - How WASM interfaces with the rest of Dario Code
 - [UI Rendering System](../components/rendering.md) - How WASM is used in the rendering pipeline

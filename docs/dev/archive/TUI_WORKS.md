@@ -2,11 +2,11 @@
 
 ## Current Status
 
-The modular Open Claude Code TUI is **RENDERING** successfully!
+The modular Dario Code TUI is **RENDERING** successfully!
 
 ### What Works
 - ✅ TUI loads and renders
-- ✅ Shows Open Claude Code interface
+- ✅ Shows Dario Code interface
 - ✅ Input prompt with box
 - ✅ Instructions (Enter to send, Shift+Enter, Esc)
 - ✅ Uses clean npm packages (React, Ink)
@@ -14,8 +14,8 @@ The modular Open Claude Code TUI is **RENDERING** successfully!
 
 ### Test Output
 ```
-Open Claude Code
-Working directory: /Users/jkneen/Documents/GitHub/flows/open-claude-code/open_claude_code
+Dario Code
+Working directory: /Users/jkneen/Documents/GitHub/flows/dario-code/dario_code
 
 ┌────────────────────────────────────────────────────────────────┐
 │                                                                │

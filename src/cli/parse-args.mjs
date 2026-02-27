@@ -46,7 +46,7 @@ export function parseArgs(argv) {
  */
 export function printHelp() {
   console.log(`
-Usage: openclaude [options]
+Usage: dario [options]
 
 Options:
   -h, --help           Show this help message

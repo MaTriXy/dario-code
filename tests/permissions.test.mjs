@@ -15,7 +15,7 @@ import fs from 'fs'
 import path from 'path'
 import os from 'os'
 
-const APPROVED_TOOLS_PATH = path.join(os.homedir(), '.openclaude', 'approved-tools.json')
+const APPROVED_TOOLS_PATH = path.join(os.homedir(), '.dario', 'approved-tools.json')
 
 describe('Permission System', () => {
   let originalContent = null

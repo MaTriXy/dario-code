@@ -1,5 +1,5 @@
 /**
- * Eval Runner - Run OpenClaude CLI and capture streaming logs
+ * Eval Runner - Run Dario CLI and capture streaming logs
  */
 
 import { spawn } from 'child_process'

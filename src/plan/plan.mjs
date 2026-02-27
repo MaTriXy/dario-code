@@ -1,5 +1,5 @@
 /**
- * OpenClaude Plan Mode
+ * Dario Plan Mode
  *
  * Provides planning functionality for complex multi-step tasks:
  * - EnterPlanMode: Transitions to planning phase
@@ -25,7 +25,7 @@ let currentPlan = null
 let planMode = false
 
 // Default plan directory
-const PLAN_DIR = path.join(os.homedir(), '.openclaude', 'plans')
+const PLAN_DIR = path.join(os.homedir(), '.dario', 'plans')
 
 // Plan status
 export const PlanStatus = {

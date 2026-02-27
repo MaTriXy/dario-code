@@ -1,12 +1,12 @@
 /**
- * OpenClaude Core Initialization Module
+ * Dario Core Initialization Module
  *
  * This module provides the readable implementations of the core initialization
  * functions found in cli.mjs lines 1-315. These functions handle:
  *
  * 1. Environment variable loading from .env files
  * 2. Process exit handlers for cleanup hooks
- * 3. Global API namespace setup (__openclaude and __openclaudeHooks)
+ * 3. Global API namespace setup (__dario and __darioHooks)
  *
  * which are expanded here with full documentation and error handling.
  *
@@ -119,7 +119,7 @@ export function loadEnvFile(envPath) {
  *
  * Files are loaded in this order (first wins for each variable):
  * 1. Current working directory .env
- * 2. ~/.openclaude/.env
+ * 2. ~/.dario/.env
  * 3. ~/.env
  *
  * This matches the behavior in cli.mjs lines 23-25.
@@ -142,7 +142,7 @@ export function loadAllEnvFiles(cwd = process.cwd()) {
   // Load in priority order
   const envPaths = [
     join(cwd, '.env'),
-    join(home, '.openclaude', '.env'),
+    join(home, '.dario', '.env'),
     join(home, '.env')
   ]
 
@@ -260,12 +260,12 @@ export function registerExitHandlers(verbose = false) {
  * Global Hooks API
  *
  * This object provides the hook functions for tool integration.
- * It corresponds to globalThis.__openclaudeHooks in cli.mjs lines 119-144.
+ * It corresponds to globalThis.__darioHooks in cli.mjs lines 119-144.
  *
  * The API is exposed globally for use by tools and plugins that need
  * to check permissions or notify about tool execution.
  *
- * @typedef {Object} OpenClaudeHooksAPI
+ * @typedef {Object} DarioHooksAPI
  * @property {Function} runPreToolUse - Run pre-tool-use hooks
  * @property {Function} runPostToolUse - Run post-tool-use hooks
  * @property {Function} runSessionStart - Run session start hooks
@@ -274,7 +274,7 @@ export function registerExitHandlers(verbose = false) {
  * @property {Function} checkToolAllowed - Helper to check if tool is allowed
  * @property {Function} notifyToolComplete - Helper to notify tool completion
  */
-export const openclaudeHooksAPI = {
+export const darioHooksAPI = {
   runPreToolUse,
   runPostToolUse,
   runSessionStart,
@@ -337,15 +337,15 @@ export const openclaudeHooksAPI = {
 }
 
 /**
- * Initialize the OpenClaude global namespace
+ * Initialize the Dario global namespace
  *
- * This function sets up the globalThis.__openclaude and globalThis.__openclaudeHooks
+ * This function sets up the globalThis.__dario and globalThis.__darioHooks
  * objects that provide the runtime API for tools, plugins, and integrations.
  *
  * The structure matches cli.mjs lines 119-315.
  *
  * @param {Object} subsystems - All imported subsystems to expose
- * @returns {Object} The initialized __openclaude object
+ * @returns {Object} The initialized __dario object
  *
  * @example
  * const api = initializeGlobalAPI({
@@ -356,11 +356,11 @@ export const openclaudeHooksAPI = {
  */
 export function initializeGlobalAPI(subsystems = {}) {
   // Set up hooks API first
-  globalThis.__openclaudeHooks = openclaudeHooksAPI
+  globalThis.__darioHooks = darioHooksAPI
 
   // Set up main API namespace
-  globalThis.__openclaude = {
-    hooks: globalThis.__openclaudeHooks,
+  globalThis.__dario = {
+    hooks: globalThis.__darioHooks,
 
     // Plan mode management
     plan: subsystems.plan || {},
@@ -508,7 +508,7 @@ export function initializeGlobalAPI(subsystems = {}) {
     }
   }
 
-  return globalThis.__openclaude
+  return globalThis.__dario
 }
 
 /**
@@ -573,7 +573,7 @@ export default {
   runStopHooks,
   resetStopHooksState,
   registerExitHandlers,
-  openclaudeHooksAPI,
+  darioHooksAPI,
   initializeGlobalAPI,
   initialize
 }

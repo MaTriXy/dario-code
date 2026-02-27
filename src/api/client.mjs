@@ -19,16 +19,16 @@ let clientInstance = null
  * Falls back to synchronous reads if async isn't available.
  *
  * Priority:
- *   1. ~/.openclaude/oauth-token.json  (OpenClaude's own token file)
- *   2. ~/.openclaude/config.json       (oauthTokens field)
+ *   1. ~/.dario/oauth-token.json  (Dario's own token file)
+ *   2. ~/.dario/config.json       (oauthTokens field)
  *   3. ~/.claude/.credentials.json     (shared credentials)
  */
 function setupOAuthToken() {
   const BUFFER_MS = 5 * 60 * 1000 // 5 minute expiry buffer
 
   try {
-    // 1. OpenClaude token file
-    const tokenPath = path.join(os.homedir(), '.openclaude', 'oauth-token.json')
+    // 1. Dario token file
+    const tokenPath = path.join(os.homedir(), '.dario', 'oauth-token.json')
     if (fs.existsSync(tokenPath)) {
       const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'))
       if (tokenData.access_token) {
@@ -44,8 +44,8 @@ function setupOAuthToken() {
       }
     }
 
-    // 2. OpenClaude config
-    const configPath = path.join(os.homedir(), '.openclaude', 'config.json')
+    // 2. Dario config
+    const configPath = path.join(os.homedir(), '.dario', 'config.json')
     if (fs.existsSync(configPath)) {
       const config = JSON.parse(fs.readFileSync(configPath, 'utf8'))
       if (config.oauthTokens?.access) {
@@ -197,7 +197,7 @@ function createOAuthClient(oauthToken) {
 function isTokenNearExpiry() {
   const BUFFER_MS = 5 * 60 * 1000
   try {
-    const tokenPath = path.join(os.homedir(), '.openclaude', 'oauth-token.json')
+    const tokenPath = path.join(os.homedir(), '.dario', 'oauth-token.json')
     if (fs.existsSync(tokenPath)) {
       const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'))
       const expiresAt = tokenData.expires || (tokenData.savedAt + 3600000)

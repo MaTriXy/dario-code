@@ -1,11 +1,11 @@
 /**
- * Open Claude Code Theme
+ * Dario Code Theme
  *
- * Visual style for Open Claude Code
+ * Visual style for Dario Code
  */
 
 /**
- * Open Claude Code color palette
+ * Dario Code color palette
  * Theme color palette
  */
 export const CLAUDE_COLORS = {

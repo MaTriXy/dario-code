@@ -32,7 +32,7 @@ describe('Tool Execution', () => {
     }
 
     // Create temp directory for tests
-    tempDir = path.join(os.tmpdir(), `openclaude-test-${Date.now()}`)
+    tempDir = path.join(os.tmpdir(), `dario-test-${Date.now()}`)
     await fs.mkdir(tempDir, { recursive: true })
   })
 

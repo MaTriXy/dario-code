@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * First-time installation script for Open Claude Code CLI
+ * First-time installation script for Dario Code CLI
  * - Verifies environment
  * - Installs dependencies
  * - Sets up configuration
@@ -35,7 +35,7 @@ async function checkNodeVersion() {
   const currentVersion = process.version.slice(1); // Remove the 'v' prefix
 
   if (compareVersions(currentVersion, requiredVersion) < 0) {
-    console.error(`❌ Error: Open Claude Code requires Node.js v${requiredVersion} or higher.`);
+    console.error(`❌ Error: Dario Code requires Node.js v${requiredVersion} or higher.`);
     console.error(`   Current version: ${process.version}`);
     console.error('   Please upgrade Node.js and try again.');
     return false;

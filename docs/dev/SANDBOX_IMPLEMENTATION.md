@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implemented comprehensive bash command sandboxing for OpenClaude using macOS `sandbox-exec` with security-critical escape detection and configurable permission boundaries.
+Implemented comprehensive bash command sandboxing for Dario using macOS `sandbox-exec` with security-critical escape detection and configurable permission boundaries.
 
 ## Files Created
 
@@ -41,7 +41,7 @@ Module export wrapper providing:
 ### 3. cli.mjs (Modified)
 Integration changes:
 - Added sandbox module import (line 40)
-- Exported to globalThis.__openclaude.sandbox (lines 125-136)
+- Exported to globalThis.__dario.sandbox (lines 125-136)
 - 10 sandbox functions available globally
 
 ### 4. SANDBOX_USAGE.md (Comprehensive Documentation)
@@ -123,7 +123,7 @@ Escape Detection (12+ patterns)
 ### Configuration Flow
 
 ```
-User Settings (~/.openclaude/settings.json)
+User Settings (~/.dario/settings.json)
     ↓
 getSandboxSettings()
     ↓
@@ -174,7 +174,7 @@ executeWithSandbox() [runs command]
 All functions available via:
 
 ```javascript
-globalThis.__openclaude.sandbox.functionName()
+globalThis.__dario.sandbox.functionName()
 
 // Or import directly:
 import { functionName } from './src/sandbox/index.mjs'
@@ -248,7 +248,7 @@ Modify `src/tools/bash.mjs` to use `executeWithSandbox()` instead of direct exec
 Add escape detection to `validateInput()` methods.
 
 ### Configuration
-Support sandbox settings in `settings.json` and `.openclaude/` config.
+Support sandbox settings in `settings.json` and `.dario/` config.
 
 ### Error Handling
 Track sandbox escape attempts in logging/analytics.

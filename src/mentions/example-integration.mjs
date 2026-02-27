@@ -1,5 +1,5 @@
 /**
- * Example Integration of Mentions Module into OpenClaude
+ * Example Integration of Mentions Module into Dario
  *
  * This file shows how to integrate the mentions module into the main
  * application's conversation loop (src/cli/app.mjs).
@@ -136,10 +136,10 @@ Example 4: Relative path
 CLAUDE.md (1.5 KB, 35 lines)
 
 Example 5: Home directory
-> Check ~/.openclaude/config.json for settings
+> Check ~/.dario/config.json for settings
 
 -- Files included --
-~/.openclaude/config.json (856 B, 18 lines)
+~/.dario/config.json (856 B, 18 lines)
 */
 
 // ============================================================================

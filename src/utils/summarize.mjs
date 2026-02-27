@@ -7,13 +7,13 @@ import { createMessage } from './messages.mjs';
 
 /**
  * Resolve the model to use for summarization.
- * Uses OPENCLAUDE_COMPACT_MODEL env var if set, otherwise falls back to
+ * Uses DARIO_COMPACT_MODEL env var if set, otherwise falls back to
  * claude-haiku-4-5 or the current session model — whichever is cheaper.
  * Avoids hardcoding a specific dated model string.
  */
 function getSummarizationModel() {
-  if (process.env.OPENCLAUDE_COMPACT_MODEL) {
-    return process.env.OPENCLAUDE_COMPACT_MODEL;
+  if (process.env.DARIO_COMPACT_MODEL) {
+    return process.env.DARIO_COMPACT_MODEL;
   }
   // Prefer a fast/cheap model; fall back gracefully if config unavailable
   try {

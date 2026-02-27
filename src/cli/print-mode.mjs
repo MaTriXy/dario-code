@@ -49,7 +49,7 @@ export async function runPrintMode(prompt, options = {}) {
 
     // Built-in print-mode-only commands
     if (cmdName === 'version') {
-      console.log(`OpenClaude version: ${options.version || '1.0.0'}`)
+      console.log(`Dario version: ${options.version || '1.0.0'}`)
       process.exit(0)
       return
     } else if (cmdName === 'help') {

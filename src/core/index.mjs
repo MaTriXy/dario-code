@@ -1,5 +1,5 @@
 /**
- * Core Module for OpenClaude
+ * Core Module for Dario
  *
  * Exports utilities, configuration, hooks, initialization, and shared functionality.
  */
@@ -61,7 +61,7 @@ import {
   loadAllEnvFiles,
   runStopHooks,
   registerExitHandlers,
-  openclaudeHooksAPI,
+  darioHooksAPI,
   initializeGlobalAPI,
   initialize
 } from './init.mjs'
@@ -104,7 +104,7 @@ export {
   loadAllEnvFiles,
   runStopHooks,
   registerExitHandlers,
-  openclaudeHooksAPI,
+  darioHooksAPI,
   initializeGlobalAPI,
   initialize
 }

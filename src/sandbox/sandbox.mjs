@@ -1,5 +1,5 @@
 /**
- * Sandbox Mode for OpenClaude
+ * Sandbox Mode for Dario
  *
  * Implements bash command sandboxing using macOS sandbox-exec for security.
  * Provides permission boundaries and escape detection.

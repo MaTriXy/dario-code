@@ -4,7 +4,7 @@
 
 ### Access the Module
 ```javascript
-const sandbox = globalThis.__openclaude.sandbox
+const sandbox = globalThis.__dario.sandbox
 ```
 
 ### Check Escape Attempts
@@ -87,7 +87,7 @@ const merged = sandbox.applySandboxSettings(
 
 ## Configuration
 
-### ~/.openclaude/settings.json
+### ~/.dario/settings.json
 ```json
 {
   "sandbox": {
@@ -121,7 +121,7 @@ const merged = sandbox.applySandboxSettings(
 
 ### Example 1: Simple Execution
 ```javascript
-const sandbox = globalThis.__openclaude.sandbox
+const sandbox = globalThis.__dario.sandbox
 const result = sandbox.executeWithSandbox('ls -la')
 console.log(result.stdout)
 ```

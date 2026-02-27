@@ -55,7 +55,7 @@ console.log()
 
 // Test 5: Parse home directory reference
 console.log('Test 5: Home directory expansion')
-const input5 = 'Check @~/.openclaude/config.json'
+const input5 = 'Check @~/.dario/config.json'
 const mentions5 = parseMentions(input5)
 console.log('Input:', input5)
 console.log('Found mentions:', mentions5.length)

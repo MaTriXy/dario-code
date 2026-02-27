@@ -1,6 +1,6 @@
 # Mentions Module
 
-This module provides @-mention support for OpenClaude, allowing users to reference files in their prompts with automatic content injection.
+This module provides @-mention support for Dario, allowing users to reference files in their prompts with automatic content injection.
 
 ## Features
 
@@ -384,4 +384,4 @@ Image paste requires:
 
 ## License
 
-This module is part of OpenClaude and follows the same license terms.
+This module is part of Dario and follows the same license terms.

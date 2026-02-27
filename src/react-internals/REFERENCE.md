@@ -12,7 +12,7 @@ Chunk 5 contains the heart of React's reconciliation engine:
 - Error boundaries and Suspense handling
 - DOM mutation operations
 
-Source: `/Users/jkneen/Documents/GitHub/flows/open-claude-code/open_claude_code/chunks/chunk-05-analysis.json`
+Source: `/Users/jkneen/Documents/GitHub/flows/dario-code/dario_code/chunks/chunk-05-analysis.json`
 
 ---
 

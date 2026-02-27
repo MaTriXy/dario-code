@@ -1,4 +1,4 @@
-# Open Claude Code — Gap Analysis
+# Dario Code — Gap Analysis
 
 **Local Version**: 1.0.0
 **Reference**: Claude Code 2.1.50+
@@ -147,8 +147,8 @@ These are internal code quality issues discovered during this audit — not feat
 | Background task graph | Async tasks with dependency tracking and `/tasks` UI |
 | Multiple TUI variants | `claude` / `minimal` / `custom` switchable at runtime |
 | WebSearch + WebFetch built-in | No MCP config required |
-| Dual config reading | Reads `~/.openclaude/` + `~/.claude/` with source badges |
-| Readable tools dev mode | `OPENCLAUDE_USE_READABLE_TOOLS=1` for debugging |
+| Dual config reading | Reads `~/.dario/` + `~/.claude/` with source badges |
+| Readable tools dev mode | `DARIO_USE_READABLE_TOOLS=1` for debugging |
 | WASM/Yoga layout engine | Alternative rendering backend via WebAssembly |
 | Eval system | Built-in evaluation runner for testing agent behaviour |
 

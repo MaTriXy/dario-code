@@ -1,5 +1,5 @@
 /**
- * Message utilities for Open Claude Code
+ * Message utilities for Dario Code
  */
 
 import { randomUUID } from 'crypto'

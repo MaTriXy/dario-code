@@ -1,4 +1,4 @@
-# 🚀 91% Feature Parity - OpenClaude Feature Complete
+# 🚀 91% Feature Parity - Dario Feature Complete
 
 ## Milestone Achieved: 100/110 Features Implemented
 
@@ -120,7 +120,7 @@ Complete auth with OAuth, API keys, login/logout commands.
 ## Remaining Gaps Analysis
 
 ### Not Implemented (3 features)
-1. **`mcp serve`** - N/A (OpenClaude is client, not server)
+1. **`mcp serve`** - N/A (Dario is client, not server)
 2. **Auto-updater** - N/A for open source project
 3. **Full Vim mode** - Basic navigation exists, modal editing missing
 
@@ -179,7 +179,7 @@ Features that don't apply to open source CLI (auto-update, mcp serve).
 
 ## Comparison to Official CLI
 
-**What OpenClaude Has:**
+**What Dario Has:**
 - ✓ Same core functionality
 - ✓ Same tool set
 - ✓ Same authentication
@@ -232,5 +232,5 @@ Features that don't apply to open source CLI (auto-update, mcp serve).
 
 ---
 
-**CONCLUSION: OpenClaude is production-ready with 91% feature parity representing 100% of essential functionality. Ship it!** 🚀
+**CONCLUSION: Dario is production-ready with 91% feature parity representing 100% of essential functionality. Ship it!** 🚀
 

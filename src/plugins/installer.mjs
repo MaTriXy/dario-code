@@ -11,7 +11,7 @@ import { registerPlugin } from './registry.mjs'
 import { getPluginsDir, getPluginDir } from './registry.mjs'
 import { validateManifest } from './manifest.mjs'
 
-const TEMP_DIR = path.join(os.tmpdir(), 'openclaude-plugins')
+const TEMP_DIR = path.join(os.tmpdir(), 'dario-plugins')
 
 /**
  * Install a plugin from npm registry

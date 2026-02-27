@@ -5,7 +5,7 @@ import path from 'path'
 import os from 'os'
 
 // Load OAuth token
-const tokenPath = path.join(os.homedir(), '.openclaude', 'oauth-token.json')
+const tokenPath = path.join(os.homedir(), '.dario', 'oauth-token.json')
 const tokenData = JSON.parse(fs.readFileSync(tokenPath, 'utf8'))
 const token = tokenData.access_token
 

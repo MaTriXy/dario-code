@@ -1,6 +1,6 @@
-# OpenClaude Plugin System
+# Dario Plugin System
 
-The plugin system allows developers to extend OpenClaude with custom functionality through a standardized plugin interface.
+The plugin system allows developers to extend Dario with custom functionality through a standardized plugin interface.
 
 ## Overview
 
@@ -18,7 +18,7 @@ The plugin system provides:
 ### Directories
 
 ```
-~/.openclaude/plugins/
+~/.dario/plugins/
 ├── plugin-name-1/
 │   ├── manifest.json
 │   ├── index.mjs
@@ -31,7 +31,7 @@ The plugin system provides:
 
 ### Configuration
 
-Plugin metadata and registry is stored in `~/.openclaude/settings.json`:
+Plugin metadata and registry is stored in `~/.dario/settings.json`:
 
 ```json
 {
@@ -240,7 +240,7 @@ Register in manifest:
 Installation flow:
 1. Fetch plugin from source (npm or local)
 2. Validate manifest
-3. Copy to `~/.openclaude/plugins/{name}/`
+3. Copy to `~/.dario/plugins/{name}/`
 4. Register in settings (disabled by default)
 
 ### Enabling
@@ -251,7 +251,7 @@ Installation flow:
 
 Enabling flow:
 1. Update registry (move to enabled list)
-2. Plugin will load on next OpenClaude startup
+2. Plugin will load on next Dario startup
 3. All lifecycle hooks run in order: `init()` → `onEnable()`
 
 ### Disabling
@@ -262,7 +262,7 @@ Enabling flow:
 
 Disabling flow:
 1. Update registry (move to disabled list)
-2. Plugin will unload on next OpenClaude startup
+2. Plugin will unload on next Dario startup
 3. `onDisable()` hook is called
 
 ### Removal
@@ -272,7 +272,7 @@ Disabling flow:
 ```
 
 Removal flow:
-1. Delete plugin directory from `~/.openclaude/plugins/`
+1. Delete plugin directory from `~/.dario/plugins/`
 2. Remove from registry
 3. All resources are freed
 
@@ -353,8 +353,8 @@ Plugins can define default configuration in manifest.json:
 Configuration is loaded from multiple sources in order:
 
 1. Plugin manifest defaults (lowest priority)
-2. Global settings: `~/.openclaude/settings.json`
-3. Project settings: `./.openclaude/settings.json` (highest priority)
+2. Global settings: `~/.dario/settings.json`
+3. Project settings: `./.dario/settings.json` (highest priority)
 
 Configuration is merged at each level, with later sources overriding earlier ones.
 
@@ -711,7 +711,7 @@ export async function handleFetchData(input) {
 
 ### Plugin Not Appearing in List
 
-1. Verify plugin directory exists: `~/.openclaude/plugins/{name}/`
+1. Verify plugin directory exists: `~/.dario/plugins/{name}/`
 2. Run `/plugin list` to see all plugins
 3. Check registry in settings.json
 
@@ -720,7 +720,7 @@ export async function handleFetchData(input) {
 1. Verify hooks are exported: `export async function init() {}`
 2. Check manifest.json for correct paths
 3. Verify plugin is enabled: `/plugin enable {name}`
-4. Restart OpenClaude to reload plugins
+4. Restart Dario to reload plugins
 
 ## Publishing Plugins
 
@@ -731,9 +731,9 @@ export async function handleFetchData(input) {
 
 ```json
 {
-  "name": "openclaude-my-plugin",
+  "name": "dario-my-plugin",
   "version": "1.0.0",
-  "description": "My OpenClaude plugin",
+  "description": "My Dario plugin",
   "main": "index.mjs",
   "files": [
     "manifest.json",
@@ -745,7 +745,7 @@ export async function handleFetchData(input) {
 ```
 
 3. Publish to npm: `npm publish`
-4. Install with: `/plugin install openclaude-my-plugin`
+4. Install with: `/plugin install dario-my-plugin`
 
 ### Creating a Plugin Registry
 
@@ -764,10 +764,10 @@ A: Not directly. Plugins can provide tools and commands, but don't have access t
 A: Plugins are isolated. However, you can use the registry API to check if another plugin is enabled.
 
 **Q: How do I debug a plugin?**
-A: Use console.log() for logging. Output is captured by the OpenClaude logger. You can also run OpenClaude with `--debug` flag for more verbose output.
+A: Use console.log() for logging. Output is captured by the Dario logger. You can also run Dario with `--debug` flag for more verbose output.
 
-**Q: Can plugins modify OpenClaude settings?**
+**Q: Can plugins modify Dario settings?**
 A: Yes, plugins can use the config module to read and write settings.
 
 **Q: What permissions do plugins have?**
-A: Plugins run with the same permissions as the OpenClaude process. Be cautious about what plugins you install.
+A: Plugins run with the same permissions as the Dario process. Be cautious about what plugins you install.

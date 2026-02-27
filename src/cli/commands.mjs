@@ -1,7 +1,7 @@
 /**
  * CLI Commands Module
  *
- * Implements slash commands for the OpenClaude CLI.
+ * Implements slash commands for the Dario CLI.
  * Commands include model switching, context management, authentication,
  * task management, todos, plugin management, session resume/export, etc.
  */
@@ -1045,7 +1045,7 @@ export const exportCommand = {
           exportFilename = filename || `session-${Date.now()}.json`
         } else {
           // Markdown format
-          let md = '# Open Claude Code Session Export\n\n'
+          let md = '# Dario Code Session Export\n\n'
           md += `Exported: ${new Date().toISOString()}\n\n`
           md += '---\n\n'
 
@@ -1292,7 +1292,7 @@ function handleCompact(messages) {
  * Handle /version command
  */
 function handleVersion() {
-  ui.print(`OpenClaude version: ${VERSION}`)
+  ui.print(`Dario version: ${VERSION}`)
   return true
 }
 
@@ -1309,7 +1309,7 @@ function handleQuit() {
  */
 function handleBugReport(input) {
   ui.print('Thank you for reporting a bug!')
-  ui.print('Please file a GitHub issue at: https://github.com/anthropics/claude-code/issues')
+  ui.print('Please file a GitHub issue at: https://github.com/jkneen/dario-code/issues')
   return true
 }
 
@@ -1326,7 +1326,7 @@ async function handleInit() {
     return 'CLAUDE.md already exists in this directory. Use a text editor to modify it.'
   }
 
-  const template = `# Open Claude Code Development Guide
+  const template = `# Dario Code Development Guide
 
 ## Commands
 - Build: \`npm run build\`
@@ -1607,7 +1607,7 @@ export const doctorCommand = {
     return 'doctor'
   },
   async call() {
-    let output = '🏥 OpenClaude Health Check\n\n'
+    let output = '🏥 Dario Health Check\n\n'
     let hasIssues = false
 
     // Check Node.js version
@@ -1712,7 +1712,7 @@ export const mcpCommand = {
       getGlobalConfig: loadConfig,
       setGlobalConfig: saveConfig,
       getProjectConfig: () => {
-        const projectConfigPath = join(process.cwd(), '.openclaude', 'config.json')
+        const projectConfigPath = join(process.cwd(), '.dario', 'config.json')
         if (!existsSync(projectConfigPath)) return {}
         try {
           return JSON.parse(readFileSync(projectConfigPath, 'utf8'))
@@ -1721,7 +1721,7 @@ export const mcpCommand = {
         }
       },
       setProjectConfig: (config) => {
-        const projectDir = join(process.cwd(), '.openclaude')
+        const projectDir = join(process.cwd(), '.dario')
         if (!existsSync(projectDir)) {
           mkdirSync(projectDir, { recursive: true })
         }
@@ -2198,7 +2198,7 @@ export const vimCommand = {
 export const terminalSetupCommand = {
   type: 'local',
   name: 'terminal-setup',
-  description: 'Configure shell integration for Open Claude Code',
+  description: 'Configure shell integration for Dario Code',
   isEnabled: true,
   userFacingName() { return 'terminal-setup' },
 
@@ -2220,29 +2220,29 @@ export const terminalSetupCommand = {
     let alreadySetup = false
     if (existsSync(rcPath)) {
       const content = readFileSync(rcPath, 'utf8')
-      alreadySetup = content.includes('openclaude') || content.includes('claude=')
+      alreadySetup = content.includes('dario') || content.includes('claude=')
     }
 
     if (alreadySetup) {
       output += `  ✓ Shell integration already configured in ~/${rcFile}\n`
     } else {
       output += `  To set up shell integration, add to ~/${rcFile}:\n\n`
-      output += `    # Open Claude Code CLI\n`
-      output += `    alias claude='openclaude'\n`
+      output += `    # Dario Code CLI\n`
+      output += `    alias claude='dario'\n`
       if (shellName === 'fish') {
         output += `    # For fish shell:\n`
-        output += `    alias claude 'openclaude'\n`
+        output += `    alias claude 'dario'\n`
       }
       output += `\n  Then restart your shell or run: source ~/${rcFile}\n`
     }
 
     try {
-      execFileSync('which', ['openclaude'], { stdio: 'pipe' })
-      output += `\n  ✓ openclaude is in PATH\n`
+      execFileSync('which', ['dario'], { stdio: 'pipe' })
+      output += `\n  ✓ dario is in PATH\n`
     } catch {
-      output += `\n  ⚠  openclaude not found in PATH\n`
-      output += `  Install globally: npm install -g open-claude-code\n`
-      output += `  Or use npx: npx open-claude-code\n`
+      output += `\n  ⚠  dario not found in PATH\n`
+      output += `  Install globally: npm install -g dario-code\n`
+      output += `  Or use npx: npx dario-code\n`
     }
 
     return output
@@ -2266,9 +2266,9 @@ export const bugCommand = {
 
     let output = `\n  Report a Bug\n  ${'─'.repeat(44)}\n`
     output += `\n  File an issue at:\n`
-    output += `  https://github.com/anthropics/claude-code/issues\n\n`
+    output += `  https://github.com/jkneen/dario-code/issues\n\n`
     output += `  Include this info:\n`
-    output += `    Version:  OpenClaude v${VERSION}\n`
+    output += `    Version:  Dario v${VERSION}\n`
     output += `    Node:     ${process.version}\n`
     output += `    Platform: ${os.platform()} ${os.arch()}\n`
     output += `    Model:    ${currentModel}\n`
@@ -2354,10 +2354,10 @@ export const renameCommand = {
     }
 
     try {
-      const sessionId = process.env.OPENCLAUDE_SESSION_ID
+      const sessionId = process.env.DARIO_SESSION_ID
       if (sessionId) {
         await sessions.renameSession(sessionId, name)
-        return `✓ Session renamed to "${name}"\n  Resume later with: openclaude --resume "${name}"`
+        return `✓ Session renamed to "${name}"\n  Resume later with: dario --resume "${name}"`
       }
       return '✗ No active session to rename'
     } catch (e) {
@@ -2386,7 +2386,7 @@ export const debugCommand = {
 
     // Environment
     output += `\n  Environment\n`
-    output += `    Version:    OpenClaude v${VERSION}\n`
+    output += `    Version:    Dario v${VERSION}\n`
     output += `    Node:       ${process.version}\n`
     output += `    Platform:   ${os.platform()} ${os.arch()}\n`
     output += `    Shell:      ${process.env.SHELL || 'unknown'}\n`
@@ -2404,9 +2404,9 @@ export const debugCommand = {
     output += `\n  Session\n`
     output += `    Model:       ${currentModel}\n`
     output += `    Fast mode:   ${isFastMode() ? 'ON' : 'OFF'}\n`
-    output += `    Thinking:    ${process.env.OPENCLAUDE_THINKING === '1' ? 'ON' : 'OFF'}\n`
-    output += `    Session ID:  ${process.env.OPENCLAUDE_SESSION_ID || 'none'}\n`
-    output += `    Agent:       ${process.env.OPENCLAUDE_AGENT || 'default'}\n`
+    output += `    Thinking:    ${process.env.DARIO_THINKING === '1' ? 'ON' : 'OFF'}\n`
+    output += `    Session ID:  ${process.env.DARIO_SESSION_ID || 'none'}\n`
+    output += `    Agent:       ${process.env.DARIO_AGENT || 'default'}\n`
     output += `    Turns:       ${usage.turns}\n`
     output += `    Tokens:      ${(usage.inputTokens + usage.outputTokens).toLocaleString()}\n`
 

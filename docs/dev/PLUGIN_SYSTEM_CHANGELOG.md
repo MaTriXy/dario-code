@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document describes the complete plugin system implementation for OpenClaude, a feature requested in the roadmap.
+This document describes the complete plugin system implementation for Dario, a feature requested in the roadmap.
 
 ## Files Created
 
@@ -16,7 +16,7 @@ This document describes the complete plugin system implementation for OpenClaude
 
 2. **src/plugins/registry.mjs** (175 lines)
    - Plugin registry management (enabled/disabled state)
-   - Registry persistence in ~/.openclaude/settings.json
+   - Registry persistence in ~/.dario/settings.json
    - Functions to query plugin status
    - Plugin manifest loading/saving
 
@@ -77,7 +77,7 @@ This document describes the complete plugin system implementation for OpenClaude
 
 ### Plugin Discovery and Installation
 
-- Auto-discovery of plugins in ~/.openclaude/plugins/
+- Auto-discovery of plugins in ~/.dario/plugins/
 - Installation from npm registry: `/plugin install plugin-name`
 - Installation from local directories: `/plugin install /path/to/plugin`
 - Automatic manifest validation before installation
@@ -109,15 +109,15 @@ This document describes the complete plugin system implementation for OpenClaude
 - Default config in manifest.json
 - Settings override hierarchy:
   1. Plugin manifest defaults
-  2. Global ~/.openclaude/settings.json
-  3. Project .openclaude/settings.json
+  2. Global ~/.dario/settings.json
+  3. Project .dario/settings.json
 
 ## Architecture
 
 ### Directory Structure
 
 ```
-~/.openclaude/
+~/.dario/
 ├── plugins/
 │   ├── plugin-name-1/
 │   │   ├── manifest.json
@@ -284,7 +284,7 @@ All ROADMAP.md requirements have been implemented:
 - **Modularity**: Separate concerns into focused modules
 - **Documentation**: Inline comments and comprehensive user guides
 - **Naming Conventions**: camelCase functions, UPPERCASE constants
-- **Code Style**: Consistent with existing OpenClaude codebase
+- **Code Style**: Consistent with existing Dario codebase
 
 ## Breaking Changes
 
@@ -292,7 +292,7 @@ None. This is a completely new feature that extends existing functionality witho
 
 ## Migration Guide
 
-No migration needed. Existing OpenClaude installations will work as-is. The plugin system is opt-in.
+No migration needed. Existing Dario installations will work as-is. The plugin system is opt-in.
 
 ## Deployment Notes
 

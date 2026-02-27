@@ -293,7 +293,7 @@ export async function extractMemories(messages, existingMemories = new Map()) {
     // Dynamic import to avoid circular deps at module level
     const { runQuery } = await import('../api/streaming.mjs')
     const result = await runQuery(prompt, [], {
-      model: process.env.OPENCLAUDE_COMPACT_MODEL || 'claude-haiku-4-5-20251001',
+      model: process.env.DARIO_COMPACT_MODEL || 'claude-haiku-4-5-20251001',
     })
 
     const text = result[0]?.message?.content?.[0]?.text || '[]'

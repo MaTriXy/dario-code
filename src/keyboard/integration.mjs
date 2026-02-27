@@ -224,7 +224,7 @@ class KeyboardIntegration {
    */
   getHelp() {
     const help = `
-Keyboard Shortcuts for OpenClaude
+Keyboard Shortcuts for Dario
 ==================================
 
 Global Shortcuts:

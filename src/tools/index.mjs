@@ -1,5 +1,5 @@
 /**
- * OpenClaude Tools
+ * Dario Tools
  *
  * This module exports all available tools for the Claude CLI.
  * Each tool is a factory function that takes dependencies and returns

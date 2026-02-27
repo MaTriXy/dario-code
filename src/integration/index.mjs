@@ -1,5 +1,5 @@
 /**
- * Integration Layer for OpenClaude
+ * Integration Layer for Dario
  *
  * modules and the main cli.mjs runtime.
  */

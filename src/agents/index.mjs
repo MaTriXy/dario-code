@@ -1,5 +1,5 @@
 /**
- * Agents Module for OpenClaude
+ * Agents Module for Dario
  *
  * Exports subagent functionality, agent management, and communication utilities.
  */

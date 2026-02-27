@@ -1,5 +1,5 @@
 /**
- * OpenClaude Onboarding Module
+ * Dario Onboarding Module
  * Readable implementations of onboarding and UI-related functions
  *
  * - AX9 -> initOnboarding
@@ -63,7 +63,7 @@ export function completeOnboarding() {
 export async function initOnboarding(skipPermissions, printMode) {
   const config = getGlobalConfig()
 
-  // OpenClaude: Force onboarding if user hasn't selected auth method yet
+  // Dario: Force onboarding if user hasn't selected auth method yet
   // (for users who onboarded before auth selector was added)
   const needsAuthSelection = !config.selectedAuthMethod &&
                              !config.primaryApiKey &&

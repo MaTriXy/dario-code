@@ -1,5 +1,5 @@
 /**
- * WASM-powered conversation UI for Open Claude Code
+ * WASM-powered conversation UI for Dario Code
  * Provides a rich UI experience for the conversation loop
  */
 

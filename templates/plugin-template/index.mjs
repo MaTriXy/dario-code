@@ -1,5 +1,5 @@
 /**
- * Template Plugin for OpenClaude
+ * Template Plugin for Dario
  *
  * This is an example plugin showing the expected structure and hooks.
  * Replace this with your actual plugin code.

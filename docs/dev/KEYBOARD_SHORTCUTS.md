@@ -1,10 +1,10 @@
-# OpenClaude Keyboard Shortcuts
+# Dario Keyboard Shortcuts
 
-This document describes the keyboard shortcuts and input modes implemented for OpenClaude.
+This document describes the keyboard shortcuts and input modes implemented for Dario.
 
 ## Overview
 
-OpenClaude supports three keyboard input modes:
+Dario supports three keyboard input modes:
 - **Normal Mode** (default): Basic keyboard shortcuts
 - **Emacs Mode**: Emacs-style key bindings for text editing
 - **Vim Mode**: Vim-style key bindings for advanced users
@@ -51,7 +51,7 @@ Enable Emacs mode:
 set keyboard mode emacs
 ```
 
-Or configure in `~/.config/openclaude/config.json`:
+Or configure in `~/.config/dario/config.json`:
 ```json
 {
   "keyboard": {
@@ -124,7 +124,7 @@ Enable Vim mode:
 set keyboard mode vim
 ```
 
-Or configure in `~/.config/openclaude/config.json`:
+Or configure in `~/.config/dario/config.json`:
 ```json
 {
   "keyboard": {
@@ -169,7 +169,7 @@ fg
 
 ## Configuration
 
-Keyboard settings are stored in `~/.config/openclaude/config.json`:
+Keyboard settings are stored in `~/.config/dario/config.json`:
 
 ```json
 {
@@ -223,7 +223,7 @@ set keyboard mode normal
 
 ### In Configuration
 
-Edit `~/.config/openclaude/config.json`:
+Edit `~/.config/dario/config.json`:
 ```json
 {
   "keyboard": {
@@ -282,7 +282,7 @@ npx vitest run tests/keyboard.test.mjs -t "VimMode"
 
 1. Verify keyboard shortcuts are enabled in config
 2. Check if terminal supports raw mode: `stty -a | grep raw`
-3. Verify mode is set correctly: `cat ~/.config/openclaude/config.json`
+3. Verify mode is set correctly: `cat ~/.config/dario/config.json`
 
 ### Vim mode not activating
 

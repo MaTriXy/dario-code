@@ -1,5 +1,5 @@
 /**
- * OpenClaude Theme System
+ * Dario Theme System
  * Theme colors
  */
 
@@ -136,7 +136,7 @@ export const statusIcons = {
  */
 function getConfig() {
   return {
-    theme: process.env.OPENCLAUDE_THEME || 'dark'
+    theme: process.env.DARIO_THEME || 'dark'
   }
 }
 

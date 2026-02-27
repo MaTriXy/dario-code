@@ -23,7 +23,7 @@
 
 #### Final Output:
 ```
-openclaude
+dario
 ```
 ✅ Correct answer!
 
@@ -54,7 +54,7 @@ BUT the tools still execute successfully and return results. This means:
 
 ### What Needs Improvement:
 1. ❌ Output Quality: 0% because no text in stream
-   - The answer "openclaude" exists but wasn't counted as text output
+   - The answer "dario" exists but wasn't counted as text output
    - Need to check how `finalText` is extracted
 
 2. ⚠️ Tool Usage: 33.3% because of render errors
@@ -68,7 +68,7 @@ BUT the tools still execute successfully and return results. This means:
 ## Insights for Next Iteration
 
 ### Priority 1: Fix Output Quality Scoring
-The eval captures `finalText` but it's showing 0% even though we got "openclaude". Need to check extraction logic in `runner.mjs`.
+The eval captures `finalText` but it's showing 0% even though we got "dario". Need to check extraction logic in `runner.mjs`.
 
 ### Priority 2: Investigate Render Errors
 These errors are from TUI display code, not tool execution. They don't affect functionality but they pollute logs and lower scores.

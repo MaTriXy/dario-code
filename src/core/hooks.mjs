@@ -1,5 +1,5 @@
 /**
- * OpenClaude Hooks System
+ * Dario Hooks System
  *
  * Provides lifecycle hooks that execute shell commands at specific points:
  * - PreToolUse: Before a tool is executed

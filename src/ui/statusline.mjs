@@ -1,5 +1,5 @@
 /**
- * OpenClaude Status Line Component
+ * Dario Status Line Component
  *
  * Displays mode toggles at the bottom of the input:
  * - Left side: Shift+Tab cycles through modes (accept edits, plan mode, bypass permissions)

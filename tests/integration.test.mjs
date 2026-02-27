@@ -1,9 +1,9 @@
 #!/usr/bin/env node
-// OpenClaude Integration Test
+// Dario Integration Test
 
 import '../src/index.mjs';
 
-const oc = globalThis.__openclaude;
+const oc = globalThis.__dario;
 let passed = 0;
 let failed = 0;
 
@@ -17,7 +17,7 @@ function test(name, condition) {
   }
 }
 
-console.log('=== OpenClaude Comprehensive Integration Test ===\n');
+console.log('=== Dario Comprehensive Integration Test ===\n');
 
 // Test 1: Sections count
 test('24+ sections exist', Object.keys(oc).length >= 24);
@@ -86,7 +86,7 @@ test('MultiEdit tool exists', tools.MultiEdit && typeof tools.MultiEdit.call ===
 
 // Test 9: Tool overrides auto-registered (if env var set)
 // Check this BEFORE cleanup since we registered Bash manually
-const expectedOverrides = process.env.OPENCLAUDE_USE_READABLE_TOOLS === '1' ? 18 : 1;
+const expectedOverrides = process.env.DARIO_USE_READABLE_TOOLS === '1' ? 18 : 1;
 test('Tool overrides count correct', oc.toolOverrides.size === expectedOverrides);
 
 // Cleanup

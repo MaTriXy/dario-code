@@ -1,13 +1,13 @@
 # Ralph Loop - Iteration 1 Complete
 
 ## Task
-> Run evals on OpenClaude CLI - make it launch with -p for streaming, capture logs, judge results, feed improvements back
+> Run evals on Dario CLI - make it launch with -p for streaming, capture logs, judge results, feed improvements back
 
 ## ✅ Completed
 
 ### 1. CLI Streaming Mode
 - ✅ Added `--output-format` flag (text, json, stream-json)
-- ✅ Matches Open Claude Code's API: `claude -p "prompt" --output-format stream-json`
+- ✅ Matches Dario Code's API: `claude -p "prompt" --output-format stream-json`
 - ✅ Streams tool calls and results in real-time
 - ✅ Works exactly like subagents
 

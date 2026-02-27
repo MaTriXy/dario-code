@@ -1,4 +1,4 @@
-# Open Claude Code — Documentation
+# Dario Code — Documentation
 
 ## Quick Reference
 

@@ -1,5 +1,5 @@
 /**
- * System Prompts for Open Claude Code CLI
+ * System Prompts for Dario Code CLI
  *
  * This module contains the core system prompt templates used to configure
  * Claude's behavior in the CLI environment.
@@ -36,13 +36,13 @@ export function getCurrentModel() {
 }
 
 // Application name constant
-export const APP_NAME = 'Open Claude Code';
+export const APP_NAME = 'Dario Code';
 
 // Package info for help text
 export const PACKAGE_INFO = {
-  ISSUES_EXPLAINER: 'report the issue at https://github.com/jkneen/open-claude-code/issues',
-  PACKAGE_URL: 'open-claude-code',
-  README_URL: 'https://github.com/jkneen/open-claude-code',
+  ISSUES_EXPLAINER: 'report the issue at https://github.com/jkneen/dario-code/issues',
+  PACKAGE_URL: 'dario-code',
+  README_URL: 'https://github.com/jkneen/dario-code',
   VERSION: '1.0.0'
 };
 

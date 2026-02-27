@@ -106,7 +106,7 @@ All 17 features tested and verified:
 ## Remaining Gaps (Only 4 Features)
 
 **Not Implemented (4):**
-1. `mcp serve` - N/A (OpenClaude is client only)
+1. `mcp serve` - N/A (Dario is client only)
 2. Message selector - UI for forking conversations
 3. Enhanced syntax highlighting - Better code blocks
 4. Auto-updater - Not applicable for open source
@@ -131,7 +131,7 @@ All 17 features tested and verified:
 
 ## Conclusion
 
-**OpenClaude is production-ready** with 88% feature parity representing 100% of essential functionality.
+**Dario is production-ready** with 88% feature parity representing 100% of essential functionality.
 
 The 4 remaining "missing" features are:
 1. Not applicable (mcp serve, auto-updater)
@@ -139,7 +139,7 @@ The 4 remaining "missing" features are:
 
 The 9 "partial" features all have working implementations, just not every advanced option (like full Vim mode with all keybindings).
 
-**Recommendation: OpenClaude can be released as-is. It's feature-complete for all real-world CLI usage.**
+**Recommendation: Dario can be released as-is. It's feature-complete for all real-world CLI usage.**
 
 ---
 

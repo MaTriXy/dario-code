@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 /**
- * Open Claude Code TUI - Main conversation interface
+ * Dario Code TUI - Main conversation interface
  */
 
 import React, { useState, useCallback, useEffect, useMemo, useRef, memo, Component } from 'react'
@@ -86,16 +86,16 @@ class ErrorBoundary extends Component {
 }
 
 /**
- * Load custom commands from ~/.openclaude/commands/*.md and ~/.claude/commands/*.md
- * Items from .openclaude take priority. Each item is tagged with `source`.
+ * Load custom commands from ~/.dario/commands/*.md and ~/.claude/commands/*.md
+ * Items from .dario take priority. Each item is tagged with `source`.
  */
 function loadCustomCommands() {
   const customCommands = []
   const seen = new Set()
 
-  // Scan dirs in priority order: openclaude first, then claude
+  // Scan dirs in priority order: dario first, then claude
   const commandsDirs = [
-    { dir: join(homedir(), '.openclaude', 'commands'), source: 'openclaude' },
+    { dir: join(homedir(), '.dario', 'commands'), source: 'dario' },
     { dir: join(homedir(), '.claude', 'commands'), source: 'claude' },
   ]
 
@@ -457,7 +457,7 @@ const standardCommands = [
         ['terminal-setup', 'Configure shell integration'],
         ['bug',            'Report a bug'],
         ['version',        'Show version information'],
-        ['quit',           'Exit OpenClaude'],
+        ['quit',           'Exit Dario'],
       ]
 
       const maxCmd = Math.max(...commandHelp.map(([c]) => c.length))
@@ -465,7 +465,7 @@ const standardCommands = [
         `  /${cmd.padEnd(maxCmd + 1)} ${desc}`
       ).join('\n')
 
-      return `OpenClaude Help
+      return `Dario Help
 ${'─'.repeat(56)}
 
 Commands:
@@ -486,7 +486,7 @@ Get started:
   {
     name: 'quit',
     aliases: ['exit', 'q'],
-    description: 'Exit OpenClaude',
+    description: 'Exit Dario',
     isEnabled: true,
     userFacingName() { return 'quit' },
     async call() {
@@ -500,7 +500,7 @@ Get started:
     isEnabled: true,
     userFacingName() { return 'version' },
     async call() {
-      return `OpenClaude v${VERSION || '1.0.0'}`
+      return `Dario v${VERSION || '1.0.0'}`
     }
   },
   // Overlay wrappers — these show interactive TUI overlays when called without args,
@@ -869,7 +869,7 @@ function WelcomeBanner({ mcpClients = [], isDefaultModel = true }) {
       React.createElement(Text, { key: 'title' },
         React.createElement(Text, { color: THEME.claude }, '✻'),
         ' Welcome to ',
-        React.createElement(Text, { bold: true }, 'Open Claude Code'),
+        React.createElement(Text, { bold: true }, 'Dario Code'),
         React.createElement(Text, null, '!')
       ),
       React.createElement(Box, {
@@ -2083,28 +2083,28 @@ function ConversationApp({
   const mcpDeps = useMemo(() => ({
     getGlobalConfig: () => {
       try {
-        const configPath = path.join(homedir(), '.openclaude', 'config.json')
+        const configPath = path.join(homedir(), '.dario', 'config.json')
         if (existsSync(configPath)) return JSON.parse(readFileSync(configPath, 'utf8'))
       } catch {}
       return {}
     },
     getProjectConfig: () => {
       try {
-        const configPath = path.join(process.cwd(), '.openclaude', 'config.json')
+        const configPath = path.join(process.cwd(), '.dario', 'config.json')
         if (existsSync(configPath)) return JSON.parse(readFileSync(configPath, 'utf8'))
       } catch {}
       return {}
     },
     setProjectConfig: (config) => {
       try {
-        const dir = path.join(process.cwd(), '.openclaude')
+        const dir = path.join(process.cwd(), '.dario')
         if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
         writeFileSync(path.join(dir, 'config.json'), JSON.stringify(config, null, 2))
       } catch {}
     },
     setGlobalConfig: (config) => {
       try {
-        const dir = path.join(homedir(), '.openclaude')
+        const dir = path.join(homedir(), '.dario')
         if (!existsSync(dir)) mkdirSync(dir, { recursive: true })
         const configPath = path.join(dir, 'config.json')
         // Merge with existing config to avoid clobbering OAuth tokens etc.
@@ -3297,28 +3297,28 @@ async function main() {
     const mcpDeps = {
       getGlobalConfig: () => {
         try {
-          const configPath = path.join(os.homedir(), '.openclaude', 'config.json')
+          const configPath = path.join(os.homedir(), '.dario', 'config.json')
           if (fs.existsSync(configPath)) return JSON.parse(fs.readFileSync(configPath, 'utf8'))
         } catch {}
         return {}
       },
       getProjectConfig: () => {
         try {
-          const configPath = path.join(process.cwd(), '.openclaude', 'config.json')
+          const configPath = path.join(process.cwd(), '.dario', 'config.json')
           if (fs.existsSync(configPath)) return JSON.parse(fs.readFileSync(configPath, 'utf8'))
         } catch {}
         return {}
       },
       setProjectConfig: (config) => {
         try {
-          const dir = path.join(process.cwd(), '.openclaude')
+          const dir = path.join(process.cwd(), '.dario')
           if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
           fs.writeFileSync(path.join(dir, 'config.json'), JSON.stringify(config, null, 2))
         } catch {}
       },
       setGlobalConfig: (config) => {
         try {
-          const dir = path.join(os.homedir(), '.openclaude')
+          const dir = path.join(os.homedir(), '.dario')
           if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
           const configPath = path.join(dir, 'config.json')
           // Merge with existing config to avoid clobbering OAuth tokens etc.
@@ -3440,9 +3440,9 @@ async function main() {
       // Attempt to force GC if --expose-gc flag is set
       if (typeof global.gc === 'function') global.gc()
       // Log warning — TUI will pick this up via stderr if visible
-      process.stderr.write(`\n[openclaude] ⚠️  High memory usage (${Math.round(heapMb)} MB). Triggering auto-compaction to prevent crash.\n`)
+      process.stderr.write(`\n[dario] ⚠️  High memory usage (${Math.round(heapMb)} MB). Triggering auto-compaction to prevent crash.\n`)
     } else if (heapMb > OOM_HEAP_THRESHOLD_MB && !_oomWarned) {
-      process.stderr.write(`\n[openclaude] ℹ️  Memory usage at ${Math.round(heapMb)} MB — consider /compact to free space.\n`)
+      process.stderr.write(`\n[dario] ℹ️  Memory usage at ${Math.round(heapMb)} MB — consider /compact to free space.\n`)
     }
   }, 30_000)
 

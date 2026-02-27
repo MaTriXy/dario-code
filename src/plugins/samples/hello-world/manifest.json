@@ -2,7 +2,7 @@
   "name": "hello-world",
   "version": "1.0.0",
   "description": "A starter template plugin — adds a /hello command. Great for learning plugin development.",
-  "author": "openclaude",
+  "author": "dario",
   "license": "MIT",
   "entry": "index.mjs",
   "commands": [

@@ -17,7 +17,7 @@ Run real evals, capture results, judge them, and feed improvements back into cod
 - Methodology: 100%
 
 ### 2. Analyzed Results
-Found the issue: `finalText` was "openclaude" (10 chars) but the threshold was `> 10`, so it failed.
+Found the issue: `finalText` was "dario" (10 chars) but the threshold was `> 10`, so it failed.
 
 ### 3. Applied Fix
 Changed `src/eval/judge.mjs` line 33:

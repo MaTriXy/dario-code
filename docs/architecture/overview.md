@@ -1,12 +1,12 @@
 # System Architecture Overview
 
-Open Claude Code is a terminal-based AI assistant designed to help developers understand and manipulate codebases. It leverages Claude AI to provide contextual coding assistance directly in the command line.
+Dario Code is a terminal-based AI assistant designed to help developers understand and manipulate codebases. It leverages Claude AI to provide contextual coding assistance directly in the command line.
 
 ## High-Level Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                      Open Claude Code CLI                         │
+│                      Dario Code CLI                         │
 ├─────────────┬───────────────┬───────────────┬───────────────┤
 │ Terminal UI │ Command       │ Codebase      │ Anthropic     │
 │ Components  │ Processing    │ Analysis      │ API Client    │
@@ -50,7 +50,7 @@ Tools to help Claude understand and manipulate the user's code:
 
 ## Architecture Principles
 
-Open Claude Code follows several key architectural principles:
+Dario Code follows several key architectural principles:
 
 1. **Modularity**: Separates concerns into discrete, replaceable components
 2. **Progressive Enhancement**: Core functionality works in any terminal, with richer features when supported

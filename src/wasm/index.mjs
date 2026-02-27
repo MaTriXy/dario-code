@@ -1,5 +1,5 @@
 /**
- * WASM UI module for Open Claude Code
+ * WASM UI module for Dario Code
  * Provides a WebAssembly-powered UI framework for terminal applications
  */
 
@@ -34,7 +34,7 @@ export async function createDemoUI(renderer) {
   // Add header title
   const headerTitle = renderer.createComponent('text', {
     id: 'headerTitle',
-    text: 'OpenClaude',
+    text: 'Dario',
     style: {
       fontWeight: 'bold',
       color: 'white',
@@ -100,7 +100,7 @@ export async function createDemoUI(renderer) {
   // Add welcome message to main panel
   const welcomeText = renderer.createComponent('text', {
     id: 'welcomeText',
-    text: 'Welcome to OpenClaude!',
+    text: 'Welcome to Dario!',
     style: {
       color: 'green',
       fontWeight: 'bold',

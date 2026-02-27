@@ -1,8 +1,8 @@
-# Open Claude Code
+# Dario Code
 
 An open-source CLI for Claude AI — built to match official Claude Code feature-for-feature, with extras the official version doesn't have.
 
-**v1.0.0 — ~95% parity with Claude Code 2.1.44**
+**v1.0.0 — ~97% parity with Claude Code 2.1.50+**
 
 > **Disclaimer:** This project is not affiliated with, endorsed by, sponsored by, or in any way officially connected to Anthropic PBC or any of its subsidiaries or affiliates. The name "Claude" and any related trademarks are the property of their respective owners. This is an independent, community-driven open source project.
 
@@ -11,11 +11,11 @@ An open-source CLI for Claude AI — built to match official Claude Code feature
 ## Installation
 
 ```bash
-git clone https://github.com/jkneen/open-claude-code.git
-cd open-claude-code/open_claude_code
+git clone https://github.com/jkneen/dario-code.git
+cd dario-code/dario_code
 npm install
 chmod +x cli.mjs
-npm link   # optional — makes `openclaude` available globally
+npm link   # optional — makes `dario` available globally
 ```
 
 ---
@@ -23,15 +23,15 @@ npm link   # optional — makes `openclaude` available globally
 ## Usage
 
 ```bash
-openclaude                         # interactive session
-openclaude "fix the bug in foo.ts" # one-shot prompt
-openclaude -p "summarize this" -f context.txt
-openclaude --continue              # resume last session
-openclaude --resume <id>           # resume specific session
-openclaude --model claude-opus-4-6
-openclaude --thinking              # enable extended thinking
-openclaude --max-turns 10
-openclaude --permission-mode readonly
+dario                         # interactive session
+dario "fix the bug in foo.ts" # one-shot prompt
+dario -p "summarize this" -f context.txt
+dario --continue              # resume last session
+dario --resume <id>           # resume specific session
+dario --model claude-opus-4-6
+dario --thinking              # enable extended thinking
+dario --max-turns 10
+dario --permission-mode readonly
 ```
 
 ---
@@ -40,7 +40,7 @@ openclaude --permission-mode readonly
 
 ```bash
 # Option 1: OAuth (browser-based)
-openclaude          # then run /login inside the app
+dario          # then run /login inside the app
 
 # Option 2: API key
 export ANTHROPIC_API_KEY=sk-ant-...
@@ -172,7 +172,7 @@ export ANTHROPIC_API_KEY=sk-ant-...
 
 ## What Makes OCC Different from Official CC
 
-These features exist in Open Claude Code but **not** in the official Claude Code:
+These features exist in Dario Code but **not** in the official Claude Code:
 
 | Feature | Details |
 |---------|---------|
@@ -181,17 +181,17 @@ These features exist in Open Claude Code but **not** in the official Claude Code
 | **Background task management** | Full async task graph with dependency tracking, status monitoring, and interactive UI (`/tasks`). |
 | **Multiple TUI variants** | `claude` (full), `minimal`, and `custom` — switchable at startup. |
 | **WebSearch + WebFetch built-in** | Available as first-class tools without MCP configuration. |
-| **Dual config reading** | Reads both `~/.openclaude/` and `~/.claude/` with source badges (`[OC]`, `[CC]`, `[OC+CC]`, `[PRJ]`). |
-| **`OPENCLAUDE_USE_READABLE_TOOLS`** | Development mode with human-readable tool output for debugging. |
+| **Dual config reading** | Reads both `~/.dario/` and `~/.claude/` with source badges (`[OC]`, `[CC]`, `[OC+CC]`, `[PRJ]`). |
+| **`DARIO_USE_READABLE_TOOLS`** | Development mode with human-readable tool output for debugging. |
 
 ---
 
 ## Configuration
 
-Config is stored in `~/.openclaude/`. OCC also reads (but never writes) `~/.claude/` for compatibility with Claude Code.
+Config is stored in `~/.dario/`. Dario also reads (but never writes) `~/.claude/` for compatibility with Claude Code.
 
 Source badges in the UI:
-- `[OC]` — from `~/.openclaude` (your data)
+- `[OC]` — from `~/.dario` (your data)
 - `[CC]` — from `~/.claude` (read-only)
 - `[OC+CC]` — exists in both
 - `[PRJ]` — project-local
@@ -202,7 +202,7 @@ Source badges in the UI:
 
 ```
 cli.mjs              # main entry point
-openclaude.mjs       # readable-tools dev entry
+dario.mjs       # readable-tools dev entry
 src/
   agents/            # subagent spawning and lifecycle
   api/               # Anthropic API client + streaming

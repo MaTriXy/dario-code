@@ -16,8 +16,8 @@ import { homedir } from 'os'
 import { randomUUID } from 'crypto'
 
 const CLAUDE_DIR = path.join(homedir(), '.claude')
-const OPENCLAUDE_DIR = process.env.OPENCLAUDE_CONFIG_DIR || path.join(homedir(), '.openclaude')
-const PROJECTS_DIR = path.join(OPENCLAUDE_DIR, 'projects')        // Primary: write here
+const DARIO_DIR = process.env.DARIO_CONFIG_DIR || path.join(homedir(), '.dario')
+const PROJECTS_DIR = path.join(DARIO_DIR, 'projects')        // Primary: write here
 const CLAUDE_PROJECTS_DIR = path.join(CLAUDE_DIR, 'projects')     // Secondary: read-only
 
 /**
@@ -230,7 +230,7 @@ export async function getSession(sessionId, cwd = process.cwd()) {
 
 /**
  * Load a full session object from its JSONL file.
- * Compatible with both OpenClaude sessions (have session-start event)
+ * Compatible with both Dario sessions (have session-start event)
  * and standard sessions (start with queue-operation/user events).
  */
 async function loadSessionFromJSONL(sessionId, cwd = process.cwd()) {
@@ -361,7 +361,7 @@ async function addFileSizes(entries) {
 }
 
 /**
- * Read sessions index from a specific base dir (openclaude or claude).
+ * Read sessions index from a specific base dir (dario or claude).
  */
 async function readIndexFromBase(baseProjectsDir, cwd) {
   try {
@@ -376,8 +376,8 @@ async function readIndexFromBase(baseProjectsDir, cwd) {
 
 /**
  * List sessions for the current project.
- * Reads from both .openclaude and .claude session indexes, deduplicates by sessionId.
- * Items are tagged with `source` ('openclaude' | 'claude' | 'both').
+ * Reads from both .dario and .claude session indexes, deduplicates by sessionId.
+ * Items are tagged with `source` ('dario' | 'claude' | 'both').
  */
 export async function listSessions(options = {}) {
   const cwd = process.cwd()
@@ -388,7 +388,7 @@ export async function listSessions(options = {}) {
     const ocIndex = await readIndex(cwd)
     const ccIndex = await readIndexFromBase(CLAUDE_PROJECTS_DIR, cwd)
 
-    // Build deduplicated entries — openclaude takes precedence
+    // Build deduplicated entries — dario takes precedence
     const seen = new Set()
     const ccIds = new Set(ccIndex.entries.map(e => e.sessionId))
     let entries = []
@@ -396,7 +396,7 @@ export async function listSessions(options = {}) {
     for (const e of ocIndex.entries) {
       seen.add(e.sessionId)
       const mapped = mapIndexEntry(e, cwd)
-      mapped.source = ccIds.has(e.sessionId) ? 'both' : 'openclaude'
+      mapped.source = ccIds.has(e.sessionId) ? 'both' : 'dario'
       entries.push(mapped)
     }
 
@@ -433,8 +433,8 @@ export async function listSessions(options = {}) {
 
 /**
  * List sessions from ALL projects.
- * Scans both ~/.openclaude/projects/ and ~/.claude/projects/.
- * Items tagged with `source` ('openclaude' | 'claude' | 'both').
+ * Scans both ~/.dario/projects/ and ~/.claude/projects/.
+ * Items tagged with `source` ('dario' | 'claude' | 'both').
  */
 export async function listAllProjectSessions(options = {}) {
   try {
@@ -453,7 +453,7 @@ export async function listAllProjectSessions(options = {}) {
           for (const e of index.entries) {
             const id = e.sessionId
             if (seen.has(id)) {
-              // Already added from openclaude — upgrade source to 'both'
+              // Already added from dario — upgrade source to 'both'
               const existing = allEntries.find(x => x.id === id)
               if (existing) existing.source = 'both'
               continue
@@ -471,8 +471,8 @@ export async function listAllProjectSessions(options = {}) {
       }
     }
 
-    // Scan openclaude first (primary)
-    await scanProjectsDir(PROJECTS_DIR, 'openclaude')
+    // Scan dario first (primary)
+    await scanProjectsDir(PROJECTS_DIR, 'dario')
     // Then claude (read-only, fills gaps)
     await scanProjectsDir(CLAUDE_PROJECTS_DIR, 'claude')
 

@@ -1,5 +1,5 @@
 /**
- * Plan Module for OpenClaude
+ * Plan Module for Dario
  *
  * Exports plan mode functionality and tools.
  */

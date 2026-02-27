@@ -1,6 +1,6 @@
 # Session Management Integration Guide
 
-This guide shows how to integrate the session persistence feature into OpenClaude.
+This guide shows how to integrate the session persistence feature into Dario.
 
 ## Files Created
 
@@ -63,7 +63,7 @@ export function parseArgs(argv) {
 
 export function printHelp() {
   console.log(`
-Usage: openclaude [options]
+Usage: dario [options]
 
 Options:
   -h, --help        Show this help message
@@ -111,7 +111,7 @@ export async function initialize() {
 
     // Show welcome message
     ui.showWelcome()
-    console.log(`OpenClaude v${VERSION}`)
+    console.log(`Dario v${VERSION}`)
 
     // Determine session to use
     let sessionId = null
@@ -281,13 +281,13 @@ Make session module accessible globally:
 import * as sessionModule from './session/index.mjs'
 
 // Export to globalThis for accessibility
-if (!globalThis.__openclaude) {
-  globalThis.__openclaude = {}
+if (!globalThis.__dario) {
+  globalThis.__dario = {}
 }
 
-globalThis.__openclaude.session = sessionModule
+globalThis.__dario.session = sessionModule
 
-// Now accessible as: globalThis.__openclaude.session.listSessions()
+// Now accessible as: globalThis.__dario.session.listSessions()
 ```
 
 ## Usage Examples
@@ -296,19 +296,19 @@ globalThis.__openclaude.session = sessionModule
 
 ```bash
 # Start a new session (default)
-openclaude
+dario
 
 # Continue the last session
-openclaude --continue
+dario --continue
 
 # Resume a specific session
-openclaude --resume session_1732104825123_abc123def456
+dario --resume session_1732104825123_abc123def456
 
 # List all sessions
-openclaude --list
+dario --list
 
 # Clean up sessions older than 30 days
-openclaude --cleanup
+dario --cleanup
 ```
 
 ### Programmatic Usage
@@ -342,10 +342,10 @@ session.cleanupOldSessions(30)
 
 ## Data Storage
 
-Sessions are stored in JSON format in `~/.openclaude/sessions/` directory:
+Sessions are stored in JSON format in `~/.dario/sessions/` directory:
 
 ```
-~/.openclaude/sessions/
+~/.dario/sessions/
 ├── session_1732104825123_abc123def456.json
 ├── session_1732104722019_xyz789uvw012.json
 └── session_1732104619847_ghi345jkl678.json

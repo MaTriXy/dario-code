@@ -1,5 +1,5 @@
 /**
- * Tasks UI Component for OpenClaude
+ * Tasks UI Component for Dario
  *
  * Provides an interactive task selector UI:
  * - Arrow keys to navigate

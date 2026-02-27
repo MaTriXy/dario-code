@@ -1,5 +1,5 @@
 /**
- * Mentions Module for OpenClaude
+ * Mentions Module for Dario
  *
  * Handles @-mention support for files and images in user prompts.
  * Features:

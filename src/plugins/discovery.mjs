@@ -12,11 +12,11 @@ import { fileURLToPath } from 'url'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
 
-const CACHE_DIR = path.join(os.homedir(), '.openclaude')
+const CACHE_DIR = path.join(os.homedir(), '.dario')
 const CACHE_FILE = path.join(CACHE_DIR, 'plugin-registry-cache.json')
 const CACHE_TTL_MS = 60 * 60 * 1000 // 1 hour
 const NPM_SEARCH_URL = 'https://registry.npmjs.org/-/v1/search'
-const SEARCH_KEYWORD = 'openclaude-plugin'
+const SEARCH_KEYWORD = 'dario-plugin'
 const DEFAULT_SIZE = 50
 const SAMPLES_DIR = path.join(__dirname, 'samples')
 
@@ -29,8 +29,8 @@ export const BUNDLED_PLUGINS = [
     name: 'hello-world',
     version: '1.0.0',
     description: 'A starter template plugin — adds a /hello command. Great for learning plugin development.',
-    author: 'openclaude',
-    keywords: ['openclaude-plugin', 'template', 'starter'],
+    author: 'dario',
+    keywords: ['dario-plugin', 'template', 'starter'],
     date: '2026-01-15',
     downloads: 12400,
     npmUrl: '',
@@ -40,8 +40,8 @@ export const BUNDLED_PLUGINS = [
     name: 'code-stats',
     version: '1.0.0',
     description: 'Counts lines of code, functions, and classes across your project. Adds a line_counter tool.',
-    author: 'openclaude',
-    keywords: ['openclaude-plugin', 'stats', 'analysis'],
+    author: 'dario',
+    keywords: ['dario-plugin', 'stats', 'analysis'],
     date: '2026-01-20',
     downloads: 8700,
     npmUrl: '',
@@ -51,8 +51,8 @@ export const BUNDLED_PLUGINS = [
     name: 'theme-dark',
     version: '1.0.0',
     description: 'Custom dark color theme for the TUI. Config-only plugin — no code, just style overrides.',
-    author: 'openclaude',
-    keywords: ['openclaude-plugin', 'theme', 'colors'],
+    author: 'dario',
+    keywords: ['dario-plugin', 'theme', 'colors'],
     date: '2026-01-18',
     downloads: 6200,
     npmUrl: '',
@@ -63,7 +63,7 @@ export const BUNDLED_PLUGINS = [
     version: '0.9.0',
     description: 'Summarize recent git activity — commits, branches, and contributors at a glance.',
     author: 'devtools-collective',
-    keywords: ['openclaude-plugin', 'git', 'summary'],
+    keywords: ['dario-plugin', 'git', 'summary'],
     date: '2026-01-22',
     downloads: 15300,
     npmUrl: '',
@@ -74,7 +74,7 @@ export const BUNDLED_PLUGINS = [
     version: '1.2.0',
     description: 'Save, search, and insert reusable code snippets from a personal library.',
     author: 'codecraft',
-    keywords: ['openclaude-plugin', 'snippets', 'productivity'],
+    keywords: ['dario-plugin', 'snippets', 'productivity'],
     date: '2026-01-25',
     downloads: 9800,
     npmUrl: '',
@@ -85,7 +85,7 @@ export const BUNDLED_PLUGINS = [
     version: '2.0.0',
     description: 'Run tests directly from the CLI with inline pass/fail output and coverage reports.',
     author: 'devtools-collective',
-    keywords: ['openclaude-plugin', 'testing', 'runner'],
+    keywords: ['dario-plugin', 'testing', 'runner'],
     date: '2026-01-28',
     downloads: 22100,
     npmUrl: '',
@@ -96,7 +96,7 @@ export const BUNDLED_PLUGINS = [
     version: '1.1.0',
     description: 'Auto-generate JSDoc, TSDoc, or Markdown documentation from your source code.',
     author: 'doctools',
-    keywords: ['openclaude-plugin', 'docs', 'documentation'],
+    keywords: ['dario-plugin', 'docs', 'documentation'],
     date: '2026-01-30',
     downloads: 11200,
     npmUrl: '',
@@ -107,7 +107,7 @@ export const BUNDLED_PLUGINS = [
     version: '0.8.0',
     description: 'Switch between .env files for different environments (dev, staging, prod).',
     author: 'configkit',
-    keywords: ['openclaude-plugin', 'env', 'config'],
+    keywords: ['dario-plugin', 'env', 'config'],
     date: '2026-02-01',
     downloads: 7400,
     npmUrl: '',
@@ -118,7 +118,7 @@ export const BUNDLED_PLUGINS = [
     version: '1.3.0',
     description: 'Find and track TODO/FIXME/HACK comments across your codebase with priority sorting.',
     author: 'codecraft',
-    keywords: ['openclaude-plugin', 'todo', 'tracking'],
+    keywords: ['dario-plugin', 'todo', 'tracking'],
     date: '2026-02-03',
     downloads: 13600,
     npmUrl: '',
@@ -128,8 +128,8 @@ export const BUNDLED_PLUGINS = [
     name: 'ai-commit',
     version: '0.5.0',
     description: 'Generate conventional commit messages from staged diffs using the active LLM.',
-    author: 'openclaude',
-    keywords: ['openclaude-plugin', 'git', 'ai', 'commits'],
+    author: 'dario',
+    keywords: ['dario-plugin', 'git', 'ai', 'commits'],
     date: '2026-02-05',
     downloads: 18900,
     npmUrl: '',

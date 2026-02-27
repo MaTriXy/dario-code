@@ -1,4 +1,4 @@
-# Sandbox Mode for OpenClaude
+# Sandbox Mode for Dario
 
 Sandbox Mode provides security-critical command execution sandboxing on macOS using `sandbox-exec`. This prevents potentially dangerous commands from breaking out of their intended scope.
 
@@ -8,20 +8,20 @@ Sandbox Mode provides security-critical command execution sandboxing on macOS us
 - **Escape Attempt Detection**: Identifies and blocks common sandbox escape patterns
 - **Profile Generation**: Dynamically creates sandbox-exec profiles with configurable restrictions
 - **Permission Boundaries**: Restricts file writes, network access, and process execution
-- **Settings Integration**: Reads sandbox configuration from `.openclaude/settings.json`
+- **Settings Integration**: Reads sandbox configuration from `.dario/settings.json`
 - **Unsandboxed Allowlist**: Supports whitelisting commands to run outside the sandbox
 
 ## Installation
 
-The sandbox module is built-in. Access it via `globalThis.__openclaude.sandbox`:
+The sandbox module is built-in. Access it via `globalThis.__dario.sandbox`:
 
 ```javascript
-const sandbox = globalThis.__openclaude.sandbox
+const sandbox = globalThis.__dario.sandbox
 ```
 
 ## Configuration
 
-Add sandbox settings to `~/.openclaude/settings.json`:
+Add sandbox settings to `~/.dario/settings.json`:
 
 ```json
 {
@@ -54,7 +54,7 @@ Add sandbox settings to `~/.openclaude/settings.json`:
 Check if the current platform supports sandboxing (macOS only).
 
 ```javascript
-if (globalThis.__openclaude.sandbox.isSandboxSupported()) {
+if (globalThis.__dario.sandbox.isSandboxSupported()) {
   console.log('Sandbox available')
 }
 ```
@@ -66,7 +66,7 @@ if (globalThis.__openclaude.sandbox.isSandboxSupported()) {
 Detect if a command contains patterns that indicate sandbox escape attempts.
 
 ```javascript
-const result = globalThis.__openclaude.sandbox.detectEscapeAttempt('ptrace -p 123')
+const result = globalThis.__dario.sandbox.detectEscapeAttempt('ptrace -p 123')
 if (result.detected) {
   console.log(`Escape detected: ${result.message}`)
 }
@@ -89,7 +89,7 @@ if (result.detected) {
 Generate a sandbox-exec profile with specified restrictions.
 
 ```javascript
-const profile = globalThis.__openclaude.sandbox.createSandboxProfile({
+const profile = globalThis.__dario.sandbox.createSandboxProfile({
   projectDir: '/Users/username/project',
   allowNetwork: true,
   writePaths: ['/tmp', '/Users/username/project'],
@@ -114,7 +114,7 @@ const profile = globalThis.__openclaude.sandbox.createSandboxProfile({
 Write a sandbox profile to a temporary file.
 
 ```javascript
-const profilePath = globalThis.__openclaude.sandbox.writeSandboxProfile(profile)
+const profilePath = globalThis.__dario.sandbox.writeSandboxProfile(profile)
 ```
 
 **Parameters**:
@@ -127,7 +127,7 @@ const profilePath = globalThis.__openclaude.sandbox.writeSandboxProfile(profile)
 Wrap a command with sandbox-exec to execute it in the sandbox.
 
 ```javascript
-const wrapped = globalThis.__openclaude.sandbox.wrapCommand('ls -la', profilePath)
+const wrapped = globalThis.__dario.sandbox.wrapCommand('ls -la', profilePath)
 // Returns: sandbox-exec -f "/tmp/.sandbox-profile-1234.sb" sh -c 'ls -la'
 ```
 
@@ -142,7 +142,7 @@ const wrapped = globalThis.__openclaude.sandbox.wrapCommand('ls -la', profilePat
 Execute a command with optional sandboxing (recommended high-level API).
 
 ```javascript
-const result = globalThis.__openclaude.sandbox.executeWithSandbox('npm install', {
+const result = globalThis.__dario.sandbox.executeWithSandbox('npm install', {
   enabled: true,
   projectDir: '/Users/username/project',
   allowNetwork: true
@@ -175,7 +175,7 @@ console.log(result.escaped)    // Escape attempt detected?
 Load sandbox settings from configuration.
 
 ```javascript
-const settings = globalThis.__openclaude.sandbox.getSandboxSettings(configLoader)
+const settings = globalThis.__dario.sandbox.getSandboxSettings(configLoader)
 ```
 
 **Parameters**:
@@ -188,7 +188,7 @@ const settings = globalThis.__openclaude.sandbox.getSandboxSettings(configLoader
 Merge sandbox settings with provided options.
 
 ```javascript
-const merged = globalThis.__openclaude.sandbox.applySandboxSettings(
+const merged = globalThis.__dario.sandbox.applySandboxSettings(
   { enabled: true },
   { allowNetwork: false }
 )
@@ -206,7 +206,7 @@ Check if a command is in the unsandboxed allowlist.
 
 ```javascript
 const allowlist = ['git', 'npm', /^node/]
-if (globalThis.__openclaude.sandbox.isInAllowlist('git status', allowlist)) {
+if (globalThis.__dario.sandbox.isInAllowlist('git status', allowlist)) {
   // Run without sandbox
 }
 ```
@@ -222,7 +222,7 @@ if (globalThis.__openclaude.sandbox.isInAllowlist('git status', allowlist)) {
 ### Example 1: Basic Sandbox Execution
 
 ```javascript
-const sandbox = globalThis.__openclaude.sandbox
+const sandbox = globalThis.__dario.sandbox
 
 // Execute a command with sandbox
 const result = sandbox.executeWithSandbox('ls -la /tmp', {

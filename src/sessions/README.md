@@ -1,10 +1,10 @@
 # Session Management Module
 
-This module provides persistent session management for OpenClaude, allowing users to save, resume, and export conversations.
+This module provides persistent session management for Dario, allowing users to save, resume, and export conversations.
 
 ## Overview
 
-The session management system stores conversation history and metadata in `~/.openclaude/sessions/` directory. Each session is a self-contained JSON file with all messages, context, and metadata.
+The session management system stores conversation history and metadata in `~/.dario/sessions/` directory. Each session is a self-contained JSON file with all messages, context, and metadata.
 
 ## Features
 
@@ -216,13 +216,13 @@ Each session is stored as JSON with the following structure:
 
 ## File Storage
 
-Sessions are stored in: `~/.openclaude/sessions/`
+Sessions are stored in: `~/.dario/sessions/`
 
 Each session file is named: `{session-id}.json`
 
 Directory structure:
 ```
-~/.openclaude/
+~/.dario/
 ├── sessions/
 │   ├── 123e4567-e89b-12d3-a456-426614174000.json
 │   ├── 234e4567-e89b-12d3-a456-426614174001.json

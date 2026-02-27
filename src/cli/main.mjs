@@ -1,7 +1,7 @@
 /**
  * Main CLI Entry Point
  *
- * This is the primary entry point for the Open Claude Code CLI application.
+ * This is the primary entry point for the Dario Code CLI application.
  * Handles initialization, authentication, and command routing.
  *
  */

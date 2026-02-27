@@ -2,7 +2,7 @@
   "name": "plugin-template",
   "version": "0.1.0",
   "description": "A template plugin demonstrating the plugin system structure",
-  "author": "OpenClaude Contributors",
+  "author": "Dario Contributors",
   "license": "MIT",
   "entry": "index.mjs",
   "commands": [

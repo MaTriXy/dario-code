@@ -9,7 +9,7 @@ import { loadSettings, saveSettings } from '../core/config.mjs'
 import { fileExists, readFile, writeFile, safeJsonParse } from '../core/utils.mjs'
 
 const HOME_DIR = os.homedir()
-const PLUGINS_DIR = process.env.OPENCLAUDE_PLUGINS_DIR || path.join(HOME_DIR, '.openclaude', 'plugins')
+const PLUGINS_DIR = process.env.DARIO_PLUGINS_DIR || path.join(HOME_DIR, '.dario', 'plugins')
 
 /**
  * Load the plugin registry from settings

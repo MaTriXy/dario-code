@@ -1,7 +1,7 @@
 #!/usr/bin/env -S node --no-warnings=ExperimentalWarning --disable-warning=DEP0040 --enable-source-maps
 
 /**
- * OpenClaude CLI Entry Point
+ * Dario CLI Entry Point
  */
 
 import { Command } from 'commander';
@@ -31,12 +31,12 @@ const loadEnvFile = (path) => {
 
 // Load .env files
 loadEnvFile(join(process.cwd(), '.env'));
-loadEnvFile(join(homedir(), '.openclaude', '.env'));
+loadEnvFile(join(homedir(), '.dario', '.env'));
 loadEnvFile(join(homedir(), '.env'));
 
 program
-  .name('openclaude')
-  .description('Open Claude Code - an open source CLI for Claude')
+  .name('dario')
+  .description('Dario Code - an open source CLI for Claude')
   .version('1.0.0')
   .argument('[prompt]', 'Your prompt')
   .option('-c, --cwd <cwd>', 'Current working directory', process.cwd())
@@ -72,27 +72,27 @@ program
     if (options.verbose) process.env.VERBOSE = '1';
     if (options.model) process.env.CLAUDE_MODEL = options.model;
     if (options.cwd) process.chdir(options.cwd);
-    if (options.thinking) process.env.OPENCLAUDE_THINKING = '1';
-    if (options.thinking === false) process.env.OPENCLAUDE_THINKING = '0';
-    if (options.resume) process.env.OPENCLAUDE_RESUME = typeof options.resume === 'string' ? options.resume : 'latest';
-    if (options.forkSession) process.env.OPENCLAUDE_FORK_SESSION = '1';
-    if (options.agent) process.env.OPENCLAUDE_AGENT = options.agent;
-    if (options.tools) process.env.OPENCLAUDE_TOOLS = options.tools;
-    if (options.fromPr) process.env.OPENCLAUDE_FROM_PR = options.fromPr;
-    if (options.maxTurns !== undefined) process.env.OPENCLAUDE_MAX_TURNS = String(options.maxTurns);
+    if (options.thinking) process.env.DARIO_THINKING = '1';
+    if (options.thinking === false) process.env.DARIO_THINKING = '0';
+    if (options.resume) process.env.DARIO_RESUME = typeof options.resume === 'string' ? options.resume : 'latest';
+    if (options.forkSession) process.env.DARIO_FORK_SESSION = '1';
+    if (options.agent) process.env.DARIO_AGENT = options.agent;
+    if (options.tools) process.env.DARIO_TOOLS = options.tools;
+    if (options.fromPr) process.env.DARIO_FROM_PR = options.fromPr;
+    if (options.maxTurns !== undefined) process.env.DARIO_MAX_TURNS = String(options.maxTurns);
     if (options.permissionMode) {
-      process.env.OPENCLAUDE_PERMISSION_MODE = options.permissionMode;
+      process.env.DARIO_PERMISSION_MODE = options.permissionMode;
       // Also write to runtime config so streaming.mjs picks it up
       const { loadConfig, saveConfig } = await import('./src/core/config.mjs');
       const cfg = loadConfig();
       cfg.permissionMode = options.permissionMode;
       saveConfig(cfg);
     }
-    if (options.inputFormat) process.env.OPENCLAUDE_INPUT_FORMAT = options.inputFormat;
+    if (options.inputFormat) process.env.DARIO_INPUT_FORMAT = options.inputFormat;
     if (options.addDir) {
       for (const dir of options.addDir) {
         const resolvedDir = dir.startsWith('/') ? dir : join(process.cwd(), dir);
-        process.env.OPENCLAUDE_ADD_DIRS = (process.env.OPENCLAUDE_ADD_DIRS || '') + resolvedDir + ':';
+        process.env.DARIO_ADD_DIRS = (process.env.DARIO_ADD_DIRS || '') + resolvedDir + ':';
       }
     }
 

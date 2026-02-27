@@ -1,5 +1,5 @@
 /**
- * Core Constants for Open Claude Code CLI
+ * Core Constants for Dario Code CLI
  *
  * This module contains important constants used throughout the application
  * including timeouts, limits, UI elements, and messages.

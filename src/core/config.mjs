@@ -1,8 +1,8 @@
 /**
- * Configuration Management for OpenClaude
+ * Configuration Management for Dario
  *
- * Handles loading and saving configuration from .openclaude and .claude directories.
- * Reads from both but only writes to .openclaude.
+ * Handles loading and saving configuration from .dario and .claude directories.
+ * Reads from both but only writes to .dario.
  */
 
 import fs from 'fs'
@@ -18,7 +18,7 @@ let _modelOverride = null
 
 // Configuration directories
 const HOME_DIR = os.homedir()
-const OPENCLAUDE_DIR = process.env.OPENCLAUDE_CONFIG_DIR || path.join(HOME_DIR, '.openclaude')
+const DARIO_DIR = process.env.DARIO_CONFIG_DIR || path.join(HOME_DIR, '.dario')
 const CLAUDE_DIR = path.join(HOME_DIR, '.claude') // Read-only
 
 // Configuration file names
@@ -27,20 +27,20 @@ const SETTINGS_FILE = 'settings.json'
 const CLAUDE_MD_FILE = 'CLAUDE.md'
 
 /**
- * Ensure the OpenClaude config directory exists
+ * Ensure the Dario config directory exists
  */
 export function ensureConfigDir() {
-  if (!fileExists(OPENCLAUDE_DIR)) {
-    fs.mkdirSync(OPENCLAUDE_DIR, { recursive: true })
+  if (!fileExists(DARIO_DIR)) {
+    fs.mkdirSync(DARIO_DIR, { recursive: true })
   }
-  return OPENCLAUDE_DIR
+  return DARIO_DIR
 }
 
 /**
- * Get the OpenClaude config directory path
+ * Get the Dario config directory path
  */
 export function getConfigDir() {
-  return OPENCLAUDE_DIR
+  return DARIO_DIR
 }
 
 /**
@@ -51,8 +51,8 @@ export function getClaudeConfigDir() {
 }
 
 /**
- * Load configuration from both .openclaude and .claude directories
- * OpenClaude settings take precedence
+ * Load configuration from both .dario and .claude directories
+ * Dario settings take precedence
  */
 export function loadConfig() {
   const config = {}
@@ -64,31 +64,31 @@ export function loadConfig() {
     Object.assign(config, claudeConfig)
   }
 
-  // Then overlay .openclaude settings (takes precedence)
-  const openclaudeConfigPath = path.join(OPENCLAUDE_DIR, CONFIG_FILE)
-  if (fileExists(openclaudeConfigPath)) {
-    const openclaudeConfig = safeJsonParse(readFile(openclaudeConfigPath), {})
-    Object.assign(config, openclaudeConfig)
+  // Then overlay .dario settings (takes precedence)
+  const darioConfigPath = path.join(DARIO_DIR, CONFIG_FILE)
+  if (fileExists(darioConfigPath)) {
+    const darioConfig = safeJsonParse(readFile(darioConfigPath), {})
+    Object.assign(config, darioConfig)
   }
 
   return config
 }
 
 /**
- * Save configuration to .openclaude directory only.
+ * Save configuration to .dario directory only.
  *
- * IMPORTANT: This performs a read-modify-write on the .openclaude config file
+ * IMPORTANT: This performs a read-modify-write on the .dario config file
  * (NOT the merged config) to avoid clobbering keys written by other modules
  * (e.g., OAuth tokens written by auth/oauth.mjs).
  *
  * Callers passing a full config from loadConfig() will have their keys merged
- * into the existing .openclaude file, preserving any keys they didn't touch.
+ * into the existing .dario file, preserving any keys they didn't touch.
  */
 export function saveConfig(config) {
   ensureConfigDir()
-  const configPath = path.join(OPENCLAUDE_DIR, CONFIG_FILE)
+  const configPath = path.join(DARIO_DIR, CONFIG_FILE)
 
-  // Read existing .openclaude config to preserve keys not in the incoming config
+  // Read existing .dario config to preserve keys not in the incoming config
   let existing = {}
   if (fileExists(configPath)) {
     existing = safeJsonParse(readFile(configPath), {})
@@ -122,11 +122,11 @@ export function setConfigValue(key, value) {
 }
 
 /**
- * Remove a config value from the .openclaude config file directly.
+ * Remove a config value from the .dario config file directly.
  */
 export function removeConfigValue(key) {
   ensureConfigDir()
-  const configPath = path.join(OPENCLAUDE_DIR, CONFIG_FILE)
+  const configPath = path.join(DARIO_DIR, CONFIG_FILE)
   let config = {}
   if (fileExists(configPath)) {
     config = safeJsonParse(readFile(configPath), {})
@@ -148,22 +148,22 @@ export function loadSettings() {
     Object.assign(settings, claudeSettings)
   }
 
-  // Overlay .openclaude settings
-  const openclaudeSettingsPath = path.join(OPENCLAUDE_DIR, SETTINGS_FILE)
-  if (fileExists(openclaudeSettingsPath)) {
-    const openclaudeSettings = safeJsonParse(readFile(openclaudeSettingsPath), {})
-    Object.assign(settings, openclaudeSettings)
+  // Overlay .dario settings
+  const darioSettingsPath = path.join(DARIO_DIR, SETTINGS_FILE)
+  if (fileExists(darioSettingsPath)) {
+    const darioSettings = safeJsonParse(readFile(darioSettingsPath), {})
+    Object.assign(settings, darioSettings)
   }
 
   return settings
 }
 
 /**
- * Save settings to .openclaude only
+ * Save settings to .dario only
  */
 export function saveSettings(settings) {
   ensureConfigDir()
-  const settingsPath = path.join(OPENCLAUDE_DIR, SETTINGS_FILE)
+  const settingsPath = path.join(DARIO_DIR, SETTINGS_FILE)
   writeFile(settingsPath, JSON.stringify(settings, null, 2))
 }
 
@@ -276,11 +276,11 @@ export function removeCustomContextItem(itemId) {
 export function loadClaudeMd(projectDir = process.cwd()) {
   const contents = []
 
-  // Global CLAUDE.md from .openclaude
-  const globalOpenclaudeMd = path.join(OPENCLAUDE_DIR, CLAUDE_MD_FILE)
+  // Global CLAUDE.md from .dario
+  const globalOpenclaudeMd = path.join(DARIO_DIR, CLAUDE_MD_FILE)
   if (fileExists(globalOpenclaudeMd)) {
     contents.push({
-      source: 'global-openclaude',
+      source: 'global-dario',
       path: globalOpenclaudeMd,
       content: processImports(readFile(globalOpenclaudeMd), path.dirname(globalOpenclaudeMd))
     })
@@ -391,14 +391,14 @@ export function processImports(content, baseDir, visited = new Set()) {
 }
 
 /**
- * Load custom commands from .openclaude/commands/ and .claude/commands/
+ * Load custom commands from .dario/commands/ and .claude/commands/
  */
 export async function loadCustomCommands() {
   const commands = []
   const commandDirs = [
-    path.join(OPENCLAUDE_DIR, 'commands'),
+    path.join(DARIO_DIR, 'commands'),
     path.join(CLAUDE_DIR, 'commands'), // Read-only
-    path.join(process.cwd(), '.openclaude', 'commands'),
+    path.join(process.cwd(), '.dario', 'commands'),
     path.join(process.cwd(), '.claude', 'commands') // Read-only
   ]
 
@@ -419,7 +419,7 @@ export async function loadCustomCommands() {
 
         commands.push({
           name: `/${name}`,
-          source: dir.includes('.claude') ? 'claude' : 'openclaude',
+          source: dir.includes('.claude') ? 'claude' : 'dario',
           path: filePath,
           content,
           ...metadata
@@ -578,7 +578,7 @@ const DEFAULT_COMPACT_THRESHOLD = 0.85  // 85% context usage
  * Get the auto-compact threshold (0–1 fraction of context window).
  * When context usage exceeds this fraction, auto-compaction triggers.
  * Default: 0.85 (85%).
- * Configurable via: ~/.openclaude/config.json { "compactThreshold": 0.85 }
+ * Configurable via: ~/.dario/config.json { "compactThreshold": 0.85 }
  *
  * @returns {number} Threshold between 0 and 1
  */
@@ -602,7 +602,7 @@ export function setCompactThreshold(threshold) {
 }
 
 /**
- * Load global config (user-level config from ~/.openclaude or ~/.claude)
+ * Load global config (user-level config from ~/.dario or ~/.claude)
  * @returns {Object} Global configuration
  */
 export function loadGlobalConfig() {
@@ -615,11 +615,11 @@ export function loadGlobalConfig() {
     Object.assign(config, claudeConfig)
   }
 
-  // Overlay .openclaude settings (takes precedence)
-  const openclaudeConfigPath = path.join(OPENCLAUDE_DIR, CONFIG_FILE)
-  if (fileExists(openclaudeConfigPath)) {
-    const openclaudeConfig = safeJsonParse(readFile(openclaudeConfigPath), {})
-    Object.assign(config, openclaudeConfig)
+  // Overlay .dario settings (takes precedence)
+  const darioConfigPath = path.join(DARIO_DIR, CONFIG_FILE)
+  if (fileExists(darioConfigPath)) {
+    const darioConfig = safeJsonParse(readFile(darioConfigPath), {})
+    Object.assign(config, darioConfig)
   }
 
   return config
@@ -631,7 +631,7 @@ export function loadGlobalConfig() {
  */
 export function saveGlobalConfig(config) {
   ensureConfigDir()
-  const configPath = path.join(OPENCLAUDE_DIR, CONFIG_FILE)
+  const configPath = path.join(DARIO_DIR, CONFIG_FILE)
   writeFile(configPath, JSON.stringify(config, null, 2))
 }
 
@@ -673,7 +673,7 @@ export async function getSystemPrompt(options = {}) {
   }
 
   // Core system prompt
-  const systemPrompt = `You are OpenClaude, an AI assistant for software engineering tasks.
+  const systemPrompt = `You are Dario, an AI assistant for software engineering tasks.
 
 ## Environment
 <env>

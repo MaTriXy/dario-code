@@ -162,7 +162,7 @@ function buildAgentList(customAgents, builtinAgents) {
   }
 
   if (personalAgents.length > 0) {
-    items.push({ type: 'header', id: '__hdr_personal__', label: `Personal agents (~/.openclaude + ~/.claude)` })
+    items.push({ type: 'header', id: '__hdr_personal__', label: `Personal agents (~/.dario + ~/.claude)` })
     for (const agent of personalAgents) {
       items.push({
         type: 'agent',
@@ -463,7 +463,7 @@ export function AgentManager({ tools: allTools = [], onCancel, onMessage, onDele
       temperature: 0.7,
     }
     saveCustomAgent(name, config, createLocation)
-    const locLabel = createLocation === 'project' ? '.claude/agents/' : '~/.openclaude/agents/'
+    const locLabel = createLocation === 'project' ? '.claude/agents/' : '~/.dario/agents/'
     onMessage?.(`Created agent: ${name} (${locLabel})`)
     resetCreateState()
     setView('list')
@@ -616,7 +616,7 @@ export function AgentManager({ tools: allTools = [], onCancel, onMessage, onDele
   function renderCreateLocation() {
     const options = [
       { label: '1. Project (.claude/agents/)', value: 'project' },
-      { label: '2. Personal (~/.openclaude/agents/)', value: 'personal' },
+      { label: '2. Personal (~/.dario/agents/)', value: 'personal' },
     ]
 
     return React.createElement(Box, { flexDirection: 'column' },

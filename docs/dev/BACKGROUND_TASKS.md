@@ -1,6 +1,6 @@
 # Background Tasks Module
 
-The background tasks system allows OpenClaude to spawn and manage long-running processes without blocking the main conversation loop. This is useful for:
+The background tasks system allows Dario to spawn and manage long-running processes without blocking the main conversation loop. This is useful for:
 
 - Running tests, builds, or deployments in the background
 - Monitoring long-running operations
@@ -25,7 +25,7 @@ Spawns a new background task and returns immediately.
 **Returns:** Task object
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test')
+const task = globalThis.__dario.tasks.spawn('npm test')
 // {
 //   id: "task_1764092867935_1",
 //   command: "npm test",
@@ -49,7 +49,7 @@ Gets the current status of a task.
 **Returns:** Task object or null if not found
 
 ```javascript
-const status = globalThis.__openclaude.tasks.getStatus('task_1764092867935_1')
+const status = globalThis.__dario.tasks.getStatus('task_1764092867935_1')
 console.log(status.status)  // "running" | "completed" | "failed" | "killed"
 console.log(status.exitCode) // 0 for success, non-zero for failure
 ```
@@ -67,7 +67,7 @@ Retrieves buffered output from a task.
 **Returns:** Array of output lines
 
 ```javascript
-const output = globalThis.__openclaude.tasks.getOutput('task_1764092867935_1')
+const output = globalThis.__dario.tasks.getOutput('task_1764092867935_1')
 output.forEach(line => console.log(line))
 // [STDOUT] Hello from task
 // [STDERR] Warning message
@@ -82,7 +82,7 @@ Retrieves buffered output as a single string.
 **Returns:** String with all output lines joined by newlines
 
 ```javascript
-const fullOutput = globalThis.__openclaude.tasks.getOutputAsString('task_1764092867935_1')
+const fullOutput = globalThis.__dario.tasks.getOutputAsString('task_1764092867935_1')
 ```
 
 #### `listBackgroundTasks(options)`
@@ -97,7 +97,7 @@ Lists all tasks (running and completed).
 **Returns:** Array of task objects
 
 ```javascript
-const running = globalThis.__openclaude.tasks.list({ status: 'running' })
+const running = globalThis.__dario.tasks.list({ status: 'running' })
 console.log(`${running.length} tasks running`)
 ```
 
@@ -111,7 +111,7 @@ Terminates a running task.
 **Returns:** boolean - true if kill was successful, false otherwise
 
 ```javascript
-const success = globalThis.__openclaude.tasks.kill('task_1764092867935_1')
+const success = globalThis.__dario.tasks.kill('task_1764092867935_1')
 if (success) console.log('Task terminated')
 ```
 
@@ -127,7 +127,7 @@ Waits for a task to complete.
 
 ```javascript
 try {
-  const completed = await globalThis.__openclaude.tasks.wait('task_1764092867935_1', 30000)
+  const completed = await globalThis.__dario.tasks.wait('task_1764092867935_1', 30000)
   console.log(`Task completed with status: ${completed.status}`)
 } catch (err) {
   console.error(`Task timeout: ${err.message}`)
@@ -144,7 +144,7 @@ Removes completed tasks older than specified time.
 **Returns:** number - Count of tasks removed
 
 ```javascript
-const removed = globalThis.__openclaude.tasks.cleanup(1800000)  // 30 minutes
+const removed = globalThis.__dario.tasks.cleanup(1800000)  // 30 minutes
 console.log(`Cleaned up ${removed} tasks`)
 ```
 
@@ -155,7 +155,7 @@ Gets statistics about all tasks.
 **Returns:** Object with task counts
 
 ```javascript
-const stats = globalThis.__openclaude.tasks.getStatistics()
+const stats = globalThis.__dario.tasks.getStatistics()
 // {
 //   total: 5,
 //   running: 1,
@@ -173,14 +173,14 @@ Stops all running processes and clears all tasks.
 **Returns:** Promise<void>
 
 ```javascript
-await globalThis.__openclaude.tasks.clearAll()
+await globalThis.__dario.tasks.clearAll()
 console.log('All tasks cleared')
 ```
 
 ### Status Constants
 
 ```javascript
-const TaskStatus = globalThis.__openclaude.tasks.TaskStatus
+const TaskStatus = globalThis.__dario.tasks.TaskStatus
 // {
 //   RUNNING: "running",
 //   COMPLETED: "completed",
@@ -195,15 +195,15 @@ const TaskStatus = globalThis.__openclaude.tasks.TaskStatus
 
 ```javascript
 // Spawn tests without blocking
-const testTask = globalThis.__openclaude.tasks.spawn('npm test -- --watch')
+const testTask = globalThis.__dario.tasks.spawn('npm test -- --watch')
 console.log(`Tests running in background (PID: ${testTask.pid})`)
 
 // Continue with other work...
 
 // Later, check test results
-const status = globalThis.__openclaude.tasks.getStatus(testTask.id)
+const status = globalThis.__dario.tasks.getStatus(testTask.id)
 if (status.status === 'completed') {
-  const output = globalThis.__openclaude.tasks.getOutputAsString(testTask.id)
+  const output = globalThis.__dario.tasks.getOutputAsString(testTask.id)
   console.log('Test Results:\n' + output)
 }
 ```
@@ -213,14 +213,14 @@ if (status.status === 'completed') {
 ```javascript
 // Spawn multiple builds
 const builds = [
-  globalThis.__openclaude.tasks.spawn('npm run build:web'),
-  globalThis.__openclaude.tasks.spawn('npm run build:cli'),
-  globalThis.__openclaude.tasks.spawn('npm run build:mobile')
+  globalThis.__dario.tasks.spawn('npm run build:web'),
+  globalThis.__dario.tasks.spawn('npm run build:cli'),
+  globalThis.__dario.tasks.spawn('npm run build:mobile')
 ]
 
 // Wait for all to complete
 const completed = await Promise.all(
-  builds.map(b => globalThis.__openclaude.tasks.wait(b.id))
+  builds.map(b => globalThis.__dario.tasks.wait(b.id))
 )
 
 // Check results
@@ -232,18 +232,18 @@ completed.forEach((task, i) => {
 ### Example 3: Monitoring task output in real-time
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('npm test')
+const task = globalThis.__dario.tasks.spawn('npm test')
 let lastLines = 0
 
 // Poll for new output
 const monitor = setInterval(() => {
-  const output = globalThis.__openclaude.tasks.getOutput(task.id)
+  const output = globalThis.__dario.tasks.getOutput(task.id)
   const newLines = output.slice(lastLines)
 
   newLines.forEach(line => console.log(line))
   lastLines = output.length
 
-  const status = globalThis.__openclaude.tasks.getStatus(task.id)
+  const status = globalThis.__dario.tasks.getStatus(task.id)
   if (status.status !== 'running') {
     clearInterval(monitor)
     console.log(`Task finished with status: ${status.status}`)
@@ -254,19 +254,19 @@ const monitor = setInterval(() => {
 ### Example 4: Timeout and cleanup
 
 ```javascript
-const task = globalThis.__openclaude.tasks.spawn('long-running-process')
+const task = globalThis.__dario.tasks.spawn('long-running-process')
 
 try {
   // Wait up to 5 minutes
-  await globalThis.__openclaude.tasks.wait(task.id, 300000)
+  await globalThis.__dario.tasks.wait(task.id, 300000)
 } catch (err) {
   // Timeout occurred, kill the task
   console.log('Task timeout, killing...')
-  globalThis.__openclaude.tasks.kill(task.id)
+  globalThis.__dario.tasks.kill(task.id)
 }
 
 // Clean up old tasks periodically
-globalThis.__openclaude.tasks.cleanup(3600000)  // Remove tasks older than 1 hour
+globalThis.__dario.tasks.cleanup(3600000)  // Remove tasks older than 1 hour
 ```
 
 ## Task Data Structure
@@ -308,7 +308,7 @@ Each task has the following structure:
 The task manager emits events that can be listened to:
 
 ```javascript
-const manager = globalThis.__openclaude.tasks.manager
+const manager = globalThis.__dario.tasks.manager
 
 manager.on('task-spawn', (taskId, task) => {
   console.log(`Task spawned: ${taskId}`)
@@ -336,21 +336,21 @@ manager.on('task-output', (taskId, line, stream) => {
 5. **Use proper shell commands**: Wrap complex commands in quotes or use shell: true
 6. **Monitor resource usage**: Use getStatistics() to monitor task counts and output size
 
-## Integration with OpenClaude
+## Integration with Dario
 
-The background tasks system is integrated into OpenClaude's global API:
+The background tasks system is integrated into Dario's global API:
 
 ```javascript
-// Via globalThis.__openclaude.tasks
-globalThis.__openclaude.tasks.spawn(command)
-globalThis.__openclaude.tasks.list()
-globalThis.__openclaude.tasks.getStatus(taskId)
-globalThis.__openclaude.tasks.getOutput(taskId)
-globalThis.__openclaude.tasks.kill(taskId)
-globalThis.__openclaude.tasks.wait(taskId)
-globalThis.__openclaude.tasks.cleanup()
-globalThis.__openclaude.tasks.getStatistics()
-globalThis.__openclaude.tasks.clearAll()
+// Via globalThis.__dario.tasks
+globalThis.__dario.tasks.spawn(command)
+globalThis.__dario.tasks.list()
+globalThis.__dario.tasks.getStatus(taskId)
+globalThis.__dario.tasks.getOutput(taskId)
+globalThis.__dario.tasks.kill(taskId)
+globalThis.__dario.tasks.wait(taskId)
+globalThis.__dario.tasks.cleanup()
+globalThis.__dario.tasks.getStatistics()
+globalThis.__dario.tasks.clearAll()
 
 // Direct module import
 import { spawnBackgroundTask, getTaskStatus } from './src/tasks/index.mjs'

@@ -1,6 +1,6 @@
 # Terminal UI Components
 
-Open Claude Code employs a sophisticated Terminal UI architecture to create a rich, interactive experience within the constraints of a text-based terminal interface.
+Dario Code employs a sophisticated Terminal UI architecture to create a rich, interactive experience within the constraints of a text-based terminal interface.
 
 ## Terminal UI Architecture
 
@@ -145,7 +145,7 @@ Visual indicators for long-running operations:
 
 ## Terminal Capabilities
 
-Open Claude Code adapts to the capabilities of the user's terminal:
+Dario Code adapts to the capabilities of the user's terminal:
 
 | Feature               | Fallback                    | Enhanced                           |
 |-----------------------|-----------------------------|-----------------------------------|

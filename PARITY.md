@@ -1,4 +1,4 @@
-# Open Claude Code — Feature Parity Report
+# Dario Code — Feature Parity Report
 
 **Local Version**: 1.0.0  
 **Official Claude Code**: 2.1.44  
@@ -241,4 +241,4 @@
 - WebSearch/WebFetch tools built-in
 - Background task management with dependencies
 - Multiple TUI variants (claude/minimal/custom)
-- Cross-compatible .openclaude + .claude config reading
+- Cross-compatible .dario + .claude config reading

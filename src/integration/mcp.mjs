@@ -5,8 +5,8 @@
  * and server configuration management.
  *
  * MCP servers can be configured at three scopes:
- * - global: User's global config (~/.openclaude/config.json)
- * - project: Project-level config (.openclaude/config.json)
+ * - global: User's global config (~/.dario/config.json)
+ * - project: Project-level config (.dario/config.json)
  * - mcprc: Legacy .mcprc file support
  *
  */
@@ -346,7 +346,7 @@ export async function connectToMcpServer(name, config, dependencies) {
   // Create MCP client
   const client = new Client(
     {
-      name: 'openclaude',
+      name: 'dario',
       version: '0.1.0'
     },
     {
@@ -863,7 +863,7 @@ export async function initializeMcp(dependencies) {
 // Lazy MCP Loading
 // ============================================================================
 
-const MCP_CACHE_DIR = '.openclaude/mcp-cache'
+const MCP_CACHE_DIR = '.dario/mcp-cache'
 const CACHE_MAX_AGE_MS = 24 * 60 * 60 * 1000 // 24 hours
 
 // Valid startup modes for MCP servers

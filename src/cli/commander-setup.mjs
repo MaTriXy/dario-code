@@ -28,9 +28,9 @@ export async function setupCommanderCLI(stdin, options = {}) {
 
   // Set up main command
   const program = commander
-    .name('claude')
+    .name('dario')
     .version('1.0.0')
-    .description('AI-powered coding assistant')
+    .description('Dario Code — AI-powered coding assistant')
     .argument('[prompt]', 'Optional prompt to start with')
     .option('-c, --cwd <cwd>', 'Current working directory', process.cwd())
     .option('-d, --debug', 'Enable debug mode')
@@ -203,7 +203,7 @@ async function handleMainCommand(prompt, options, stdin) {
   // Load enabled tools
   const tools = await loadEnabledTools(enableArchitect);
 
-  // Run SessionStart hooks (OpenClaude feature)
+  // Run SessionStart hooks (Dario feature)
   await runSessionStartHooks();
 
   if (printMode) {

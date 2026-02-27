@@ -2,7 +2,7 @@
 
 ## Overview
 
-Implemented a complete session persistence and resume system for OpenClaude that enables users to save conversation state, resume previous sessions, and manage session history.
+Implemented a complete session persistence and resume system for Dario that enables users to save conversation state, resume previous sessions, and manage session history.
 
 ## What Was Implemented
 
@@ -71,7 +71,7 @@ Step-by-step integration guide:
 
 ## Storage Location
 
-Sessions are stored in: `~/.openclaude/sessions/`
+Sessions are stored in: `~/.dario/sessions/`
 
 Directory is auto-created on first use.
 
@@ -87,10 +87,10 @@ The following flags should be added to `src/cli/parse-args.mjs`:
 
 Example usage:
 ```bash
-openclaude --continue              # Continue last session
-openclaude --resume session_id     # Resume specific session
-openclaude --list                  # List all sessions
-openclaude --cleanup               # Delete old sessions
+dario --continue              # Continue last session
+dario --resume session_id     # Resume specific session
+dario --list                  # List all sessions
+dario --cleanup               # Delete old sessions
 ```
 
 ## Proposed Commands
@@ -149,7 +149,7 @@ To fully integrate session resume:
 - [ ] Add `/delete-session` command for cleanup
 
 ### Phase 3: GlobalThis Export
-- [ ] Export session module to `globalThis.__openclaude.session`
+- [ ] Export session module to `globalThis.__dario.session`
 - [ ] Verify accessibility in tools and extensions
 
 ### Phase 4: Testing & Refinement

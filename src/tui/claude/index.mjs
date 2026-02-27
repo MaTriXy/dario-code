@@ -1,8 +1,8 @@
 /**
- * Open Claude Code TUI
+ * Dario Code TUI
  *
  * Main TUI orchestrator that implements the TUI interface
- * and provides the Open Claude Code experience
+ * and provides the Dario Code experience
  */
 
 import React, { useState, useEffect } from 'react'
@@ -289,8 +289,8 @@ export class ClaudeTUI extends TUI {
 // Set metadata
 ClaudeTUI.metadata = new TUIMetadata(
   'claude',
-  'Open Claude Code',
-  'Open Claude Code TUI',
+  'Dario Code',
+  'Dario Code TUI',
   '1.0.0'
 )
 

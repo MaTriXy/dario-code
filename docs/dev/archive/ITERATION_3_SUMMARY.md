@@ -13,13 +13,13 @@ Outputs JSON lines correctly:
 {"type":"progress","message":{"type":"assistant","content":[{"type":"text","text":"I'm ready"}]}}
 ```
 
-### ✅ System Matches Open Claude Code API
-The CLI now works exactly like Open Claude Code:
+### ✅ System Matches Dario Code API
+The CLI now works exactly like Dario Code:
 ```bash
-# OpenClaude
+# Dario
 node cli.mjs -p "Your prompt" --output-format stream-json
 
-# Open Claude Code (official)
+# Dario Code (official)
 claude -p "Your prompt" --output-format stream-json
 ```
 Same flags, same output format, same behavior.
@@ -55,7 +55,7 @@ All components working:
 
 ### Iteration 3: Verify
 - ✅ Stream-JSON confirmed working
-- ✅ CLI matches Open Claude Code API
+- ✅ CLI matches Dario Code API
 - ✅ Eval system fully functional
 
 ## Complete System
@@ -121,4 +121,4 @@ All 4 requirements fulfilled:
 3. ✅ Evaluation/judging system
 4. ✅ Feedback loop for improvements
 
-The eval system is **production-ready** and can now continuously test, judge, and improve OpenClaude CLI!
+The eval system is **production-ready** and can now continuously test, judge, and improve Dario CLI!

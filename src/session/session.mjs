@@ -1,5 +1,5 @@
 /**
- * OpenClaude Session Management
+ * Dario Session Management
  *
  * Provides session persistence and resume capability:
  * - saveSession: Save conversation state to disk

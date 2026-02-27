@@ -2,7 +2,7 @@
   "name": "theme-dark",
   "version": "1.0.0",
   "description": "Custom dark color theme for the TUI. Config-only plugin — no code, just style overrides.",
-  "author": "openclaude",
+  "author": "dario",
   "license": "MIT",
   "entry": "index.mjs",
   "commands": [],

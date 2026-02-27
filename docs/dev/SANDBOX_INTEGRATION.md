@@ -1,13 +1,13 @@
 # Sandbox Integration Guide
 
-This guide explains how to integrate the sandbox module into your OpenClaude tools and extensions.
+This guide explains how to integrate the sandbox module into your Dario tools and extensions.
 
 ## Overview
 
 The sandbox module provides command execution sandboxing on macOS using `sandbox-exec`. It's accessible via:
 
 ```javascript
-globalThis.__openclaude.sandbox
+globalThis.__dario.sandbox
 ```
 
 ## Integration Steps
@@ -78,7 +78,7 @@ export function createBashToolWithSandbox(dependencies) {
     name: 'Bash',
 
     async validateInput({ command }) {
-      const sandbox = globalThis.__openclaude.sandbox
+      const sandbox = globalThis.__dario.sandbox
 
       // Check for escape attempts
       const escape = sandbox.detectEscapeAttempt(command)
@@ -93,7 +93,7 @@ export function createBashToolWithSandbox(dependencies) {
     },
 
     async *call({ command, timeout = 120000 }, context) {
-      const sandbox = globalThis.__openclaude.sandbox
+      const sandbox = globalThis.__dario.sandbox
 
       // Get sandbox settings
       const settings = sandbox.getSandboxSettings(configLoader)
@@ -124,7 +124,7 @@ export function createBashToolWithSandbox(dependencies) {
 
 ### Basic Configuration
 
-Store in `~/.openclaude/settings.json`:
+Store in `~/.dario/settings.json`:
 
 ```json
 {
@@ -159,7 +159,7 @@ For sensitive projects:
 
 ### Custom Project Configuration
 
-Add to project's `.openclaude/settings.json`:
+Add to project's `.dario/settings.json`:
 
 ```json
 {

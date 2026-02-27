@@ -1,10 +1,10 @@
-# Feature Comparison: OpenClaude vs Official Claude CLI
+# Feature Comparison: Dario vs Official Claude CLI
 
 **Legend:** ✓ = Yes | ✗ = No | ~ = Partial
 
 ## Slash Commands
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | `/help` | ✓ | ✓ | Shows help information |
 | `/model` | ✓ | ✓ | Interactive model switching |
@@ -27,7 +27,7 @@
 
 ## Tools
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | `Bash` | ✓ | ✓ | Command execution with security |
 | `Read` | ✓ | ✓ | File reading with images/PDF/notebooks |
@@ -50,7 +50,7 @@
 
 ## CLI Options & Flags
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | `--help` | ✓ | ✓ | Commander handles this |
 | `--version` | ✓ | ✓ | Commander handles this |
@@ -70,7 +70,7 @@
 
 ## Authentication
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | OAuth - Console | ✓ | ✓ | Creates API keys |
 | OAuth - Claude Max/Pro | ✓ | ✓ | Zero-cost inference |
@@ -82,7 +82,7 @@
 
 ## Configuration Commands
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | `config get` | ✓ | ✓ | Get configuration value |
 | `config set` | ✓ | ✓ | Set configuration value (JSON parsing) |
@@ -99,7 +99,7 @@
 
 ## Advanced Features
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | Plan Mode Workflow | ✓ | ✓ | Design before implementation |
 | @-mentions | ✓ | ✓ | File inclusion with tab completion |
@@ -117,7 +117,7 @@
 
 ## MCP Integration
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | MCP Server Config | ✓ | ✓ | settings.json configuration |
 | Dynamic Tool Loading | ✓ | ✓ | Load tools from servers |
@@ -129,7 +129,7 @@
 
 ## UI/TUI Features
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | Interactive Chat Mode | ✓ | ✓ | Full TUI |
 | Status Line | ✓ | ✓ | Model/token/mode display |
@@ -144,7 +144,7 @@
 
 ## System Features
 
-| Feature | Official CLI | OpenClaude | Notes |
+| Feature | Official CLI | Dario | Notes |
 |---------|-------------|------------|-------|
 | Model Selection | ✓ | ✓ | All Claude models |
 | Context Management | ✓ | ✓ | 200K context windows |
@@ -166,7 +166,7 @@
 - **~ Partial Implementation:** 7 (6%)
 - **✗ Not Implemented:** 3 (3%)
 
-### OpenClaude Strengths
+### Dario Strengths
 - **100% tool parity** - All 18 tools implemented
 - **MCP integration** - Full server support
 - **Hooks system** - Complete lifecycle hooks
@@ -174,7 +174,7 @@
 - **Print mode** - Non-interactive with all tools
 
 ### Missing Features (Only 3 Remaining)
-1. `mcp serve` - Not applicable (OpenClaude is MCP client, not server)
+1. `mcp serve` - Not applicable (Dario is MCP client, not server)
 2. Full Vim mode - Complete modal editing (partial exists)
 3. Auto-updater - Not applicable for open source
 
@@ -185,7 +185,7 @@
 12. History search improvements
 13. Suspend/resume improvements
 
-### OpenClaude Exclusive Features
+### Dario Exclusive Features
 - **Print mode with full tool support** - Official CLI print mode is limited
 - **Custom commands from markdown** - User-defined slash commands
 - **Modular architecture** - Clean separation of concerns
@@ -198,7 +198,7 @@
 4. **Optional:** Fuzzy history search (current: basic up/down)
 5. **Optional:** Full suspend/resume state management
 
-OpenClaude has achieved **outstanding feature parity** (91%) with the original CLI. All essential features are fully implemented:
+Dario has achieved **outstanding feature parity** (91%) with the original CLI. All essential features are fully implemented:
 - ✅ All core slash commands (18/18 including /login, /logout)
 - ✅ Complete configuration management (/config get/set/remove/list)
 - ✅ Full MCP server management (/mcp list/add/remove/get)
@@ -213,4 +213,4 @@ OpenClaude has achieved **outstanding feature parity** (91%) with the original C
 
 **The 3 remaining "missing" features are all N/A for open source (mcp serve, auto-updater) or optional advanced polish (full Vim mode). The 7 partial features all work - they just lack some advanced options.**
 
-**OpenClaude is feature-complete and production-ready for all real-world use cases.**
+**Dario is feature-complete and production-ready for all real-world use cases.**

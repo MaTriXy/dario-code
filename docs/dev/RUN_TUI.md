@@ -2,7 +2,7 @@
 
 ## The New TUI is Working!
 
-The modular Open Claude Code TUI is rendering correctly. Run it directly in your terminal:
+The modular Dario Code TUI is rendering correctly. Run it directly in your terminal:
 
 ```bash
 ./cli.mjs
@@ -43,7 +43,7 @@ npm run dev:minimal
 When you run `./cli.mjs` directly in your terminal, you should see:
 
 ```
-Open Claude Code
+Dario Code
 Working directory: /your/path
 
 ┌──────────────────────────────────────────────────────┐

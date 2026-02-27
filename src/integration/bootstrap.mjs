@@ -1,5 +1,5 @@
 /**
- * OpenClaude Bootstrap Integration
+ * Dario Bootstrap Integration
  *
  * tool modules with the main cli.mjs runtime.
  *

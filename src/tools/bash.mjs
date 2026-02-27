@@ -213,7 +213,7 @@ export function validateCommand(command, originalWorkingDir, currentWorkingDir, 
       if (!resolvedPath.startsWith(originalWorkingDir)) {
         return {
           result: false,
-          message: `ERROR: cd to '${resolvedPath}' was blocked. For security, Open Claude Code may only change directories to child directories of the original working directory (${originalWorkingDir}) for this session.`
+          message: `ERROR: cd to '${resolvedPath}' was blocked. For security, Dario Code may only change directories to child directories of the original working directory (${originalWorkingDir}) for this session.`
         }
       }
     }

@@ -1,5 +1,5 @@
 /**
- * OpenClaude Subagent System
+ * Dario Subagent System
  *
  * Provides the ability to spawn specialized agents for complex tasks:
  * - Explore Agent: Fast codebase exploration using smaller models
@@ -55,7 +55,7 @@ export const AgentTools = {
 }
 
 // Agent directory for custom agent definitions
-const PERSONAL_AGENTS_DIR = path.join(os.homedir(), '.openclaude', 'agents')
+const PERSONAL_AGENTS_DIR = path.join(os.homedir(), '.dario', 'agents')
 const AGENTS_DIR = PERSONAL_AGENTS_DIR // Default for backward compat
 
 /**
@@ -436,7 +436,7 @@ export function listCustomAgents() {
 
   // Project agents first (take priority)
   scanDir(getProjectAgentsDir(), 'project')
-  // Personal agents (openclaude)
+  // Personal agents (dario)
   scanDir(PERSONAL_AGENTS_DIR, 'personal')
   // Shared global agents (read-only) — tag as 'claude', upgrade to 'both' if duplicate
   const claudeAgentsDir = path.join(os.homedir(), '.claude', 'agents')
