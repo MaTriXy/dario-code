@@ -24,7 +24,9 @@ const CLAUDE_DIR = path.join(HOME_DIR, '.claude') // Read-only
 // Configuration file names
 const CONFIG_FILE = 'config.json'
 const SETTINGS_FILE = 'settings.json'
-const CLAUDE_MD_FILE = 'CLAUDE.md'
+// All memory/instruction filenames Dario recognises, in priority order (last wins)
+const MEMORY_FILES = ['AGENTS.md', 'CLAUDE.md', 'DARIO.md']
+const CLAUDE_MD_FILE = 'CLAUDE.md' // kept for legacy single-file references
 
 /**
  * Ensure the Dario config directory exists
@@ -270,40 +272,37 @@ export function removeCustomContextItem(itemId) {
 }
 
 /**
- * Load CLAUDE.md files (global and project-level)
- * Supports @import syntax for including other files
+ * Load memory/instruction files (AGENTS.md, CLAUDE.md, DARIO.md) from all locations.
+ * Supports @import syntax for including other files.
+ *
+ * Load order (lowest → highest priority, later entries appended/override):
+ *   ~/.claude/AGENTS.md, ~/.claude/CLAUDE.md, ~/.claude/DARIO.md
+ *   ~/.dario/AGENTS.md,  ~/.dario/CLAUDE.md,  ~/.dario/DARIO.md
+ *   ./AGENTS.md, ./CLAUDE.md, ./DARIO.md  (project root)
  */
 export function loadClaudeMd(projectDir = process.cwd()) {
   const contents = []
 
-  // Global CLAUDE.md from .dario
-  const globalOpenclaudeMd = path.join(DARIO_DIR, CLAUDE_MD_FILE)
-  if (fileExists(globalOpenclaudeMd)) {
-    contents.push({
-      source: 'global-dario',
-      path: globalOpenclaudeMd,
-      content: processImports(readFile(globalOpenclaudeMd), path.dirname(globalOpenclaudeMd))
-    })
+  const loadMemoryFile = (dir, filename, source) => {
+    const filePath = path.join(dir, filename)
+    if (fileExists(filePath)) {
+      contents.push({
+        source,
+        path: filePath,
+        content: processImports(readFile(filePath), dir)
+      })
+    }
   }
 
-  // Global CLAUDE.md from .claude (read-only)
-  const globalClaudeMd = path.join(CLAUDE_DIR, CLAUDE_MD_FILE)
-  if (fileExists(globalClaudeMd)) {
-    contents.push({
-      source: 'global-claude',
-      path: globalClaudeMd,
-      content: processImports(readFile(globalClaudeMd), path.dirname(globalClaudeMd))
-    })
+  // Global — ~/.claude then ~/.dario, all three filenames
+  for (const filename of MEMORY_FILES) {
+    loadMemoryFile(CLAUDE_DIR, filename, 'global-claude')
+    loadMemoryFile(DARIO_DIR,  filename, 'global-dario')
   }
 
-  // Project-level CLAUDE.md
-  const projectClaudeMd = path.join(projectDir, CLAUDE_MD_FILE)
-  if (fileExists(projectClaudeMd)) {
-    contents.push({
-      source: 'project',
-      path: projectClaudeMd,
-      content: processImports(readFile(projectClaudeMd), projectDir)
-    })
+  // Project root — all three filenames
+  for (const filename of MEMORY_FILES) {
+    loadMemoryFile(projectDir, filename, 'project')
   }
 
   // Rules directories — read from both .claude/rules/ and .dario/rules/
@@ -651,8 +650,8 @@ export async function getSystemPrompt(options = {}) {
 ${envInfo}
 </env>
 
-## Instructions from CLAUDE.md files
-${claudeMdContent || 'No CLAUDE.md files found.'}
+## Instructions from DARIO.md / AGENTS.md / CLAUDE.md
+${claudeMdContent || 'No DARIO.md, AGENTS.md, or CLAUDE.md files found.'}
 ${memoriesSection ? `\n${memoriesSection}` : ''}
 ## Guidelines
 - Be direct and concise

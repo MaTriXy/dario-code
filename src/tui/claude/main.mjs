@@ -428,7 +428,7 @@ const standardCommands = [
       // Build help dynamically from all available commands
       const commandHelp = [
         ['help',           'Show this help message'],
-        ['init',           'Create a CLAUDE.md file for this project'],
+        ['init',           'Create a DARIO.md file for this project'],
         ['model',          'Switch AI models (or /model <name>)'],
         ['login',          'Sign in to Claude (OAuth or API key)'],
         ['logout',         'Sign out of Claude'],
@@ -442,7 +442,7 @@ const standardCommands = [
         ['approved-tools', 'Manage tool approvals (list/remove)'],
         ['mcp',            'Manage MCP servers (list/add/remove)'],
         ['fast',           'Toggle fast mode'],
-        ['memory',         'Show or edit CLAUDE.md memory files'],
+        ['memory',         'Show or edit memory files (DARIO.md / AGENTS.md / CLAUDE.md)'],
         ['context',        'Show context window usage'],
         ['doctor',         'Run system health check'],
         ['resume',         'Resume a previous session'],
@@ -478,7 +478,7 @@ Keyboard shortcuts:
   Ctrl+C     Exit (or clear input)
 
 Get started:
-  Ask Claude questions about your codebase
+  Ask Dario questions about your codebase
   Use @filename to reference files
   Use ! prefix for bash commands`
     }
@@ -931,13 +931,13 @@ function WorkspaceTips({ workspaceDir }) {
     React.createElement(Box, { key: 'tips', flexDirection: 'column', paddingLeft: 2 },
       React.createElement(Text, { key: 'tip1', color: THEME.secondaryText },
         '• Run ', React.createElement(Text, { color: THEME.text }, '/init'),
-        ' to create a CLAUDE.md file with instructions for Claude.'
+        ' to create a DARIO.md file with instructions for Dario.'
       ),
       React.createElement(Text, { key: 'tip2', color: THEME.secondaryText },
-        '• Ask Claude questions about your codebase.'
+        '• Ask Dario questions about your codebase.'
       ),
       React.createElement(Text, { key: 'tip3', color: THEME.secondaryText },
-        '• Ask Claude to implement changes to your codebase.'
+        '• Ask Dario to implement changes to your codebase.'
       )
     )
   )
@@ -1834,7 +1834,7 @@ function PromptInput({
       React.createElement(Box, { key: 'input', paddingRight: 1, flexGrow: 1 },
         React.createElement(TextInputDisplay, {
           value: input,
-          placeholder: 'Ask Claude...',
+          placeholder: 'Ask Dario...',
           isDimmed: isDisabled || isLoading,
           cursorOffset: cursorOffset,
           color: mode === 'bash' ? THEME.bashBorder : undefined,

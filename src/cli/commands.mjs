@@ -435,7 +435,7 @@ export const contextCommand = {
     }, 0)
     const mcpDisabled = !!disabled['mcpTools']
 
-    // ── Category: Memory (CLAUDE.md) ──
+    // ── Category: Memory (DARIO.md / AGENTS.md / CLAUDE.md) ──
     const { loadClaudeMd } = await import('../core/config.mjs')
     const claudeFiles = loadClaudeMd(process.cwd())
     const memoryDetails = claudeFiles.map(f => ({
@@ -566,7 +566,7 @@ export const contextCommand = {
 
     // Memory
     if (memoryTokens > 0) {
-      const memLabel = 'Memory (CLAUDE.md)' + (allMemoryDisabled ? disabledTag : '')
+      const memLabel = 'Memory (DARIO.md / AGENTS.md / CLAUDE.md)' + (allMemoryDisabled ? disabledTag : '')
       output += `  ${pad(memLabel, 28)} ${rpad('~' + memoryTokens.toLocaleString(), 10)} ${rpad(pct(memoryTokens) + '%', 6)}\n`
       for (const m of memoryDetails) {
         const mLabel = m.label + (m.disabled ? ' [OFF]' : '')
@@ -1149,7 +1149,7 @@ const COMMANDS = {
     handler: (input) => exportCommand.call(input.slice('/export'.length).trim())
   },
   init: {
-    description: 'Create CLAUDE.md file with instructions',
+    description: 'Create DARIO.md file with instructions (also reads AGENTS.md + CLAUDE.md)',
     handler: handleInit
   },
   clear: {
@@ -1197,7 +1197,7 @@ const COMMANDS = {
     handler: (input) => permissionsCommand.call(null, { args: input.slice('/permissions'.length).trim().split(/\s+/) })
   },
   memory: {
-    description: 'Show or edit CLAUDE.md memory files',
+    description: 'Show or edit memory files (DARIO.md / AGENTS.md / CLAUDE.md)',
     handler: (input) => memoryCommand.call(null, { args: input.slice('/memory'.length).trim().split(/\s+/) })
   },
   vim: {
@@ -1273,7 +1273,7 @@ function handleHelp() {
   for (const [name, { description }] of Object.entries(COMMANDS)) {
     ui.print(`  /${name} - ${description}`)
   }
-  ui.print('\nYou can also ask Claude anything about your code or project.')
+  ui.print('\nYou can also ask Dario anything about your code or project.')
   return true
 }
 
@@ -1314,17 +1314,21 @@ function handleBugReport(input) {
 }
 
 /**
- * Handle /init command - creates CLAUDE.md with instructions
+ * Handle /init command - creates DARIO.md with instructions
+ * Also checks for existing AGENTS.md or CLAUDE.md and won't overwrite them.
  */
 async function handleInit() {
   const { existsSync, writeFileSync } = await import('fs')
   const { join } = await import('path')
 
-  const claudeMdPath = join(process.cwd(), 'CLAUDE.md')
-
-  if (existsSync(claudeMdPath)) {
-    return 'CLAUDE.md already exists in this directory. Use a text editor to modify it.'
+  // Check all recognised memory files — don't overwrite any existing one
+  for (const fname of ['DARIO.md', 'AGENTS.md', 'CLAUDE.md']) {
+    if (existsSync(join(process.cwd(), fname))) {
+      return `${fname} already exists in this directory. Use a text editor to modify it.\n\nDario reads AGENTS.md, CLAUDE.md, and DARIO.md — all are supported.`
+    }
   }
+
+  const darioMdPath = join(process.cwd(), 'DARIO.md')
 
   const template = `# Dario Code Development Guide
 
@@ -1340,20 +1344,23 @@ async function handleInit() {
 - Add comments for complex logic
 
 ## Project-Specific Instructions
-Add your project-specific instructions here for Claude to follow when working on this codebase.
+Add your project-specific instructions here for Dario to follow when working on this codebase.
 
 ## Architecture Notes
 Describe your project's architecture, key components, and design patterns here.
 
 ## Testing Guidelines
 Describe your testing requirements and conventions here.
+
+---
+_Dario also reads AGENTS.md and CLAUDE.md if present._
 `
 
   try {
-    writeFileSync(claudeMdPath, template, 'utf8')
-    return `✓ Created CLAUDE.md in ${process.cwd()}\n\nEdit this file to add project-specific instructions for Claude.`
+    writeFileSync(darioMdPath, template, 'utf8')
+    return `✓ Created DARIO.md in ${process.cwd()}\n\nEdit this file to add project-specific instructions for Dario.\nDario also reads AGENTS.md and CLAUDE.md if present.`
   } catch (error) {
-    return `✗ Failed to create CLAUDE.md: ${error.message}`
+    return `✗ Failed to create DARIO.md: ${error.message}`
   }
 }
 
@@ -1375,7 +1382,7 @@ function handleClear() {
 export const initCommand = {
   type: 'local',
   name: 'init',
-  description: 'Create a CLAUDE.md file with instructions for Claude',
+  description: 'Create a DARIO.md file with instructions for Dario',
   isEnabled: true,
   userFacingName() {
     return 'init'
@@ -1917,9 +1924,9 @@ export const statusCommand = {
     // CLAUDE.md status
     const { existsSync } = await import('fs')
     const { join } = await import('path')
-    const hasClaudeMd = existsSync(join(cwd, 'CLAUDE.md'))
+    const hasClaudeMd = ['DARIO.md','AGENTS.md','CLAUDE.md'].some(f => existsSync(join(cwd, f)))
     output += `\n  Project\n  ${'─'.repeat(44)}\n`
-    output += `  CLAUDE.md: ${hasClaudeMd ? '✓ found' : '✗ not found (use /init to create)'}\n`
+    output += `  DARIO.md/AGENTS.md/CLAUDE.md: ${hasClaudeMd ? '✓ found' : '✗ not found (use /init to create)'}\n`
 
     const permMode = config.permissionMode || 'default'
     output += `  Permission mode: ${permMode}\n`
@@ -2028,9 +2035,11 @@ export const memoryCommand = {
     const arg = context?.args?.[0]?.toLowerCase()
     const argKey = context?.args?.[1]
 
+    // Collect all recognised memory files that exist, in priority order
+    const memoryFilenames = ['AGENTS.md', 'CLAUDE.md', 'DARIO.md']
     const locations = [
-      { label: 'Project', path: join(cwd, 'CLAUDE.md'), source: 'PRJ' },
-      { label: 'User (OC)', path: join(getConfigDir(), 'CLAUDE.md'), source: 'OC' },
+      ...memoryFilenames.map(f => ({ label: `Project (${f})`, path: join(cwd, f), source: 'PRJ' })),
+      ...memoryFilenames.map(f => ({ label: `User (${f})`, path: join(getConfigDir(), f), source: 'OC' })),
       { label: 'User (CC)', path: join(getClaudeConfigDir(), 'CLAUDE.md'), source: 'CC' },
     ]
 
