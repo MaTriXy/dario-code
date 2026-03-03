@@ -8,7 +8,7 @@ import { getClientForModel, stripProviderPrefix, getProviderIdForModel } from '.
 import { executeToolUse } from '../tools/executor.mjs'
 import { createMessage } from '../utils/messages.mjs'
 import { formatError } from '../utils/errors.mjs'
-import { isFastMode, loadConfig } from '../core/config.mjs'
+import { isFastMode } from '../core/config.mjs'
 import { StandardRetryStrategy } from './retry.mjs'
 
 // Session-level shared readFileTimestamps so Read → Write/Edit can track across tool calls
@@ -406,13 +406,9 @@ export async function* streamConversation(
       // Execute tools and get results
       const toolResults = []
 
-      // Build execution options: check permissionMode from config
-      const config = loadConfig()
-      const permMode = config.permissionMode || 'default'
       const toolExecOptions = {
         ...options,
         readFileTimestamps: sessionReadFileTimestamps,
-        dangerouslySkipPermissions: permMode === 'trusted' || options.dangerouslySkipPermissions,
       }
 
       for (const toolUse of toolUses) {

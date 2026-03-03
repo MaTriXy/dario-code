@@ -64,7 +64,6 @@ program
   .option('--maintenance', 'Run maintenance hooks')
   .option('--from-pr <pr>', 'Resume session linked to a GitHub PR number or URL')
   .option('--max-turns <n>', 'Maximum number of agentic turns (0 = unlimited)', parseInt)
-  .option('--permission-mode <mode>', 'Permission mode: default, trusted, or readonly')
   .option('--input-format <format>', 'Input format for stdin: text, stream-json')
   .action(async (prompt, options) => {
     // Set options in env for TUI to read
@@ -80,14 +79,6 @@ program
     if (options.tools) process.env.DARIO_TOOLS = options.tools;
     if (options.fromPr) process.env.DARIO_FROM_PR = options.fromPr;
     if (options.maxTurns !== undefined) process.env.DARIO_MAX_TURNS = String(options.maxTurns);
-    if (options.permissionMode) {
-      process.env.DARIO_PERMISSION_MODE = options.permissionMode;
-      // Also write to runtime config so streaming.mjs picks it up
-      const { loadConfig, saveConfig } = await import('./src/core/config.mjs');
-      const cfg = loadConfig();
-      cfg.permissionMode = options.permissionMode;
-      saveConfig(cfg);
-    }
     if (options.inputFormat) process.env.DARIO_INPUT_FORMAT = options.inputFormat;
     if (options.addDir) {
       for (const dir of options.addDir) {

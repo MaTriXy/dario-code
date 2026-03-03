@@ -4,12 +4,14 @@
  */
 
 import { formatError } from '../utils/errors.mjs'
+import { loadSettings, saveSettings } from '../core/config.mjs'
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
 
-// Path to approved tools config
-const APPROVED_TOOLS_PATH = path.join(os.homedir(), '.dario', 'approved-tools.json')
+// Legacy path — used only for one-time migration
+const LEGACY_APPROVED_TOOLS_PATH = path.join(os.homedir(), '.dario', 'approved-tools.json')
+let _migrationDone = false
 
 /**
  * Execute a tool use
@@ -360,31 +362,64 @@ export function hasPermissionsToUseTool(toolName) {
 }
 
 /**
- * Load the approved-tools list from ~/.dario/approved-tools.json.
- * Returns an empty array when the file is missing or corrupt.
+ * One-time migration: merge entries from the legacy approved-tools.json
+ * into settings.permissions.allow, then delete the old file.
+ */
+function _migrateLegacyApprovedTools() {
+  if (_migrationDone) return
+  _migrationDone = true
+  try {
+    if (!fs.existsSync(LEGACY_APPROVED_TOOLS_PATH)) return
+    const data = fs.readFileSync(LEGACY_APPROVED_TOOLS_PATH, 'utf-8')
+    const parsed = JSON.parse(data)
+    if (!Array.isArray(parsed) || parsed.length === 0) {
+      fs.unlinkSync(LEGACY_APPROVED_TOOLS_PATH)
+      return
+    }
+    // Merge into settings
+    const settings = loadSettings()
+    if (!settings.permissions) settings.permissions = { allow: [], deny: [], ask: [] }
+    if (!Array.isArray(settings.permissions.allow)) settings.permissions.allow = []
+    for (const entry of parsed) {
+      if (!settings.permissions.allow.includes(entry)) {
+        settings.permissions.allow.push(entry)
+      }
+    }
+    saveSettings(settings)
+    fs.unlinkSync(LEGACY_APPROVED_TOOLS_PATH)
+  } catch {
+    // Best-effort migration — don't block on failure
+  }
+}
+
+/**
+ * Load the approved-tools list from settings.json (permissions.allow).
+ * On first call, migrates any legacy approved-tools.json entries.
+ * Returns an empty array when no approvals exist.
  *
  * @returns {string[]}
  */
 export function getApprovedTools() {
+  _migrateLegacyApprovedTools()
   try {
-    const data = fs.readFileSync(APPROVED_TOOLS_PATH, 'utf-8')
-    const parsed = JSON.parse(data)
-    return Array.isArray(parsed) ? parsed : []
+    const settings = loadSettings()
+    const allow = settings.permissions?.allow
+    return Array.isArray(allow) ? allow : []
   } catch {
     return []
   }
 }
 
 /**
- * Persist an approved-tools array to disk, creating the config directory
- * if it doesn't exist yet.
+ * Persist an approved-tools array to settings.json (permissions.allow).
  *
  * @param {string[]} tools
  */
 function saveApprovedTools(tools) {
-  const dir = path.dirname(APPROVED_TOOLS_PATH)
-  fs.mkdirSync(dir, { recursive: true })
-  fs.writeFileSync(APPROVED_TOOLS_PATH, JSON.stringify(tools, null, 2) + '\n', 'utf-8')
+  const settings = loadSettings()
+  if (!settings.permissions) settings.permissions = { allow: [], deny: [], ask: [] }
+  settings.permissions.allow = tools
+  saveSettings(settings)
 }
 
 /**

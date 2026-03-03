@@ -1201,7 +1201,7 @@ const COMMANDS = {
     handler: (input, context) => configCommand.call(input.slice('/config'.length).trim(), context)
   },
   'approved-tools': {
-    description: 'Manage approved tools (list/remove)',
+    description: 'Manage approved tools (list/remove/reset)',
     handler: (input, context) => approvedToolsCommand.call(input.slice('/approved-tools'.length).trim(), context)
   },
   mcp: {
@@ -1231,10 +1231,6 @@ const COMMANDS = {
   cost: {
     description: 'Show API usage and cost for this session',
     handler: () => costCommand.call()
-  },
-  permissions: {
-    description: 'Show and manage permission mode',
-    handler: (input) => permissionsCommand.call(null, { args: input.slice('/permissions'.length).trim().split(/\s+/) })
   },
   memory: {
     description: 'Show or edit AGENTS.md memory file (CLAUDE.md + DARIO.md also recognised)',
@@ -1537,7 +1533,7 @@ export const configCommand = {
 export const approvedToolsCommand = {
   type: 'local',
   name: 'approved-tools',
-  description: 'Manage approved tools (list/remove)',
+  description: 'Manage approved tools (list/remove/reset)',
   isEnabled: true,
   isOverlay: true,
   userFacingName() {
@@ -1590,8 +1586,13 @@ export const approvedToolsCommand = {
         saveSettings(settings)
         return `✓ Removed approval for: ${toolPattern}`
 
+      case 'reset':
+        settings.permissions = { allow: [], deny: [], ask: [] }
+        saveSettings(settings)
+        return '✓ All tool approvals cleared'
+
       default:
-        return '✗ Usage: /approved-tools <list|remove> [tool-pattern]'
+        return '✗ Usage: /approved-tools <list|remove|reset> [tool-pattern]'
     }
   }
 }
@@ -1976,8 +1977,6 @@ export const statusCommand = {
     output += `\n  Project\n  ${'─'.repeat(44)}\n`
     output += `  DARIO.md/AGENTS.md/CLAUDE.md: ${hasClaudeMd ? '✓ found' : '✗ not found (use /init to create)'}\n`
 
-    const permMode = config.permissionMode || 'default'
-    output += `  Permission mode: ${permMode}\n`
     output += `  Vim mode: ${vimMode.enabled ? 'ON' : 'OFF'}\n`
 
     return output
@@ -2017,50 +2016,6 @@ export const costCommand = {
       output += `  Avg cost/turn:         $${(usage.costUSD / usage.turns).toFixed(4)}\n`
     }
 
-    return output
-  }
-}
-
-// ============================================================================
-// /permissions command - Show and manage permission mode
-// ============================================================================
-
-export const permissionsCommand = {
-  type: 'local',
-  name: 'permissions',
-  description: 'Show and manage permission mode',
-  isEnabled: true,
-  userFacingName() { return 'permissions' },
-
-  async call(closeOverlay, context) {
-    const config = loadConfig()
-    const currentMode = config.permissionMode || 'default'
-    const arg = context?.args?.[0]?.toLowerCase()
-
-    const MODES = {
-      default: 'Ask before running tools (recommended)',
-      trusted: 'Allow all tool execution without asking',
-      readonly: 'Only allow read operations, ask for writes',
-    }
-
-    if (arg && MODES[arg]) {
-      config.permissionMode = arg
-      saveConfig(config)
-      return `✓ Permission mode set to: ${arg}\n  ${MODES[arg]}`
-    }
-
-    if (arg && !MODES[arg]) {
-      return `✗ Unknown mode: ${arg}\n\nAvailable modes:\n${Object.entries(MODES).map(([k, v]) => `  ${k} - ${v}`).join('\n')}`
-    }
-
-    let output = `\n  Permission Mode\n  ${'─'.repeat(44)}\n`
-    output += `  Current: ${currentMode}\n\n`
-    output += `  Available modes:\n`
-    for (const [mode, desc] of Object.entries(MODES)) {
-      const marker = mode === currentMode ? '→ ' : '  '
-      output += `  ${marker}${mode} - ${desc}\n`
-    }
-    output += `\n  Usage: /permissions <mode>`
     return output
   }
 }
@@ -2651,7 +2606,6 @@ export function getLocalCommands() {
     compactCommand,
     statusCommand,
     costCommand,
-    permissionsCommand,
     memoryCommand,
     vimCommand,
     terminalSetupCommand,
@@ -3031,7 +2985,6 @@ export default {
   compactCommand,
   statusCommand,
   costCommand,
-  permissionsCommand,
   memoryCommand,
   vimCommand,
   terminalSetupCommand,
