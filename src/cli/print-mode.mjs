@@ -119,7 +119,7 @@ export async function runPrintMode(prompt, options = {}) {
       [userMessage],
       systemPrompts,
       tools,
-      { model: options.model, maxTokens: 8192 },
+      { model: options.model, maxTokens: 8192, dangerouslySkipPermissions: options.dangerouslySkipPermissions },
       controller
     )) {
       // Stream-JSON format: output each message as JSON line
