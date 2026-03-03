@@ -1891,8 +1891,8 @@ function PromptInput({
   // Handles drag-drop (terminal emits path as text) and manual paste
   useEffect(() => {
     if (!input) return
-    const IMAGE_PATH_RE = /(?:['"]?)((?:\/|~\/|\.\/)[^\t'"]+?)(?:['"]?)(?=\s|$)/gi
-    const matches = [...input.matchAll(IMAGE_PATH_RE)]
+    const FILE_PATH_RE = /(?:['"]?)((?:\/|~\/|\.\/)[^\t'"]+?)(?:['"]?)(?=\s|$)/gi
+    const matches = [...input.matchAll(FILE_PATH_RE)]
     if (matches.length === 0) return
 
     let remaining = input
@@ -3297,17 +3297,28 @@ function ConversationApp({
         }
       }
 
-      // Create user message — multipart content if images attached
+      // Create user message — multipart content if files attached
       let userContent
       if (queryAttachments.length > 0) {
         const { processImage } = await import('../../core/utils.mjs')
+        const IMAGE_EXTS = new Set(['.png', '.jpg', '.jpeg', '.gif', '.bmp', '.webp'])
         const contentBlocks = []
         for (const att of queryAttachments) {
-          try {
-            const imageBlock = await processImage(att.path)
-            contentBlocks.push(imageBlock)
-          } catch (e) {
-            contentBlocks.push({ type: 'text', text: `[Failed to load image: ${att.name} — ${e.message}]` })
+          const ext = path.extname(att.path).toLowerCase()
+          if (IMAGE_EXTS.has(ext)) {
+            try {
+              const imageBlock = await processImage(att.path)
+              contentBlocks.push(imageBlock)
+            } catch (e) {
+              contentBlocks.push({ type: 'text', text: `[Failed to load image: ${att.name} — ${e.message}]` })
+            }
+          } else {
+            try {
+              const fileContent = readFileSync(att.path, 'utf8')
+              contentBlocks.push({ type: 'text', text: `<file path="${att.path}">\n${fileContent}\n</file>` })
+            } catch (e) {
+              contentBlocks.push({ type: 'text', text: `[Failed to load file: ${att.name} — ${e.message}]` })
+            }
           }
         }
         if (queryText) {
