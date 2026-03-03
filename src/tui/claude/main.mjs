@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useMemo, useRef, memo, Component } from 'react'
-import { Box, Text, render, useInput, Static } from 'ink'
+import { Box, Text, render, useInput } from 'ink'
 import { randomUUID } from 'crypto'
 import chalk from 'chalk'
 
@@ -502,6 +502,8 @@ function AuthSelector({ onSelect, onCancel }) {
 // Maximum number of suggestions to show at once
 const MAX_SUGGESTIONS = 20
 const VISIBLE_SUGGESTIONS = 10 // Show 10 at a time, scroll the rest
+const TRANSCRIPT_WINDOW_SIZE = 160
+const TRANSCRIPT_SCROLL_STEP = 40
 
 // Standard slash commands — TUI-only commands that need direct access to TUI context.
 // Commands that exist in localCommands (from commands.mjs) are NOT duplicated here.
@@ -566,6 +568,7 @@ ${cmdLines}
 Keyboard shortcuts:
   Shift+Tab  Cycle permission modes
   Tab        Toggle extended thinking (when input empty)
+  PgUp/PgDn  Scroll transcript window
   Esc        Cancel current input / Undo
   Ctrl+C     Exit (or clear input)
 
@@ -1186,7 +1189,6 @@ function TextInputDisplay({
  */
 function MessageRenderer({
   message,
-  messages,
   tools,
   verbose,
   debug,
@@ -1235,16 +1237,14 @@ function MessageRenderer({
       React.createElement(UserContentRenderer, {
         key: item.tool_use_id || `${messageId}-${item.type}-${idx}`,
         param: item,
-        message,
-        messages,
-        tools,
-        verbose,
         addMargin,
         expandedToolResults,
       })
     )
   )
 }
+
+const MemoizedMessageRenderer = memo(MessageRenderer)
 
 // ★ Insight block detection + rendering
 // Matches backtick-wrapped or bare lines starting with ★ Insight ───…
@@ -1513,7 +1513,7 @@ function DiffBlock({ oldText, newText, filename }) {
 /**
  * User Content Renderer
  */
-function UserContentRenderer({ param, message, messages, tools, verbose, addMargin, expandedToolResults = new Set() }) {
+function UserContentRenderer({ param, addMargin, expandedToolResults = new Set() }) {
   switch (param.type) {
     case 'text':
       return React.createElement(Box, {
@@ -1702,6 +1702,10 @@ function PromptInput({
   setQueuedMessage,
   expandedToolResults = new Set(),
   onToggleToolResultExpand,
+  onTranscriptPageUp,
+  onTranscriptPageDown,
+  onTranscriptJumpToLatest,
+  transcriptIsWindowed = false,
 }) {
   // Internal input state (moved from parent to avoid re-renders)
   const [input, setInput] = useState('')
@@ -1962,6 +1966,7 @@ function PromptInput({
       setHistory(h => [sanitizedValue, ...h.slice(0, 50)])
     }
     setHistoryIndex(-1)
+    onTranscriptJumpToLatest?.()
 
     // Call onQuery with error handling
     try {
@@ -1976,7 +1981,7 @@ function PromptInput({
     } catch (error) {
       console.error('[TUI] Error in onQuery:', error)
     }
-  }, [isDisabled, isLoading, onInputChange, onQuery, setCursorOffset, setSuggestions, setHistory, setHistoryIndex, attachments])
+  }, [isDisabled, isLoading, onInputChange, onQuery, setCursorOffset, setSuggestions, setHistory, setHistoryIndex, attachments, onTranscriptJumpToLatest])
 
   // Handle history navigation
   const handleHistoryUp = useCallback(() => {
@@ -2054,6 +2059,20 @@ function PromptInput({
           }
         }
       }
+      return
+    }
+
+    // Transcript paging
+    if (key.pageUp) {
+      onTranscriptPageUp?.()
+      return
+    }
+    if (key.pageDown) {
+      onTranscriptPageDown?.()
+      return
+    }
+    if (key.end) {
+      onTranscriptJumpToLatest?.()
       return
     }
 
@@ -2434,7 +2453,9 @@ function PromptInput({
                       dimColor: mode !== 'bash'
                     }, '! for bash mode'),
                     React.createElement(Text, { key: 'commands', dimColor: true },
-                      ' · / for commands · esc to undo'
+                      transcriptIsWindowed
+                        ? ' · / for commands · pgup/pgdn transcript · esc to undo'
+                        : ' · / for commands · esc to undo'
                     )
                   )
             ),
@@ -2589,6 +2610,7 @@ function ConversationApp({
   const [expandedToolResults, setExpandedToolResults] = useState(new Set())
   const [toolJSX, setToolJSX] = useState(null)
   const [messages, setMessages] = useState(initialMessages)
+  const [transcriptWindowStart, setTranscriptWindowStart] = useState(null)
   const [mode, setMode] = useState('prompt')
   const [showMessageSelector, setShowMessageSelector] = useState(false)
   const [showModelSelector, setShowModelSelector] = useState(false)
@@ -3431,116 +3453,75 @@ function ConversationApp({
     [messages]
   )
 
-  // Find the index of the most recent tool_result message so it can be rendered
-  // dynamically (outside Static), allowing Ctrl+O expand/collapse to work.
-  const lastToolResultIdx = useMemo(() => {
-    for (let i = normalizedMessages.length - 1; i >= 0; i--) {
-      const msg = normalizedMessages[i]
-      if (
-        msg.type === 'user' &&
-        Array.isArray(msg.message?.content) &&
-        msg.message.content.some(c => c.type === 'tool_result')
-      ) {
-        return i
-      }
-    }
-    return -1
-  }, [normalizedMessages])
+  const maxTranscriptWindowStart = Math.max(0, normalizedMessages.length - TRANSCRIPT_WINDOW_SIZE)
+  const clampedTranscriptStart = transcriptWindowStart === null
+    ? maxTranscriptWindowStart
+    : Math.max(0, Math.min(transcriptWindowStart, maxTranscriptWindowStart))
 
-  // Split messages: all-but-last go into Static (rendered once, no re-render),
-  // last message stays dynamic so streaming updates render without flashing the whole TUI.
-  // Also keep the most recent tool_result message (and its preceding tool_use) dynamic
-  // so Ctrl+O expand/collapse can re-render it.
-  const dynamicStartIdx = isLoading
-    ? normalizedMessages.length - 1
-    : (lastToolResultIdx >= 0 ? lastToolResultIdx - 1 : normalizedMessages.length)
+  const visibleTranscriptMessages = normalizedMessages.slice(
+    clampedTranscriptStart,
+    clampedTranscriptStart + TRANSCRIPT_WINDOW_SIZE
+  )
+  const hiddenAboveCount = clampedTranscriptStart
+  const hiddenBelowCount = Math.max(
+    0,
+    normalizedMessages.length - (clampedTranscriptStart + visibleTranscriptMessages.length)
+  )
+  const transcriptIsWindowed = hiddenAboveCount > 0 || hiddenBelowCount > 0
 
-  const staticMessages = normalizedMessages.slice(0, Math.max(0, dynamicStartIdx))
+  const pageTranscriptUp = useCallback(() => {
+    setTranscriptWindowStart((prev) => {
+      const current = prev === null
+        ? maxTranscriptWindowStart
+        : Math.max(0, Math.min(prev, maxTranscriptWindowStart))
+      if (current <= 0) return 0
+      return Math.max(0, current - TRANSCRIPT_SCROLL_STEP)
+    })
+  }, [maxTranscriptWindowStart])
 
-  const liveMessage = isLoading && normalizedMessages.length > 0
-    ? normalizedMessages[normalizedMessages.length - 1]
-    : null
+  const pageTranscriptDown = useCallback(() => {
+    setTranscriptWindowStart((prev) => {
+      if (prev === null) return null
+      const current = Math.max(0, Math.min(prev, maxTranscriptWindowStart))
+      const next = current + TRANSCRIPT_SCROLL_STEP
+      return next >= maxTranscriptWindowStart ? null : next
+    })
+  }, [maxTranscriptWindowStart])
 
-  // Messages rendered dynamically (after Static): tool_use + tool_result pair (when not loading)
-  const dynamicMessages = !isLoading && lastToolResultIdx >= 0
-    ? normalizedMessages.slice(Math.max(0, dynamicStartIdx))
-    : []
-
-  // Static items: header + completed messages
-  // IMPORTANT: Ink's Static component re-renders ALL items when the items array
-  // reference changes, because its internal useMemo depends on the array ref.
-  // We use a ref to return the SAME array reference when only the streaming
-  // message is updating (staticMessages changes ref but not content).
-  const staticItemsRef = useRef([])
-  const staticItemsLenRef = useRef(0)
-  const staticConfigRef = useRef(null)
-
-  const staticItems = useMemo(() => {
-    const configKey = `${forkNumber}-${effectiveVerbose}-${debug}-${isDefaultModel}-${currentModel}`
-    const newLen = 1 + staticMessages.length // header + messages
-
-    // If item count and config haven't changed, return the same array reference
-    // to prevent Ink's Static from re-rendering already-output items.
-    if (newLen === staticItemsLenRef.current && configKey === staticConfigRef.current) {
-      return staticItemsRef.current
-    }
-
-    const items = [
-      {
-        key: `header-${forkNumber}`,
-        jsx: React.createElement(Box, {
-          flexDirection: 'column',
-          key: `logo${forkNumber}`
-        },
-          React.createElement(WelcomeBanner, {
-            mcpClients,
-            isDefaultModel,
-            model: currentModel
-          }),
-          React.createElement(WorkspaceTips, {
-            workspaceDir: process.cwd()
-          })
-        )
-      },
-      ...staticMessages.map((msg, idx) => ({
-        key: msg.uuid || `msg-${idx}`,
-        jsx: React.createElement(Box, {
-          key: msg.uuid || idx,
-          width: '100%'
-        },
-          React.createElement(MessageRenderer, {
-            message: msg,
-            messages: normalizedMessages,
-            tools,
-            verbose: effectiveVerbose,
-            debug,
-            addMargin: true,
-            shouldShowDot: true,
-            expandedToolResults,
-          })
-        )
-      }))
-    ]
-
-    staticItemsRef.current = items
-    staticItemsLenRef.current = newLen
-    staticConfigRef.current = configKey
-    return items
-  }, [forkNumber, staticMessages, effectiveVerbose, debug, mcpClients, isDefaultModel, currentModel])
+  const jumpTranscriptToLatest = useCallback(() => {
+    setTranscriptWindowStart(null)
+  }, [])
 
   return React.createElement(Box, { flexDirection: 'column' },
-    // Static messages — rendered once, never re-rendered (prevents flash)
-    React.createElement(Static, { items: staticItems },
-      (item) => React.createElement(React.Fragment, { key: item.key }, item.jsx)
+    React.createElement(Box, {
+      flexDirection: 'column',
+      key: `logo${forkNumber}`
+    },
+      React.createElement(WelcomeBanner, {
+        mcpClients,
+        isDefaultModel,
+        model: currentModel
+      }),
+      React.createElement(WorkspaceTips, {
+        workspaceDir: process.cwd()
+      })
     ),
 
-    // Dynamic messages — most recent tool_use+tool_result pair rendered outside Static
-    // so Ctrl+O expand/collapse state changes can re-render them
-    ...dynamicMessages.map((msg, idx) =>
-      React.createElement(Box, { key: msg.uuid || `dyn-${idx}`, width: '100%' },
-        React.createElement(MessageRenderer, {
+    transcriptIsWindowed
+      ? React.createElement(Box, { key: 'transcript-window-hint', paddingX: 2, marginBottom: 1 },
+          React.createElement(Text, { dimColor: true },
+            hiddenAboveCount > 0 ? `↑ ${hiddenAboveCount} older messages hidden` : '',
+            hiddenAboveCount > 0 && hiddenBelowCount > 0 ? ' · ' : '',
+            hiddenBelowCount > 0 ? `↓ ${hiddenBelowCount} newer messages hidden` : '',
+            ' · PgUp/PgDn navigate · End jumps latest'
+          )
+        )
+      : null,
+
+    ...visibleTranscriptMessages.map((msg, idx) =>
+      React.createElement(Box, { key: msg.uuid || `msg-${clampedTranscriptStart + idx}`, width: '100%' },
+        React.createElement(MemoizedMessageRenderer, {
           message: msg,
-          messages: normalizedMessages,
           tools,
           verbose: effectiveVerbose,
           debug,
@@ -3549,20 +3530,6 @@ function ConversationApp({
           expandedToolResults,
         })
       )
-    ),
-
-    // Live (streaming) message — updates without touching Static items
-    liveMessage && React.createElement(Box, { key: 'live-msg', width: '100%' },
-      React.createElement(MessageRenderer, {
-        message: liveMessage,
-        messages: normalizedMessages,
-        tools,
-        verbose: effectiveVerbose,
-        debug,
-        addMargin: true,
-        shouldShowDot: true,
-        expandedToolResults,
-      })
     ),
 
     // Loading indicator
@@ -3970,6 +3937,10 @@ function ConversationApp({
           setQueuedMessage,
           expandedToolResults,
           onToggleToolResultExpand: toggleToolResultExpand,
+          onTranscriptPageUp: pageTranscriptUp,
+          onTranscriptPageDown: pageTranscriptDown,
+          onTranscriptJumpToLatest: jumpTranscriptToLatest,
+          transcriptIsWindowed,
         })
       : null,
 
