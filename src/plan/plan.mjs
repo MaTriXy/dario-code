@@ -261,7 +261,29 @@ export function exitPlanMode() {
 
   planMode = false
 
+  // Notify listeners (e.g. the TUI plan review UI)
+  for (const cb of _onExitCallbacks) {
+    try { cb(currentPlan) } catch {}
+  }
+
   return result
+}
+
+// Callbacks invoked when a plan exits (awaiting approval)
+let _onExitCallbacks = []
+
+/**
+ * Register a callback to be called when exitPlanMode() completes.
+ * The TUI uses this to display the plan review UI.
+ *
+ * @param {Function} callback - (plan) => void
+ * @returns {Function} unregister
+ */
+export function onPlanExit(callback) {
+  _onExitCallbacks.push(callback)
+  return () => {
+    _onExitCallbacks = _onExitCallbacks.filter(cb => cb !== callback)
+  }
 }
 
 // Callbacks invoked when a plan is approved (CC 2.1.x: clear context on accept)

@@ -1,54 +1,92 @@
-# Plan: Add Feature Tips to Startup WelcomeBanner
+# Plan: Rich Plan Display after ExitPlanMode
 
 ## Goal
-Add rotating feature tips in the startup design ("insights" style) that highlight unique features of Dario Code vs standard Claude Code, like context management, tool management, skills, voice input, etc.
+
+When Claude calls `ExitPlanMode`, render a rich boxed plan display in the TUI — matching the visual you showed: a coloured-border box with the plan title, sections, and an "★ Insight" block below.
+
+## How it works today
+
+1. Claude calls `ExitPlanMode` tool → `exitPlanMode()` sets plan status to `AWAITING_APPROVAL`, saves to `~/.dario/plans/<id>.json`
+2. The tool returns a plain success string: "Exited plan mode. Your plan is ready for review."
+3. That string flows back as a `tool_result` message and is rendered as `⎿ Exited plan mode...` — no visual plan box
+4. `onPlanApproved` callback exists for compaction but there's no approve/reject UI
 
 ## Approach
 
-### Where to add
-In `src/tui/claude/main.mjs`, modify or extend `WelcomeBanner` to include a feature tip row below the existing content. This appears inside the rounded border box alongside MCP servers info.
+### 1. Subscribe to plan state changes in the TUI (`main.mjs`)
 
-Alternatively, modify `WorkspaceTips` to show a rotating tip every session (based on `numStartups` cycling through a list), rather than only showing on first run.
+Add a `pendingPlan` state: `const [pendingPlan, setPendingPlan] = useState(null)`
 
-**Decision**: Replace the existing `WorkspaceTips` component behavior with a new `FeatureTip` component that:
-1. Always shows (not just until onboarding is complete)
-2. Cycles through tips based on `numStartups % tips.length`
-3. Uses the insight-style visual (★ star, amber color, styled box)
-4. Shows one tip at a time to keep startup clean
+Import `{ isInPlanMode, getCurrentPlan }` from `../../plan/plan.mjs` and subscribe via a polling `useEffect` (or expose an event emitter from plan.mjs — polling every 200ms is simpler and correct).
 
-### Tips content (unique Dario Code features)
-1. `/context manage` — toggle skills, memory, tools on/off to save tokens
-2. `/context add <file|url|query>` — inject custom context into the window
-3. `/tools` — set per-tool modes: always/ask/auto/off
-4. `/approved-tools` — manage which tools can run without confirmation
-5. Voice input — hold `Space` to speak your prompt (STT)
-6. `/skills` — discover and use slash command skills
-7. Plan mode — enter structured planning before coding with `EnterPlanMode`
-8. `/compact` — summarize history to free context window space
-9. Session picker — `/sessions` to resume previous conversations
-10. MCP servers — `/mcp` to add Model Context Protocol integrations
+When `ExitPlanMode` fires, the tool calls `exitPlanMode()` from `plan.mjs`. We detect this by watching `isInPlanMode()` transition from `true → false` with a `currentPlan.status === 'awaiting_approval'`.
 
-### Visual design
-Fits inside the existing `WelcomeBanner` box, below MCP section (or as its own section).
+### 2. Export a plan event emitter from `plan.mjs`
 
-Use a subtle inline style:
-```
-  💡 Tip: /context manage to toggle skills, memory & tools — saving tokens
+Add:
+```js
+let _onExitCallbacks = []
+export function onPlanExit(cb) {
+  _onExitCallbacks.push(cb)
+  return () => { _onExitCallbacks = _onExitCallbacks.filter(c => c !== cb) }
+}
 ```
 
-With dim secondary text style (not full InsightBlock — that's for AI responses, not UI chrome).
+Call `_onExitCallbacks.forEach(cb => cb(plan))` inside `exitPlanMode()`.
 
-### Implementation
+### 3. Subscribe in the TUI
 
-Modify `WelcomeBanner` in `src/tui/claude/main.mjs`:
-1. Add `FEATURE_TIPS` array constant near `WelcomeBanner`
-2. Inside `WelcomeBanner`, call `loadConfig()` to get `numStartups`
-3. Pick `tip = FEATURE_TIPS[numStartups % FEATURE_TIPS.length]`
-4. Render it as a new section inside the banner box, after MCP block
+```js
+useEffect(() => {
+  const unregister = onPlanExit((plan) => {
+    setPendingPlan(plan)
+  })
+  return unregister
+}, [])
+```
 
-Also update `WorkspaceTips` to return null always (or remove its usage) since the tip section covers this.
+### 4. Build `PlanDisplay` component
 
-Actually — keep `WorkspaceTips` as-is (it shows first-run tips separately), and add the feature tip *inside* the banner box. This keeps both.
+A new component rendered when `pendingPlan != null`, shown below the live message area (before the prompt input). Uses a `suggestion`-coloured border (`THEME.suggestion` = `#3B82F6`).
 
-## Files to change
-- `src/tui/claude/main.mjs`: Add `FEATURE_TIPS` array + render a tip row in `WelcomeBanner`
+Structure:
+```
+╭─ Plan to implement ──────────────────────╮
+│                                          │
+│  <plan.title>                            │
+│                                          │
+│  <plan.description rendered as sections> │
+│                                          │
+│  [✓ Accept] [✗ Reject]                  │
+╰──────────────────────────────────────────╯
+★ Insight ────────────────────────────────
+  <insight text>
+──────────────────────────────────────────
+```
+
+The plan description is rendered as markdown-like text (reuse existing `Text` rendering — no need for full markdown parser).
+
+The insight text is a fixed contextual message about the plan, e.g.:
+> "Review the plan above carefully before accepting. Once approved, the conversation history will be compacted and implementation will begin."
+
+### 5. Accept / Reject keyboard handling
+
+When `pendingPlan` is set:
+- **`y` or Enter** → call `approvePlan(pendingPlan.id)` → clears `pendingPlan`
+- **`n` or Escape** → call `cancelPlan(pendingPlan.id)` → clears `pendingPlan`, shows "Plan cancelled" message
+
+Block normal input submission while `pendingPlan` is set (show hint in prompt area).
+
+### 6. Read the plan markdown content
+
+`plan.mjs` already writes a `.md` file alongside `.json`. Read the `.md` file content with `fs.readFileSync` to display the full human-readable plan, falling back to `plan.description` if the file is missing.
+
+## Files Modified
+
+- `src/plan/plan.mjs` — add `onPlanExit` event emitter, call it in `exitPlanMode()`
+- `src/tui/claude/main.mjs` — add `pendingPlan` state, `onPlanExit` subscription, `PlanDisplay` component, keyboard handling
+
+## Verification
+
+1. `npm run test:unit`
+2. Manual test: ask Claude to implement something non-trivial → it calls `EnterPlanMode` → explores → calls `ExitPlanMode` → plan box appears → accept with `y` → compaction fires → implementation begins

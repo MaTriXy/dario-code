@@ -53,7 +53,7 @@ import { deleteCustomAgent } from '../../agents/subagent.mjs'
 import { loadSettings, saveSettings, getDisabledContextItems, toggleContextItem, isContextItemDisabled, getCustomContextItems, addCustomContextItem, removeCustomContextItem } from '../../core/config.mjs'
 import { getTotalContextTokens } from '../../utils/tokens.mjs'
 import * as sessions from '../../sessions/index.mjs'
-import { onPlanApproved } from '../../plan/plan.mjs'
+import { onPlanApproved, onPlanExit, approvePlan, cancelPlan } from '../../plan/plan.mjs'
 import { startSkillsHotReload, stopSkillsHotReload, onSkillsChanged, invalidateSkillsCache } from '../../tools/skills-discovery.mjs'
 import { VoiceSession } from '../../voice/index.mjs'
 import { keyboardManager } from '../../keyboard/index.mjs'
@@ -1194,6 +1194,7 @@ function MessageRenderer({
   unresolvedToolUseIDs = new Set(),
   shouldAnimate = false,
   shouldShowDot = true,
+  expandedToolResults = new Set(),
 }) {
   const messageId = message.uuid || message.id || 'unknown'
 
@@ -1237,6 +1238,7 @@ function MessageRenderer({
         tools,
         verbose,
         addMargin,
+        expandedToolResults,
       })
     )
   )
@@ -1302,6 +1304,90 @@ function InsightBlock({ content }) {
       React.createElement(Text, { color: '#FCD34D' }, content)
     ),
     React.createElement(Text, { color: '#F59E0B' }, `${'─'.repeat(bar.length + 10)}`)
+  )
+}
+
+/**
+ * Render the full plan review box shown after ExitPlanMode fires.
+ * Displays the plan title, markdown content, accept/reject hints,
+ * and a contextual ★ Insight block below.
+ */
+function PlanDisplay({ plan, onAccept, onReject }) {
+  const termWidth = process.stdout.columns || 80
+  const width = Math.min(termWidth - 4, 88)
+
+  // Read the .md file if it exists, fall back to description
+  let content = plan.description || ''
+  try {
+    const mdPath = path.join(homedir(), '.dario', 'plans', `${plan.id}.md`)
+    if (existsSync(mdPath)) {
+      content = readFileSync(mdPath, 'utf8')
+        .replace(/^\*\*Status\*\*:.*\n/m, '')
+        .replace(/^\*\*Created\*\*:.*\n/m, '')
+        .replace(/^\*\*Updated\*\*:.*\n/m, '')
+        .trim()
+    }
+  } catch {}
+
+  const bar = '─'.repeat(44)
+  const insightText =
+    'Review the plan above carefully before accepting.\n' +
+    'Once approved, conversation history will be compacted\n' +
+    'and implementation will begin with a full context window.'
+
+  return React.createElement(Box, { flexDirection: 'column', marginTop: 1 },
+    React.createElement(Box, {
+      flexDirection: 'column',
+      borderStyle: 'round',
+      borderColor: THEME.suggestion,
+      paddingLeft: 1,
+      paddingRight: 1,
+      width,
+    },
+      // Header
+      React.createElement(Box, { key: 'header', marginBottom: 1 },
+        React.createElement(Text, { bold: true, color: THEME.suggestion }, 'Plan to implement')
+      ),
+      // Title
+      React.createElement(Box, { key: 'title', marginBottom: 1 },
+        React.createElement(Text, { bold: true }, plan.title || 'Untitled Plan')
+      ),
+      // Body
+      React.createElement(Box, { key: 'body', marginBottom: 1 },
+        React.createElement(Text, { wrap: 'wrap' }, content)
+      ),
+      // Divider
+      React.createElement(Box, {
+        key: 'divider',
+        borderStyle: 'single',
+        borderTop: true,
+        borderBottom: false,
+        borderLeft: false,
+        borderRight: false,
+        borderColor: THEME.secondaryBorder,
+        marginBottom: 1,
+      }),
+      // Accept / Reject hints
+      React.createElement(Box, { key: 'actions', flexDirection: 'row', gap: 2 },
+        React.createElement(Text, { color: THEME.success, bold: true }, '[y] Accept'),
+        React.createElement(Text, { color: THEME.error, bold: true }, '[n] Reject'),
+        React.createElement(Text, { color: THEME.secondaryText }, '— press key to choose')
+      )
+    ),
+    // ★ Insight block below the box
+    React.createElement(Box, {
+      key: 'insight',
+      flexDirection: 'column',
+      marginTop: 1,
+      marginLeft: 2,
+      marginBottom: 1,
+    },
+      React.createElement(Text, { color: '#F59E0B', bold: true }, `★ Insight ${bar}`),
+      React.createElement(Box, { marginLeft: 2 },
+        React.createElement(Text, { color: '#FCD34D' }, insightText)
+      ),
+      React.createElement(Text, { color: '#F59E0B' }, '─'.repeat(bar.length + 10))
+    )
   )
 }
 
@@ -1396,7 +1482,7 @@ function AssistantContentRenderer({
 /**
  * User Content Renderer
  */
-function UserContentRenderer({ param, message, messages, tools, verbose, addMargin }) {
+function UserContentRenderer({ param, message, messages, tools, verbose, addMargin, expandedToolResults = new Set() }) {
   switch (param.type) {
     case 'text':
       return React.createElement(Box, {
@@ -1420,22 +1506,42 @@ function UserContentRenderer({ param, message, messages, tools, verbose, addMarg
         )
       )
 
-    case 'tool_result':
+    case 'tool_result': {
       const isError = param.is_error
       const content = typeof param.content === 'string'
         ? param.content
         : JSON.stringify(param.content)
 
+      const isExpanded = expandedToolResults.has(param.tool_use_id)
+      const lines = content.split('\n')
+      const PREVIEW_LINES = 3
+      const hasMore = lines.length > PREVIEW_LINES
+      const previewContent = isExpanded
+        ? content
+        : lines.slice(0, PREVIEW_LINES).join('\n')
+      const hiddenCount = lines.length - PREVIEW_LINES
+
       return React.createElement(Box, {
         flexDirection: 'column',
         marginLeft: 4
       },
-        React.createElement(Text, { color: isError ? THEME.error : THEME.secondaryText },
-          isError ? '✗ Error: ' : '⎿ ',
-          content.substring(0, 500),
-          content.length > 500 ? '...' : ''
-        )
+        // Content lines (preview or full)
+        previewContent.split('\n').map((line, i) =>
+          React.createElement(Text, {
+            key: i,
+            color: isError ? THEME.error : THEME.secondaryText
+          },
+            i === 0 ? (isError ? '✗ ' : '⎿ ') : '  ',
+            line
+          )
+        ),
+        // Collapsed hint
+        hasMore && !isExpanded && React.createElement(Text, {
+          key: 'more',
+          dimColor: true
+        }, `  … (+${hiddenCount} lines · ctrl+o to expand)`)
       )
+    }
 
     default:
       return null
@@ -1518,6 +1624,8 @@ function PromptInput({
   mcpStatus = null,
   gitStats = null,
   onBypassPermissionsChange,
+  queuedMessage = null,
+  setQueuedMessage,
 }) {
   // Internal input state (moved from parent to avoid re-renders)
   const [input, setInput] = useState('')
@@ -1741,7 +1849,20 @@ function PromptInput({
     const hasAttachments = attachments.length > 0
     // Robust input validation — allow empty text if attachments exist
     if (!hasAttachments && (!value || typeof value !== 'string' || value.trim() === '')) return
-    if (isDisabled || isLoading) return
+    if (isDisabled) return
+
+    // Queue message if currently loading (auto-submits when turn completes)
+    if (isLoading) {
+      const sanitizedValue = (value || '').trim().slice(0, 100000)
+      if (!hasAttachments && sanitizedValue.length === 0) return
+      setQueuedMessage(hasAttachments
+        ? { text: sanitizedValue, attachments: [...attachments] }
+        : sanitizedValue)
+      onInputChange('')
+      setCursorOffset(0)
+      setAttachments([])
+      return
+    }
 
     // Sanitize and validate input length (max 100k chars)
     const sanitizedValue = (value || '').trim().slice(0, 100000)
@@ -1813,10 +1934,15 @@ function PromptInput({
     // Robust null checking
     if (!key || typeof key !== 'object') return
 
-    // Handle Escape - cancel loading OR clear input
+    // Handle Escape - cancel loading, clear queue, OR clear input
     if (key.escape) {
       if (isLoading && onCancel) {
         onCancel()
+        return
+      }
+      // Clear queued message if one exists (before other idle escape behaviors)
+      if (queuedMessage && !isLoading) {
+        setQueuedMessage(null)
         return
       }
       if (input === '' && messages.length > 0 && !isLoading) {
@@ -2157,7 +2283,10 @@ function PromptInput({
       },
         mode === 'bash'
           ? React.createElement(Text, { key: 'bash', color: THEME.bashBorder }, ' ! ')
-          : React.createElement(Text, { key: 'normal', color: isLoading ? THEME.secondaryText : undefined }, ' ❯ ')
+          : React.createElement(Text, {
+              key: 'normal',
+              color: queuedMessage ? THEME.warning : isLoading ? THEME.secondaryText : undefined
+            }, queuedMessage ? ' ⏳' : ' ❯ ')
       ),
       // Text input display (voice status shown as placeholder to avoid layout shift)
       React.createElement(Box, { key: 'input', paddingRight: 1, flexGrow: 1 },
@@ -2174,6 +2303,17 @@ function PromptInput({
           cursorOffset: cursorOffset,
           color: voiceStatus === 'recording' ? 'red' : mode === 'bash' ? THEME.bashBorder : undefined,
         })
+      )
+    ),
+
+    // Queued message indicator
+    queuedMessage && React.createElement(Box, { key: 'queued-msg', paddingX: 2 },
+      React.createElement(Text, { color: THEME.warning, dimColor: true },
+        '⏳ Queued: ',
+        typeof queuedMessage === 'string'
+          ? queuedMessage.slice(0, 60)
+          : queuedMessage.text.slice(0, 60),
+        (typeof queuedMessage === 'string' ? queuedMessage : queuedMessage.text).length > 60 ? '…' : ''
       )
     ),
 
@@ -2350,6 +2490,9 @@ function ConversationApp({
   const [forkNumber, setForkNumber] = useState(initialForkNumber)
   const [abortController, setAbortController] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [queuedMessage, setQueuedMessage] = useState(null)
+  const [pendingPlan, setPendingPlan] = useState(null)
+  const [expandedToolResults, setExpandedToolResults] = useState(new Set())
   const [toolJSX, setToolJSX] = useState(null)
   const [messages, setMessages] = useState(initialMessages)
   const [mode, setMode] = useState('prompt')
@@ -2503,6 +2646,14 @@ function ConversationApp({
       } catch {
         // Never crash the TUI due to plan compaction errors
       }
+    })
+    return unregister
+  }, [])
+
+  // Wire onPlanExit → show plan review UI
+  useEffect(() => {
+    const unregister = onPlanExit((plan) => {
+      setPendingPlan(plan)
     })
     return unregister
   }, [])
@@ -2875,8 +3026,44 @@ function ConversationApp({
   const cancelOperation = useCallback(() => {
     if (!isLoading) return
     setIsLoading(false)
+    setQueuedMessage(null)
     abortController?.abort()
   }, [isLoading, abortController])
+
+  // Toggle expand/collapse on a tool result (Ctrl+O)
+  const toggleToolResultExpand = useCallback((toolUseId) => {
+    setExpandedToolResults(prev => {
+      const next = new Set(prev)
+      if (next.has(toolUseId)) next.delete(toolUseId)
+      else next.add(toolUseId)
+      return next
+    })
+  }, [])
+
+  const handlePlanAccept = useCallback(() => {
+    if (!pendingPlan) return
+    approvePlan(pendingPlan.id)
+    setPendingPlan(null)
+    const msg = createMessage('assistant', `✓ Plan accepted — beginning implementation`)
+    setMessages(prev => [...prev, msg])
+  }, [pendingPlan])
+
+  const handlePlanReject = useCallback(() => {
+    if (!pendingPlan) return
+    cancelPlan(pendingPlan.id)
+    setPendingPlan(null)
+    const msg = createMessage('assistant', `✗ Plan rejected`)
+    setMessages(prev => [...prev, msg])
+  }, [pendingPlan])
+
+  useInput((char, key) => {
+    if (!pendingPlan) return
+    if (char === 'y' || char === 'Y') {
+      handlePlanAccept()
+    } else if (char === 'n' || char === 'N' || key.escape) {
+      handlePlanReject()
+    }
+  }, { isActive: !!pendingPlan })
 
   // Ctrl+B — unified background (CC 2.1 parity)
   // Backgrounds both the current bash command AND any running agent simultaneously.
@@ -3114,8 +3301,14 @@ function ConversationApp({
     } finally {
       setIsLoading(false)
       setAbortController(null)
+      // Auto-submit queued message if one exists
+      if (queuedMessage) {
+        const msg = queuedMessage
+        setQueuedMessage(null)
+        setTimeout(() => handleQuery(msg), 0)
+      }
     }
-  }, [messages, tools, effectiveVerbose, isLoading, commands, currentModel, bypassPermissions, dangerouslySkipPermissions])
+  }, [messages, tools, effectiveVerbose, isLoading, commands, currentModel, bypassPermissions, dangerouslySkipPermissions, queuedMessage])
 
   // Run initial prompt
   useEffect(() => {
@@ -3176,6 +3369,7 @@ function ConversationApp({
             debug,
             addMargin: true,
             shouldShowDot: true,
+            expandedToolResults,
           })
         )
       }))
@@ -3199,11 +3393,22 @@ function ConversationApp({
         debug,
         addMargin: true,
         shouldShowDot: true,
+        expandedToolResults,
       })
     ),
 
     // Loading indicator
     !toolJSX && isLoading ? React.createElement(LoadingSpinner, { key: 'loading' }) : null,
+
+    // Plan review overlay — shown after ExitPlanMode fires
+    pendingPlan
+      ? React.createElement(PlanDisplay, {
+          key: 'plan-display',
+          plan: pendingPlan,
+          onAccept: handlePlanAccept,
+          onReject: handlePlanReject,
+        })
+      : null,
 
     // Tool JSX (overlays)
     toolJSX?.jsx ? React.cloneElement(toolJSX.jsx, { key: 'tool-jsx' }) : null,
@@ -3575,7 +3780,7 @@ function ConversationApp({
       : null,
 
     // Prompt input
-    !toolJSX?.shouldHidePromptInput && shouldShowPromptInput && !showMessageSelector && !showModelSelector && !showAuthSelector && !showFastModeToggle && !showMcpManager && !showConfigManager && !showApprovedToolsManager && !showSessionPicker && !showPluginManager && !showProviderManager && !showAgentManager && !showToolsManager && !showContextManager && !showSteeringQuestions
+    !pendingPlan && !toolJSX?.shouldHidePromptInput && shouldShowPromptInput && !showMessageSelector && !showModelSelector && !showAuthSelector && !showFastModeToggle && !showMcpManager && !showConfigManager && !showApprovedToolsManager && !showSessionPicker && !showPluginManager && !showProviderManager && !showAgentManager && !showToolsManager && !showContextManager && !showSteeringQuestions
       ? React.createElement(MemoizedPromptInput, {
           key: 'prompt-input',
           commands,
@@ -3593,11 +3798,15 @@ function ConversationApp({
           mcpStatus,
           gitStats,
           onBypassPermissionsChange: setBypassPermissions,
+          queuedMessage,
+          setQueuedMessage,
+          expandedToolResults,
+          onToggleToolResultExpand: toggleToolResultExpand,
         })
       : null,
 
     // Prompt footer (CC 2.x feature)
-      !isLoading && !toolJSX?.shouldHidePromptInput && shouldShowPromptInput && !showMessageSelector && !showModelSelector && !showAuthSelector && !showFastModeToggle && !showMcpManager && !showConfigManager && !showApprovedToolsManager && !showSessionPicker && !showPluginManager && !showProviderManager && !showAgentManager && !showToolsManager && !showContextManager && !showSteeringQuestions
+      !pendingPlan && !isLoading && !toolJSX?.shouldHidePromptInput && shouldShowPromptInput && !showMessageSelector && !showModelSelector && !showAuthSelector && !showFastModeToggle && !showMcpManager && !showConfigManager && !showApprovedToolsManager && !showSessionPicker && !showPluginManager && !showProviderManager && !showAgentManager && !showToolsManager && !showContextManager && !showSteeringQuestions
         ? React.createElement(PromptFooter, {
             session: currentSession,
             prNumber: initialPrNumber,

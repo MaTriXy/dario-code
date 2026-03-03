@@ -38,10 +38,12 @@ export function normalizeMessages(messages) {
         )
         if (toolResults.length > 0) {
           // Create assistant message for each tool_use that these results respond to
+          // Use deterministic IDs derived from the original message UUID + tool_use_id
+          // so that repeated normalizeMessages calls produce stable keys for Ink's Static.
           for (const result of toolResults) {
             normalized.push({
               ...msg,
-              uuid: randomUUID(),
+              uuid: `${msg.uuid}-tooluse-${result.tool_use_id}`,
               type: 'assistant',
               message: {
                 ...msg.message,
@@ -58,7 +60,7 @@ export function normalizeMessages(messages) {
             })
             normalized.push({
               ...msg,
-              uuid: randomUUID(),
+              uuid: `${msg.uuid}-result-${result.tool_use_id}`,
               message: {
                 ...msg.message,
                 content: [result],

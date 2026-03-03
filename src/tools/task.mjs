@@ -6,6 +6,9 @@
  */
 
 import { z } from 'zod'
+import { createMessage, normalizeMessages, getLastMessage } from '../utils/messages.mjs'
+import { streamConversation } from '../api/streaming.mjs'
+import { getModel } from '../core/config.mjs'
 
 // Input schema for the Task tool
 export const taskInputSchema = z.object({
@@ -78,20 +81,12 @@ function formatTokens(count) {
 export function createTaskTool(dependencies) {
   const {
     getAvailableTools,
-    runAgentLoop,
-    createUserMessage,
-    normalizeMessages,
-    getLastMessage,
-    logMessages,
-    getModel,
-    getMaxThinkingTokens,
-    hasPermission,
     logError,
     React
   } = dependencies
 
   return {
-    name: 'dispatch_agent', // Internal name
+    name: 'dispatch_agent',
 
     async prompt({ dangerouslySkipPermissions }) {
       const tools = await getAvailableTools(dangerouslySkipPermissions)
@@ -121,7 +116,6 @@ export function createTaskTool(dependencies) {
     },
 
     renderToolUseMessage({ prompt } = {}) {
-      // Truncate long prompts for display
       if (prompt.length > 100) {
         return prompt.slice(0, 100) + '...'
       }
@@ -149,7 +143,6 @@ export function createTaskTool(dependencies) {
     },
 
     renderResultForAssistant(result) {
-      // Extract text content from the result
       if (Array.isArray(result)) {
         return result
           .filter(item => item.type === 'text')
@@ -161,20 +154,11 @@ export function createTaskTool(dependencies) {
 
     async *call({ prompt }, { abortController, options, readFileTimestamps }) {
       const startTime = Date.now()
-      const {
-        dangerouslySkipPermissions = false,
-        forkNumber,
-        messageLogName,
-        verbose
-      } = options
+      const { dangerouslySkipPermissions = false, verbose } = options
 
-      // Initialize messages with user prompt
-      const messages = [createUserMessage(prompt)]
-
-      // Get available tools for the agent
+      const messages = [createMessage('user', prompt)]
       const tools = await getAvailableTools(dangerouslySkipPermissions)
 
-      // Yield initial progress
       yield {
         type: 'progress',
         content: 'Initializing...',
@@ -182,43 +166,29 @@ export function createTaskTool(dependencies) {
         tools
       }
 
-      // Get model and settings
-      const [systemPrompt, model, maxThinkingTokens] = await Promise.all([
+      const [systemPrompt, model] = await Promise.all([
         this.prompt({ dangerouslySkipPermissions }),
-        getModel(),
-        getMaxThinkingTokens(messages)
+        getModel()
       ])
 
       let toolUseCount = 0
 
-      // Run the agent loop
-      for await (const message of runAgentLoop(messages, systemPrompt, model, hasPermission, {
-        abortController,
-        options: {
-          dangerouslySkipPermissions,
-          forkNumber,
-          messageLogName,
-          tools,
-          commands: [],
-          verbose,
-          slowAndCapableModel: model,
-          maxThinkingTokens
-        },
-        readFileTimestamps
-      })) {
-        messages.push(message)
+      for await (const event of streamConversation(
+        messages,
+        [systemPrompt],
+        tools,
+        { model, dangerouslySkipPermissions, verbose, readFileTimestamps },
+        abortController
+      )) {
+        if (event.type === 'progress') continue
 
-        // Log messages
-        logMessages?.(messages.filter(m => m.type !== 'progress'))
+        messages.push(event)
 
-        // Skip non-assistant messages
-        if (message.type !== 'assistant') continue
+        if (event.type !== 'assistant') continue
 
-        // Count and report tool uses
         const normalized = normalizeMessages(messages)
-        for (const content of message.message.content) {
+        for (const content of event.message.content) {
           if (content.type !== 'tool_use') continue
-
           toolUseCount++
           yield {
             type: 'progress',
@@ -233,7 +203,6 @@ export function createTaskTool(dependencies) {
         }
       }
 
-      // Get final result
       const normalizedMessages = normalizeMessages(messages)
       const lastMessage = getLastMessage(messages)
 
@@ -241,7 +210,6 @@ export function createTaskTool(dependencies) {
         throw new Error('Last message was not an assistant message')
       }
 
-      // Calculate statistics
       const usage = lastMessage.message.usage || {}
       const totalTokens = (usage.cache_creation_input_tokens || 0) +
         (usage.cache_read_input_tokens || 0) +
@@ -261,7 +229,6 @@ export function createTaskTool(dependencies) {
         tools
       }
 
-      // Extract text content from final response
       const textContent = lastMessage.message.content.filter(c => c.type === 'text')
 
       yield {

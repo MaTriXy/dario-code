@@ -100,7 +100,8 @@ function createDependencies(options = {}) {
     processImage,
     logError,
     logEvent,
-    React
+    React,
+    getAvailableTools: async (_dangerouslySkipPermissions) => getToolsArray()
   }
 }
 
