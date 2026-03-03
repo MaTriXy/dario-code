@@ -276,14 +276,9 @@ export function createReadTool(dependencies) {
     renderResultForAssistant(result) {
       switch (result.type) {
         case 'image':
-          return [{
-            type: 'image',
-            source: {
-              type: 'base64',
-              data: result.file.base64,
-              media_type: result.file.type
-            }
-          }]
+          // processImage already returns a Claude API-ready image block
+          // { type: 'image', source: { type: 'base64', data, media_type } }
+          return [result]
         case 'text':
           return result.file.content
       }

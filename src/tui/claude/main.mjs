@@ -5,7 +5,7 @@
  */
 
 import React, { useState, useCallback, useEffect, useMemo, useRef, memo, Component } from 'react'
-import { Box, Text, render, useInput } from 'ink'
+import { Box, Text, render, useInput, Static } from 'ink'
 import { randomUUID } from 'crypto'
 import chalk from 'chalk'
 
@@ -22,7 +22,7 @@ import { glob } from 'glob'
 import { basename, relative, join } from 'path'
 import path from 'path'
 import { homedir } from 'os'
-import { readFileSync, existsSync, readdirSync, writeFileSync, mkdirSync } from 'fs'
+import { readFileSync, existsSync, statSync, readdirSync, writeFileSync, mkdirSync } from 'fs'
 import { execFileSync } from 'child_process'
 import { authenticateWithOAuth, getAuthInfo, logout as oauthLogout, getValidToken, setOAuthMode } from '../../auth/oauth.mjs'
 import { resetClient } from '../../api/client.mjs'
@@ -1090,7 +1090,7 @@ function TextInputDisplay({
     )
   }
 
-  return React.createElement(Text, { dimColor: isDimmed, color, wrap: 'truncate-end' },
+  return React.createElement(Text, { dimColor: isDimmed, color, wrap: 'wrap' },
     beforeCursor,
     React.createElement(Text, { inverse: true, color }, atCursor),
     afterCursor
@@ -1319,10 +1319,13 @@ function UserContentRenderer({ param, message, messages, tools, verbose, addMarg
     case 'text':
       return React.createElement(Box, {
         marginTop: addMargin ? 1 : 0,
-        marginLeft: 2
+        marginLeft: 2,
+        width: '100%',
       },
-        React.createElement(Text, { color: THEME.success, bold: true }, '> '),
-        React.createElement(Text, null, param.text)
+        React.createElement(Text, null,
+          React.createElement(Text, { color: THEME.success, bold: true }, '> '),
+          param.text
+        )
       )
 
     case 'image':
@@ -1618,22 +1621,22 @@ function PromptInput({
     }
   }, [input, commands])
 
-  // Auto-detect image file paths in input (fires on every input change)
+  // Auto-detect file paths in input (fires on every input change)
   // Handles drag-drop (terminal emits path as text) and manual paste
   useEffect(() => {
     if (!input) return
-    const IMAGE_PATH_RE = /(?:['"]?)((?:\/|~\/|\.\/)[^\s'"]*\.(?:png|jpg|jpeg|gif|bmp|webp))(?:['"]?)/gi
+    const IMAGE_PATH_RE = /(?:['"]?)((?:\/|~\/|\.\/)[^\t'"]+?)(?:['"]?)(?=\s|$)/gi
     const matches = [...input.matchAll(IMAGE_PATH_RE)]
     if (matches.length === 0) return
 
     let remaining = input
     let foundAny = false
     for (const match of matches) {
-      const pathCandidate = match[1]
+      const pathCandidate = match[1].replace(/\\(.)/g, '$1')
       const resolvedPath = pathCandidate.startsWith('~')
         ? pathCandidate.replace('~', homedir())
         : pathCandidate
-      if (existsSync(resolvedPath)) {
+      if (existsSync(resolvedPath) && statSync(resolvedPath).isFile()) {
         setAttachments(prev => {
           if (prev.some(a => a.path === resolvedPath)) return prev
           return [...prev, { path: resolvedPath, name: basename(resolvedPath) }]
@@ -3048,12 +3051,20 @@ function ConversationApp({
     [messages]
   )
 
-  // Build message items for Static rendering
-  const messageItems = useMemo(() => {
+  // Split messages: all-but-last go into Static (rendered once, no re-render),
+  // last message stays dynamic so streaming updates render without flashing the whole TUI.
+  const staticMessages = isLoading
+    ? normalizedMessages.slice(0, -1)
+    : normalizedMessages
+
+  const liveMessage = isLoading && normalizedMessages.length > 0
+    ? normalizedMessages[normalizedMessages.length - 1]
+    : null
+
+  // Static items: header + completed messages
+  const staticItems = useMemo(() => {
     const items = [
-      // Header
       {
-        type: 'static',
         key: `header-${forkNumber}`,
         jsx: React.createElement(Box, {
           flexDirection: 'column',
@@ -3068,9 +3079,7 @@ function ConversationApp({
           })
         )
       },
-      // Messages
-      ...normalizedMessages.map((msg, idx) => ({
-        type: 'static',
+      ...staticMessages.map((msg, idx) => ({
         key: msg.uuid || `msg-${idx}`,
         jsx: React.createElement(Box, {
           key: msg.uuid || idx,
@@ -3089,13 +3098,26 @@ function ConversationApp({
       }))
     ]
     return items
-  }, [forkNumber, normalizedMessages, effectiveVerbose, debug, mcpClients, isDefaultModel])
-
-  const staticItems = messageItems.filter(item => item.type === 'static').map(item => item.jsx)
+  }, [forkNumber, staticMessages, effectiveVerbose, debug, mcpClients, isDefaultModel])
 
   return React.createElement(Box, { flexDirection: 'column' },
-    // Static messages - render directly
-    ...staticItems,
+    // Static messages — rendered once, never re-rendered (prevents flash)
+    React.createElement(Static, { items: staticItems },
+      (item) => React.createElement(React.Fragment, { key: item.key }, item.jsx)
+    ),
+
+    // Live (streaming) message — updates without touching Static items
+    liveMessage && React.createElement(Box, { key: 'live-msg', width: '100%' },
+      React.createElement(MessageRenderer, {
+        message: liveMessage,
+        messages: normalizedMessages,
+        tools,
+        verbose: effectiveVerbose,
+        debug,
+        addMargin: true,
+        shouldShowDot: true,
+      })
+    ),
 
     // Loading indicator
     !toolJSX && isLoading ? React.createElement(LoadingSpinner, { key: 'loading' }) : null,

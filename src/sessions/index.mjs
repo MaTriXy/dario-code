@@ -375,6 +375,82 @@ async function readIndexFromBase(baseProjectsDir, cwd) {
 }
 
 /**
+ * Scan a project directory for .jsonl files not covered by the index.
+ * Reads the first line of each file to extract sessionId, cwd, gitBranch,
+ * and the first user message for display.
+ */
+async function scanUnindexedJSONL(projectDir, indexedIds, defaultCwd) {
+  const entries = []
+  let files = []
+  try {
+    files = (await fs.readdir(projectDir)).filter(f => f.endsWith('.jsonl'))
+  } catch {
+    return entries
+  }
+
+  await Promise.all(files.map(async (file) => {
+    const sessionId = file.replace('.jsonl', '')
+    if (indexedIds.has(sessionId)) return
+
+    const filePath = path.join(projectDir, file)
+    try {
+      const raw = await fs.readFile(filePath, 'utf8')
+      const lines = raw.trim().split('\n').filter(Boolean)
+      if (lines.length === 0) return
+
+      let cwd = defaultCwd
+      let gitBranch = ''
+      let firstPrompt = ''
+      let created = null
+      let modified = null
+
+      // Scan events to extract metadata
+      for (const line of lines) {
+        try {
+          const event = JSON.parse(line)
+          if (!created && event.timestamp) created = event.timestamp
+          if (event.timestamp) modified = event.timestamp
+          if (!cwd && event.cwd) cwd = event.cwd
+          if (!gitBranch && event.gitBranch) gitBranch = event.gitBranch
+
+          // Extract first user prompt text
+          if (!firstPrompt && event.type === 'user') {
+            const msg = event.message
+            if (typeof msg?.content === 'string') {
+              firstPrompt = msg.content
+            } else if (Array.isArray(msg?.content)) {
+              firstPrompt = msg.content.filter(b => b.type === 'text').map(b => b.text).join('\n')
+            }
+          }
+        } catch {
+          // skip malformed lines
+        }
+      }
+
+      const stat = await fs.stat(filePath).catch(() => null)
+
+      entries.push({
+        id: sessionId,
+        name: firstPrompt ? firstPrompt.slice(0, 60) : `Session ${sessionId.slice(0, 8)}`,
+        created: created || new Date(stat?.mtime || 0).toISOString(),
+        updated: modified || new Date(stat?.mtime || 0).toISOString(),
+        cwd,
+        messageCount: 0,
+        firstPrompt: firstPrompt.slice(0, 200),
+        gitBranch,
+        fullPath: filePath,
+        fileSize: stat?.size || 0,
+        lastMessage: null,
+      })
+    } catch {
+      // skip unreadable files
+    }
+  }))
+
+  return entries
+}
+
+/**
  * List sessions for the current project.
  * Reads from both .dario and .claude session indexes, deduplicates by sessionId.
  * Items are tagged with `source` ('dario' | 'claude' | 'both').
@@ -384,7 +460,9 @@ export async function listSessions(options = {}) {
   try {
     await initSessions(cwd)
 
-    // Read from both locations
+    const encoded = encodeProjectPath(cwd)
+
+    // Read indexes from both locations
     const ocIndex = await readIndex(cwd)
     const ccIndex = await readIndexFromBase(CLAUDE_PROJECTS_DIR, cwd)
 
@@ -402,9 +480,30 @@ export async function listSessions(options = {}) {
 
     for (const e of ccIndex.entries) {
       if (seen.has(e.sessionId)) continue
+      seen.add(e.sessionId)
       const mapped = mapIndexEntry(e, cwd)
       mapped.source = 'claude'
       entries.push(mapped)
+    }
+
+    // Fallback: scan raw .jsonl files in both dirs for sessions not in any index
+    const darioProjectDir = path.join(PROJECTS_DIR, encoded)
+    const claudeProjectDir = path.join(CLAUDE_PROJECTS_DIR, encoded)
+
+    const [darioUnindexed, claudeUnindexed] = await Promise.all([
+      scanUnindexedJSONL(darioProjectDir, seen, cwd),
+      scanUnindexedJSONL(claudeProjectDir, seen, cwd),
+    ])
+
+    for (const e of darioUnindexed) {
+      seen.add(e.id)
+      e.source = 'dario'
+      entries.push(e)
+    }
+    for (const e of claudeUnindexed) {
+      if (seen.has(e.id)) continue
+      e.source = 'claude'
+      entries.push(e)
     }
 
     // Sort newest first
@@ -441,19 +540,23 @@ export async function listAllProjectSessions(options = {}) {
     const seen = new Set()
     let allEntries = []
 
-    // Helper to scan one projects dir
+    // Helper to scan one projects dir (index + unindexed JSONL fallback)
     async function scanProjectsDir(projectsDir, sourceName) {
       const dirs = await fs.readdir(projectsDir).catch(() => [])
       for (const dir of dirs) {
-        const indexPath = path.join(projectsDir, dir, 'sessions-index.json')
+        const dirPath = path.join(projectsDir, dir)
+        const indexPath = path.join(dirPath, 'sessions-index.json')
+        const indexedInDir = new Set()
+
+        // First pass: read index if it exists
         try {
           const raw = await fs.readFile(indexPath, 'utf8')
           const index = JSON.parse(raw)
           const projectPath = index.entries[0]?.projectPath || dir
           for (const e of index.entries) {
             const id = e.sessionId
+            indexedInDir.add(id)
             if (seen.has(id)) {
-              // Already added from dario — upgrade source to 'both'
               const existing = allEntries.find(x => x.id === id)
               if (existing) existing.source = 'both'
               continue
@@ -466,7 +569,15 @@ export async function listAllProjectSessions(options = {}) {
             })
           }
         } catch {
-          // Skip dirs without a valid index
+          // No index — fall through to JSONL scan
+        }
+
+        // Second pass: pick up any .jsonl files not in the index
+        const unindexed = await scanUnindexedJSONL(dirPath, seen, dir)
+        for (const e of unindexed) {
+          if (seen.has(e.id)) continue
+          seen.add(e.id)
+          allEntries.push({ ...e, projectDir: dir, source: sourceName })
         }
       }
     }
