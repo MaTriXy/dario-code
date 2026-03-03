@@ -945,7 +945,8 @@ function useDoublePress(onDouble, timeout = 2000) {
  * Welcome Banner
  */
 function WelcomeBanner({ mcpClients = [], isDefaultModel = true }) {
-  const width = Math.max(46, process.cwd().length + 12)
+  const termWidth = process.stdout.columns || 80
+  const width = Math.min(termWidth, Math.max(46, process.cwd().length + 12))
 
   return React.createElement(Box, { flexDirection: 'column' },
     React.createElement(Box, {
@@ -969,7 +970,7 @@ function WelcomeBanner({ mcpClients = [], isDefaultModel = true }) {
         gap: 1
       },
         React.createElement(Text, { key: 'help', color: THEME.secondaryText, italic: true }, '/help for help'),
-        React.createElement(Text, { key: 'cwd', color: THEME.secondaryText }, 'cwd: ', process.cwd())
+        React.createElement(Text, { key: 'cwd', color: THEME.secondaryText, wrap: 'truncate' }, 'cwd: ', process.cwd())
       ),
       mcpClients.length > 0 && React.createElement(Box, {
         key: 'mcp',

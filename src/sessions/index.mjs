@@ -207,16 +207,18 @@ export async function createSession(name = null) {
  * Falls back to scanning all projects for partial ID matches.
  */
 export async function getSession(sessionId, cwd = process.cwd()) {
-  // Fast path: exact file in current project
+  const encoded = encodeProjectPath(cwd)
+
+  // Fast path: exact file in dario project dir
   const exactPath = getSessionPath(sessionId, cwd)
   try {
     await fs.access(exactPath)
     return await loadSessionFromJSONL(sessionId, cwd)
   } catch {
-    // Not in current project
+    // Not in dario project
   }
 
-  // Check index for the session
+  // Check dario index for the session
   const index = await readIndex(cwd)
   const entry = index.entries.find(e =>
     e.sessionId === sessionId || e.sessionId.startsWith(sessionId)
@@ -225,7 +227,78 @@ export async function getSession(sessionId, cwd = process.cwd()) {
     return await loadSessionFromJSONL(entry.sessionId, cwd)
   }
 
+  // Fallback: check claude projects dir
+  const claudeProjectDir = path.join(CLAUDE_PROJECTS_DIR, encoded)
+  const claudeSessionPath = path.join(claudeProjectDir, `${sessionId}.jsonl`)
+  try {
+    await fs.access(claudeSessionPath)
+    return await loadSessionFromJSONLPath(claudeSessionPath, sessionId, cwd)
+  } catch {
+    // Not in claude project either
+  }
+
+  // Last resort: scan all claude project subdirs for this sessionId
+  try {
+    const projectDirs = await fs.readdir(CLAUDE_PROJECTS_DIR)
+    for (const dir of projectDirs) {
+      const filePath = path.join(CLAUDE_PROJECTS_DIR, dir, `${sessionId}.jsonl`)
+      try {
+        await fs.access(filePath)
+        return await loadSessionFromJSONLPath(filePath, sessionId, cwd)
+      } catch {
+        // not in this dir
+      }
+    }
+  } catch {
+    // claude projects dir not accessible
+  }
+
   return null
+}
+
+/**
+ * Read events from an absolute JSONL file path.
+ */
+async function readEventsFromPath(filePath) {
+  try {
+    const raw = await fs.readFile(filePath, 'utf8')
+    return raw.trim().split('\n').filter(Boolean).map(line => {
+      try { return JSON.parse(line) } catch { return null }
+    }).filter(Boolean)
+  } catch {
+    return []
+  }
+}
+
+/**
+ * Load a full session from an absolute JSONL file path.
+ */
+async function loadSessionFromJSONLPath(filePath, sessionId, cwd = process.cwd()) {
+  const events = await readEventsFromPath(filePath)
+  if (events.length === 0) return null
+
+  const startEvent = events.find(e => e.type === 'session-start')
+  const firstUserEvent = events.find(e => e.type === 'user')
+  const messages = extractMessages(events)
+  const firstEvent = events[0]
+  const lastEvent = events[events.length - 1]
+  const firstPrompt = firstUserEvent ? extractContent(firstUserEvent) : ''
+
+  return {
+    id: sessionId,
+    name: startEvent?.name || (firstPrompt ? firstPrompt.slice(0, 60) : `Session ${firstEvent?.timestamp?.split('T')[0] || 'Unknown'}`),
+    created: firstEvent?.timestamp || new Date().toISOString(),
+    updated: lastEvent?.timestamp || new Date().toISOString(),
+    cwd: startEvent?.cwd || firstUserEvent?.cwd || cwd,
+    gitBranch: firstUserEvent?.gitBranch || '',
+    firstPrompt,
+    messages,
+    context: {},
+    metadata: {
+      messageCount: messages.length,
+      lastMessage: messages[messages.length - 1] || null,
+    },
+  }
 }
 
 /**
