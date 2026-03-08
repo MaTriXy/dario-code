@@ -38,16 +38,16 @@ created: 2026-03-08
 
 | Task ID | Plan | Wave | Requirement | Test Type | Automated Command | File Exists | Status |
 |---------|------|------|-------------|-----------|-------------------|-------------|--------|
-| 03-01-01 | 01 | 1 | HEVT-01 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-01"` | ❌ W0 | ⬜ pending |
-| 03-01-02 | 01 | 1 | HEVT-02 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-02"` | ❌ W0 | ⬜ pending |
-| 03-01-03 | 01 | 1 | HEVT-03 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-03"` | ❌ W0 | ⬜ pending |
-| 03-01-04 | 01 | 1 | HEVT-04 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-04"` | ❌ W0 | ⬜ pending |
-| 03-01-05 | 01 | 1 | HEVT-05 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-05"` | ❌ W0 | ⬜ pending |
-| 03-01-06 | 01 | 1 | HEVT-06 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-06"` | ❌ W0 | ⬜ pending |
-| 03-02-01 | 02 | 1 | HTYP-01 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-01"` | ❌ W0 | ⬜ pending |
-| 03-02-02 | 02 | 1 | HTYP-02 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-02"` | ❌ W0 | ⬜ pending |
-| 03-02-03 | 02 | 1 | HTYP-03 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-03"` | ❌ W0 | ⬜ pending |
-| 03-02-04 | 02 | 1 | HTYP-04 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-04"` | ❌ W0 | ⬜ pending |
+| 03-01-01 | 01 | 1 | HTYP-01 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-01"` | ❌ W0 | ⬜ pending |
+| 03-01-02 | 01 | 1 | HTYP-02 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-02"` | ❌ W0 | ⬜ pending |
+| 03-01-03 | 01 | 1 | HTYP-03 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-03"` | ❌ W0 | ⬜ pending |
+| 03-01-04 | 01 | 1 | HTYP-04 | unit | `npx vitest run tests/hook-handlers.test.mjs -t "HTYP-04"` | ❌ W0 | ⬜ pending |
+| 03-02-01 | 02 | 2 | HEVT-01 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-01"` | ❌ W0 | ⬜ pending |
+| 03-02-02 | 02 | 2 | HEVT-02 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-02"` | ❌ W0 | ⬜ pending |
+| 03-02-03 | 02 | 2 | HEVT-03 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-03"` | ❌ W0 | ⬜ pending |
+| 03-02-04 | 02 | 2 | HEVT-04 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-04"` | ❌ W0 | ⬜ pending |
+| 03-02-05 | 02 | 2 | HEVT-05 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-05"` | ❌ W0 | ⬜ pending |
+| 03-02-06 | 02 | 2 | HEVT-06 | unit | `npx vitest run tests/hook-events.test.mjs -t "HEVT-06"` | ❌ W0 | ⬜ pending |
 
 *Status: ⬜ pending · ✅ green · ❌ red · ⚠️ flaky*
 
