@@ -142,7 +142,7 @@ Note: Phase 6 (Checkpointing) is architecturally independent and could execute i
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Settings Hierarchy | 2/2 | Complete   | 2026-03-08 |
-| 2. Hook Config Migration | 0/2 | Not started | - |
+| 2. Hook Config Migration | 1/2 | In Progress|  |
 | 3. Hook Events & Handlers | 0/0 | Not started | - |
 | 4. Permission Rules | 0/0 | Not started | - |
 | 5. CLI Flags | 0/0 | Not started | - |

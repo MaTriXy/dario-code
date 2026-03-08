@@ -17,11 +17,11 @@
 
 ### Hook Schema Migration
 
-- [ ] **HOOK-01**: Support nested hook format `{ matcher, hooks: [{ type, command }] }` alongside current flat format
-- [ ] **HOOK-02**: Absent `type` field defaults to `"command"` for backward compatibility
-- [ ] **HOOK-03**: `statusMessage` field for custom spinner text during hook execution
-- [ ] **HOOK-04**: `once` field to run hook only once per session
-- [ ] **HOOK-05**: Hook deduplication (identical handlers run only once)
+- [x] **HOOK-01**: Support nested hook format `{ matcher, hooks: [{ type, command }] }` alongside current flat format
+- [x] **HOOK-02**: Absent `type` field defaults to `"command"` for backward compatibility
+- [x] **HOOK-03**: `statusMessage` field for custom spinner text during hook execution
+- [x] **HOOK-04**: `once` field to run hook only once per session
+- [x] **HOOK-05**: Hook deduplication (identical handlers run only once)
 - [ ] **HOOK-06**: Hook snapshot at startup with warning on mid-session modification
 
 ### Hook Event Types
@@ -150,11 +150,11 @@
 | SET-05 | Phase 1 | Complete |
 | SET-06 | Phase 1 | Complete |
 | SET-07 | Phase 1 | Complete |
-| HOOK-01 | Phase 2 | Pending |
-| HOOK-02 | Phase 2 | Pending |
-| HOOK-03 | Phase 2 | Pending |
-| HOOK-04 | Phase 2 | Pending |
-| HOOK-05 | Phase 2 | Pending |
+| HOOK-01 | Phase 2 | Complete |
+| HOOK-02 | Phase 2 | Complete |
+| HOOK-03 | Phase 2 | Complete |
+| HOOK-04 | Phase 2 | Complete |
+| HOOK-05 | Phase 2 | Complete |
 | HOOK-06 | Phase 2 | Pending |
 | HEVT-01 | Phase 3 | Pending |
 | HEVT-02 | Phase 3 | Pending |
