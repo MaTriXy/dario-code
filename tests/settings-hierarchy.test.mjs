@@ -224,6 +224,110 @@ describe('5-level settings hierarchy', () => {
     })
   })
 
+  describe('SET-06: --setting-sources filters which scopes load', () => {
+    it('loads only user and project when setSettingSources(["user","project"]) is set', () => {
+      // All 5 levels have data; only user and project should appear
+      fileExists.mockImplementation(() => true)
+      readFile.mockImplementation((p) => {
+        if (p.includes('managed-settings')) return JSON.stringify({ fromManaged: true })
+        if (p.includes('settings.local')) return JSON.stringify({ fromLocal: true })
+        if (p.includes('.dario') && p.endsWith('settings.json')) return JSON.stringify({ fromUser: true })
+        if (p.includes('.claude') && p.endsWith('settings.json')) return JSON.stringify({ fromProject: true })
+        return '{}'
+      })
+      setCliSettings({ fromCli: true })
+      setSettingSources(['user', 'project'])
+
+      const result = loadSettings()
+      expect(result.fromUser).toBe(true)
+      expect(result.fromProject).toBe(true)
+      expect(result.fromManaged).toBeUndefined()
+      expect(result.fromLocal).toBeUndefined()
+      expect(result.fromCli).toBeUndefined()
+    })
+
+    it('loads all 5 sources when setSettingSources is not set (default)', () => {
+      fileExists.mockImplementation(() => true)
+      readFile.mockImplementation((p) => {
+        if (p.includes('managed-settings')) return JSON.stringify({ fromManaged: true })
+        if (p.includes('settings.local')) return JSON.stringify({ fromLocal: true })
+        if (p.includes('.dario') && p.endsWith('settings.json')) return JSON.stringify({ fromUser: true })
+        if (p.includes('.claude') && p.endsWith('settings.json')) return JSON.stringify({ fromProject: true })
+        return '{}'
+      })
+      setCliSettings({ fromCli: true })
+      setSettingSources(null)
+
+      const result = loadSettings()
+      expect(result.fromUser).toBe(true)
+      expect(result.fromProject).toBe(true)
+      expect(result.fromLocal).toBe(true)
+      expect(result.fromCli).toBe(true)
+      expect(result.fromManaged).toBe(true)
+    })
+
+    it('resets to default (all sources) when setSettingSources(null) is called', () => {
+      setSettingSources(['user'])
+      setSettingSources(null) // reset
+
+      fileExists.mockImplementation((p) => {
+        if (p.includes('settings.local')) return true
+        return false
+      })
+      readFile.mockImplementation((p) => {
+        if (p.includes('settings.local')) return JSON.stringify({ localOnly: true })
+        return '{}'
+      })
+
+      const result = loadSettings()
+      // local source is included because null means all sources
+      expect(result.localOnly).toBe(true)
+    })
+  })
+
+  describe('SET-07: --settings injects CLI-level settings', () => {
+    it('setCliSettings injects settings at CLI precedence (overrides project)', () => {
+      // Only load project + cli sources to isolate the test
+      setSettingSources(['project', 'cli'])
+
+      fileExists.mockImplementation((p) => {
+        // project-level .claude/settings.json in cwd
+        if (p.endsWith('settings.json') && !p.includes('settings.local')) return true
+        return false
+      })
+      readFile.mockImplementation(() => {
+        return JSON.stringify({ theme: 'project', customKey: 'project' })
+      })
+
+      setCliSettings({ customKey: 'cliValue' })
+      const result = loadSettings()
+      expect(result.customKey).toBe('cliValue')
+    })
+
+    it('setCliSettings does NOT override managed settings', () => {
+      fileExists.mockImplementation((p) => {
+        if (p.includes('managed-settings')) return true
+        return false
+      })
+      readFile.mockImplementation((p) => {
+        if (p.includes('managed-settings')) return JSON.stringify({ adminKey: 'managed' })
+        return '{}'
+      })
+
+      setCliSettings({ adminKey: 'cliOverride' })
+      const result = loadSettings()
+      expect(result.adminKey).toBe('managed')
+    })
+
+    it('no CLI-level settings are injected when setCliSettings is not called', () => {
+      fileExists.mockImplementation(() => false)
+      setCliSettings(null)
+
+      const result = loadSettings()
+      expect(result).toEqual({})
+    })
+  })
+
   describe('SET-05: managed settings per platform', () => {
     it('returns {} when managed settings file is missing', () => {
       fileExists.mockImplementation(() => false)
