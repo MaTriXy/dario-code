@@ -69,12 +69,131 @@ export const HookAction = {
 // Default timeout for hooks (10 seconds)
 const DEFAULT_TIMEOUT = 10000
 
+// Module-level once tracker — survives across runHooks calls within a session
+const _onceTracker = new Set()
+
 /**
- * Load hooks configuration from settings
+ * Generate a unique key for a handler (used by once tracking and dedup).
+ * @param {Object} handler - Normalized handler object
+ * @returns {string} Unique key
+ */
+function handlerKey(handler) {
+  return `${handler.type}:${JSON.stringify(handler.command)}`
+}
+
+/**
+ * Check if a once-handler has already run this session.
+ * @param {Object} handler - Normalized handler
+ * @returns {boolean}
+ */
+function hasRunOnce(handler) {
+  return _onceTracker.has(handlerKey(handler))
+}
+
+/**
+ * Mark a once-handler as having run this session.
+ * @param {Object} handler - Normalized handler
+ */
+function markAsRun(handler) {
+  _onceTracker.add(handlerKey(handler))
+}
+
+/**
+ * Clear once-tracking state (for tests and session end).
+ */
+export function clearOnceState() {
+  _onceTracker.clear()
+}
+
+/**
+ * Normalize a single handler entry, ensuring all fields have defaults.
+ * @param {Object} handler - Raw handler from config
+ * @returns {Object} Normalized handler
+ */
+function normalizeHandler(handler) {
+  const command = handler.command
+    ? (Array.isArray(handler.command) ? handler.command : [handler.command])
+    : []
+
+  return {
+    type: handler.type || 'command',
+    command,
+    ...(handler.timeout != null ? { timeout: handler.timeout } : {}),
+    ...(handler.environment != null ? { environment: handler.environment } : {}),
+    statusMessage: handler.statusMessage ?? null,
+    once: handler.once ?? false,
+  }
+}
+
+/**
+ * Normalize hook config entries from flat or nested format to canonical nested.
+ *
+ * Flat format:  { matcher, command, timeout, ... }
+ * Nested format: { matcher, hooks: [{ type, command, ... }] }
+ *
+ * Both normalize to: { matcher, hooks: [{ type, command, statusMessage, once, ... }] }
+ *
+ * @param {Array|null|undefined} hookList - Array of hook entries
+ * @returns {Array} Normalized entries in nested format
+ */
+export function normalizeHookConfig(hookList) {
+  if (!hookList || !Array.isArray(hookList) || hookList.length === 0) {
+    return []
+  }
+
+  return hookList.map(entry => {
+    // Already nested format
+    if (entry.hooks && Array.isArray(entry.hooks)) {
+      return {
+        matcher: entry.matcher,
+        hooks: entry.hooks.map(normalizeHandler),
+      }
+    }
+
+    // Flat format — convert to nested
+    return {
+      matcher: entry.matcher,
+      hooks: [normalizeHandler(entry)],
+    }
+  })
+}
+
+/**
+ * Deduplicate handlers by type + command identity.
+ * Keeps the first occurrence of each unique handler.
+ *
+ * @param {Array} handlers - Array of normalized handler objects
+ * @returns {Array} Deduplicated handlers
+ */
+export function deduplicateHandlers(handlers) {
+  const seen = new Set()
+  const result = []
+
+  for (const handler of handlers) {
+    const key = handlerKey(handler)
+    if (!seen.has(key)) {
+      seen.add(key)
+      result.push(handler)
+    }
+  }
+
+  return result
+}
+
+/**
+ * Load hooks configuration from settings, normalized to nested format.
+ * @returns {Object} Map of event type to normalized hook entries
  */
 export function loadHooks() {
   const settings = loadSettings()
-  return settings.hooks || {}
+  const rawHooks = settings.hooks || {}
+  const normalized = {}
+
+  for (const [eventType, hookList] of Object.entries(rawHooks)) {
+    normalized[eventType] = normalizeHookConfig(hookList)
+  }
+
+  return normalized
 }
 
 /**
@@ -237,7 +356,34 @@ async function executeHook(hook, context, verbose = false) {
 }
 
 /**
- * Run all matching hooks for a given event
+ * Dispatch a single normalized handler.
+ * Currently only supports type "command" — calls existing executeHook logic.
+ * @param {Object} handler - Normalized handler
+ * @param {Object} context - Execution context
+ * @param {boolean} verbose
+ * @returns {Promise<Object>} Hook result
+ */
+async function dispatchHook(handler, context, verbose = false) {
+  // Build a hook-like object compatible with executeHook
+  const hookObj = {
+    command: handler.command,
+    timeout: handler.timeout,
+    environment: handler.environment,
+  }
+
+  const result = await executeHook(hookObj, context, verbose)
+
+  // Attach statusMessage to result for downstream consumers
+  if (handler.statusMessage) {
+    result.statusMessage = handler.statusMessage
+  }
+
+  return result
+}
+
+/**
+ * Run all matching hooks for a given event.
+ * Handles normalized (nested) format with dedup and once filtering.
  */
 export async function runHooks(hookType, context, verbose = false) {
   const hooks = loadHooks()
@@ -247,18 +393,39 @@ export async function runHooks(hookType, context, verbose = false) {
   let finalAction = HookAction.CONTINUE
   let modifiedInput = context.input
 
-  for (const hook of hookList) {
-    if (!matchesHook(hook, { ...context, hookType })) {
+  // Phase 1: filter by matcher, collect all handlers
+  let allHandlers = []
+  for (const entry of hookList) {
+    if (!matchesHook(entry, { ...context, hookType })) {
       continue
     }
 
-    const result = await executeHook(hook, { ...context, hookType, input: modifiedInput }, verbose)
+    if (entry.hooks && Array.isArray(entry.hooks)) {
+      allHandlers.push(...entry.hooks)
+    }
+  }
+
+  // Phase 2: deduplicate
+  allHandlers = deduplicateHandlers(allHandlers)
+
+  // Phase 3: execute each handler (respecting once flag)
+  for (const handler of allHandlers) {
+    // Skip once-handlers that already ran
+    if (handler.once && hasRunOnce(handler)) {
+      continue
+    }
+
+    const result = await dispatchHook(handler, { ...context, hookType, input: modifiedInput }, verbose)
     results.push(result)
+
+    // Mark once-handlers as run
+    if (handler.once) {
+      markAsRun(handler)
+    }
 
     // Process result
     if (result.action === HookAction.BLOCK) {
       finalAction = HookAction.BLOCK
-      // Stop processing more hooks
       break
     }
 
@@ -451,5 +618,8 @@ export default {
   runPermissionRequest,
   runNotification,
   runStop,
-  createHook
+  createHook,
+  normalizeHookConfig,
+  deduplicateHandlers,
+  clearOnceState
 }
