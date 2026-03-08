@@ -37,6 +37,7 @@
  */
 
 import { spawn } from 'child_process'
+import { createHash } from 'crypto'
 import path from 'path'
 import os from 'os'
 import { loadSettings } from './config.mjs'
@@ -103,6 +104,73 @@ function markAsRun(handler) {
  */
 export function clearOnceState() {
   _onceTracker.clear()
+}
+
+// ============================================================================
+// HOOK-06: Session snapshot — cache hooks at session start
+// ============================================================================
+
+// Module-level snapshot cache
+let _hookCache = null
+let _hookHash = null
+
+/**
+ * Compute a SHA-256 hash of the given data.
+ * @param {*} data - Data to hash (will be JSON-stringified)
+ * @returns {string} Hex hash
+ */
+function computeHash(data) {
+  return createHash('sha256').update(JSON.stringify(data)).digest('hex')
+}
+
+/**
+ * Capture a snapshot of normalized hooks at session start.
+ * Calls loadHooks() once, stores the result and its hash.
+ * @returns {Object} The cached normalized hooks
+ */
+export function snapshotHooks() {
+  _hookCache = loadHooks()
+  _hookHash = computeHash(_hookCache)
+  return _hookCache
+}
+
+/**
+ * Return the cached hook snapshot.
+ * @returns {Object|null} Cached hooks, or null if snapshotHooks() was never called
+ */
+export function getCachedHooks() {
+  return _hookCache
+}
+
+/**
+ * Check whether the on-disk hook config has changed since the snapshot.
+ * Loads hooks fresh, computes hash, compares to snapshot hash.
+ * @returns {{ changed: boolean, warning: string|null }}
+ */
+export function checkHookIntegrity() {
+  if (_hookHash === null) {
+    return { changed: false, warning: null }
+  }
+
+  const freshHooks = loadHooks()
+  const freshHash = computeHash(freshHooks)
+
+  if (freshHash !== _hookHash) {
+    return {
+      changed: true,
+      warning: 'Hook configuration has changed since session start. The running session uses the original snapshot. Restart to pick up changes.',
+    }
+  }
+
+  return { changed: false, warning: null }
+}
+
+/**
+ * Clear the hook snapshot cache (for tests and session end).
+ */
+export function clearHookSnapshot() {
+  _hookCache = null
+  _hookHash = null
 }
 
 /**
@@ -386,7 +454,7 @@ async function dispatchHook(handler, context, verbose = false) {
  * Handles normalized (nested) format with dedup and once filtering.
  */
 export async function runHooks(hookType, context, verbose = false) {
-  const hooks = loadHooks()
+  const hooks = getCachedHooks() || loadHooks()
   const hookList = hooks[hookType] || []
 
   const results = []
@@ -476,6 +544,9 @@ export async function runPostToolUse(toolName, input, output, context = {}, verb
  * Helper for SessionStart hooks
  */
 export async function runSessionStart(sessionId, context = {}, verbose = false) {
+  // Capture hook snapshot at session start (HOOK-06)
+  snapshotHooks()
+
   return runHooks(HookType.SESSION_START, {
     sessionId,
     ...context
@@ -621,5 +692,9 @@ export default {
   createHook,
   normalizeHookConfig,
   deduplicateHandlers,
-  clearOnceState
+  clearOnceState,
+  snapshotHooks,
+  getCachedHooks,
+  checkHookIntegrity,
+  clearHookSnapshot,
 }
