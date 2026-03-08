@@ -64,6 +64,14 @@ export async function createAgentWorktree(agentName, projectDir = process.cwd())
     stdio: 'pipe',
   })
 
+  // Fire WorktreeCreate hook after creation
+  try {
+    const { runWorktreeCreate } = await import('../core/hooks.mjs')
+    await runWorktreeCreate(worktreePath, { branch, projectDir })
+  } catch (e) {
+    // Non-fatal: hook failure should not prevent worktree usage
+  }
+
   /**
    * Cleanup function — removes the worktree and branch.
    * If `keepIfChanged` is true and there are uncommitted changes,
