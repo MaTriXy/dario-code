@@ -22,7 +22,7 @@
 - [x] **HOOK-03**: `statusMessage` field for custom spinner text during hook execution
 - [x] **HOOK-04**: `once` field to run hook only once per session
 - [x] **HOOK-05**: Hook deduplication (identical handlers run only once)
-- [ ] **HOOK-06**: Hook snapshot at startup with warning on mid-session modification
+- [x] **HOOK-06**: Hook snapshot at startup with warning on mid-session modification
 
 ### Hook Event Types
 
@@ -155,7 +155,7 @@
 | HOOK-03 | Phase 2 | Complete |
 | HOOK-04 | Phase 2 | Complete |
 | HOOK-05 | Phase 2 | Complete |
-| HOOK-06 | Phase 2 | Pending |
+| HOOK-06 | Phase 2 | Complete |
 | HEVT-01 | Phase 3 | Pending |
 | HEVT-02 | Phase 3 | Pending |
 | HEVT-03 | Phase 3 | Pending |
