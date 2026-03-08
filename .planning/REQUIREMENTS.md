@@ -7,11 +7,11 @@
 
 ### Settings Hierarchy
 
-- [ ] **SET-01**: Settings load from 5 levels: managed > CLI > local > project > user
-- [ ] **SET-02**: Object-valued settings deep-merge across levels (not shallow assign)
-- [ ] **SET-03**: Array-valued settings (permissions.allow, etc.) concatenate across scopes
-- [ ] **SET-04**: Local project settings read from `.claude/settings.local.json` (gitignored)
-- [ ] **SET-05**: Managed settings read from platform-specific read-only path
+- [x] **SET-01**: Settings load from 5 levels: managed > CLI > local > project > user
+- [x] **SET-02**: Object-valued settings deep-merge across levels (not shallow assign)
+- [x] **SET-03**: Array-valued settings (permissions.allow, etc.) concatenate across scopes
+- [x] **SET-04**: Local project settings read from `.claude/settings.local.json` (gitignored)
+- [x] **SET-05**: Managed settings read from platform-specific read-only path
 - [ ] **SET-06**: `--setting-sources` flag selects which scopes to load
 - [ ] **SET-07**: `--settings` flag loads settings from JSON file or inline string
 
@@ -143,11 +143,11 @@
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| SET-01 | Phase 1 | Pending |
-| SET-02 | Phase 1 | Pending |
-| SET-03 | Phase 1 | Pending |
-| SET-04 | Phase 1 | Pending |
-| SET-05 | Phase 1 | Pending |
+| SET-01 | Phase 1 | Complete |
+| SET-02 | Phase 1 | Complete |
+| SET-03 | Phase 1 | Complete |
+| SET-04 | Phase 1 | Complete |
+| SET-05 | Phase 1 | Complete |
 | SET-06 | Phase 1 | Pending |
 | SET-07 | Phase 1 | Pending |
 | HOOK-01 | Phase 2 | Pending |
