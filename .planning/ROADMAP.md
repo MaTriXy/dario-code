@@ -48,11 +48,11 @@ Plans:
   3. `statusMessage` and `once` fields are respected during hook execution
   4. Identical hook handlers are deduplicated (run only once even if defined in multiple scopes)
   5. Hooks are snapshot at startup; mid-session config changes trigger a warning but do not alter running hooks
-**Plans**: TBD
+**Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: TBD
-- [ ] 02-02: TBD
+- [ ] 02-01-PLAN.md — Hook config normalization, new fields (statusMessage/once), and deduplication (TDD)
+- [ ] 02-02-PLAN.md — Session snapshot with change detection
 
 ### Phase 3: Hook Events & Handlers
 **Goal**: All six new event types fire at the correct lifecycle points, and HTTP/prompt/agent/async handler types execute hooks beyond shell commands
@@ -142,7 +142,7 @@ Note: Phase 6 (Checkpointing) is architecturally independent and could execute i
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
 | 1. Settings Hierarchy | 2/2 | Complete   | 2026-03-08 |
-| 2. Hook Config Migration | 0/0 | Not started | - |
+| 2. Hook Config Migration | 0/2 | Not started | - |
 | 3. Hook Events & Handlers | 0/0 | Not started | - |
 | 4. Permission Rules | 0/0 | Not started | - |
 | 5. CLI Flags | 0/0 | Not started | - |
