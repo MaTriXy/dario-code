@@ -8,13 +8,24 @@
 import fs from 'fs'
 import path from 'path'
 import os from 'os'
+import { createRequire } from 'module'
+import merge from 'lodash/merge.js'
 import { fileExists, readFile, writeFile, safeJsonParse } from './utils.mjs'
 
-// Version constant
-export const VERSION = '1.0.0'
+// Version constant — read from package.json so git-tag releases stay in sync
+const _require = createRequire(import.meta.url)
+const _pkg = _require('../../package.json')
+export const VERSION = _pkg.version || '1.0.0'
 
 // Model override state (runtime only)
 let _modelOverride = null
+
+// Settings hierarchy state (runtime only)
+let _cliSettings = null
+let _settingSources = null
+
+// Array keys that concatenate instead of replace during merge
+const CONCAT_ARRAY_KEYS = ['permissions.allow', 'permissions.deny', 'permissions.ask']
 
 // Configuration directories
 const HOME_DIR = os.homedir()
@@ -140,26 +151,200 @@ export function removeConfigValue(key) {
 }
 
 /**
- * Load settings (user preferences)
+ * Set CLI settings override for the current session.
+ * @param {Object|null} settings - CLI settings to overlay, or null to clear
  */
-export function loadSettings() {
-  const settings = {}
+export function setCliSettings(settings) {
+  _cliSettings = settings
+}
 
-  // Load from .claude first
-  const claudeSettingsPath = path.join(CLAUDE_DIR, SETTINGS_FILE)
-  if (fileExists(claudeSettingsPath)) {
-    const claudeSettings = safeJsonParse(readFile(claudeSettingsPath), {})
-    Object.assign(settings, claudeSettings)
+/**
+ * Set which setting sources to load (for testing).
+ * @param {string[]|null} sources - Array of source names, or null for all
+ */
+export function setSettingSources(sources) {
+  _settingSources = sources
+}
+
+/**
+ * Get a nested value from an object by dot-path parts.
+ * @param {Object} obj
+ * @param {string[]} parts - Key path segments
+ * @returns {*} The value, or undefined
+ */
+function getNestedValue(obj, parts) {
+  let current = obj
+  for (const part of parts) {
+    if (current == null || typeof current !== 'object') return undefined
+    current = current[part]
+  }
+  return current
+}
+
+/**
+ * Set a nested value on an object by dot-path parts.
+ * Does NOT mutate the parts array.
+ * @param {Object} obj
+ * @param {string[]} parts - Key path segments
+ * @param {*} value
+ */
+function setNestedValue(obj, parts, value) {
+  const last = parts[parts.length - 1]
+  const parents = parts.slice(0, -1)
+  let current = obj
+  for (const part of parents) {
+    if (current[part] == null || typeof current[part] !== 'object') {
+      current[part] = {}
+    }
+    current = current[part]
+  }
+  current[last] = value
+}
+
+/**
+ * Deep merge two settings objects. Uses lodash/merge for nested objects,
+ * then applies array concatenation + deduplication for CONCAT_ARRAY_KEYS.
+ *
+ * @param {Object} base - Lower-precedence settings
+ * @param {Object} overlay - Higher-precedence settings
+ * @returns {Object} Merged settings
+ */
+export function deepMergeSettings(base, overlay) {
+  // Clone to avoid mutating inputs
+  const result = merge({}, base, overlay)
+
+  // For CONCAT_ARRAY_KEYS, concatenate + deduplicate instead of lodash's index merge
+  for (const keyPath of CONCAT_ARRAY_KEYS) {
+    const parts = keyPath.split('.')
+    const baseVal = getNestedValue(base, parts)
+    const overlayVal = getNestedValue(overlay, parts)
+
+    if (Array.isArray(baseVal) || Array.isArray(overlayVal)) {
+      const combined = [...(Array.isArray(baseVal) ? baseVal : []), ...(Array.isArray(overlayVal) ? overlayVal : [])]
+      setNestedValue(result, parts, [...new Set(combined)])
+    }
   }
 
-  // Overlay .dario settings
+  return result
+}
+
+/**
+ * Load user-level settings from ~/.claude/settings.json and ~/.dario/settings.json.
+ * Dario settings are deep-merged on top of Claude settings.
+ * @returns {Object}
+ */
+function loadUserSettings() {
+  let result = {}
+
+  const claudeSettingsPath = path.join(CLAUDE_DIR, SETTINGS_FILE)
+  if (fileExists(claudeSettingsPath)) {
+    result = safeJsonParse(readFile(claudeSettingsPath), {})
+  }
+
   const darioSettingsPath = path.join(DARIO_DIR, SETTINGS_FILE)
   if (fileExists(darioSettingsPath)) {
     const darioSettings = safeJsonParse(readFile(darioSettingsPath), {})
-    Object.assign(settings, darioSettings)
+    result = deepMergeSettings(result, darioSettings)
   }
 
-  return settings
+  return result
+}
+
+/**
+ * Load project-level settings from cwd/.claude/settings.json or cwd/.dario/settings.json.
+ * @returns {Object}
+ */
+function loadProjectSettings() {
+  const cwd = process.cwd()
+
+  const claudePath = path.join(cwd, '.claude', SETTINGS_FILE)
+  if (fileExists(claudePath)) {
+    return safeJsonParse(readFile(claudePath), {})
+  }
+
+  const darioPath = path.join(cwd, '.dario', SETTINGS_FILE)
+  if (fileExists(darioPath)) {
+    return safeJsonParse(readFile(darioPath), {})
+  }
+
+  return {}
+}
+
+/**
+ * Load local settings from cwd/.claude/settings.local.json or cwd/.dario/settings.local.json.
+ * @returns {Object}
+ */
+function loadLocalSettings() {
+  const cwd = process.cwd()
+
+  const claudePath = path.join(cwd, '.claude', 'settings.local.json')
+  if (fileExists(claudePath)) {
+    return safeJsonParse(readFile(claudePath), {})
+  }
+
+  const darioPath = path.join(cwd, '.dario', 'settings.local.json')
+  if (fileExists(darioPath)) {
+    return safeJsonParse(readFile(darioPath), {})
+  }
+
+  return {}
+}
+
+/**
+ * Get the platform-specific path for managed settings.
+ * @param {string} [platform] - Override platform (for testing)
+ * @param {string} [homeDir] - Override home directory (for testing)
+ * @returns {string} Absolute path to managed-settings.json
+ */
+export function getManagedSettingsPath(platform, homeDir) {
+  const plat = platform || process.platform
+  const home = homeDir || os.homedir()
+
+  switch (plat) {
+    case 'darwin':
+      return path.join(home, 'Library', 'Application Support', 'claude-code', 'managed-settings.json')
+    case 'win32':
+      return path.join(process.env.APPDATA || path.join(home, 'AppData', 'Roaming'), 'claude-code', 'managed-settings.json')
+    case 'linux':
+    default:
+      return '/etc/claude-code/managed-settings.json'
+  }
+}
+
+/**
+ * Load managed settings from platform-specific path.
+ * Returns {} on any error (file missing, parse error, etc).
+ * @returns {Object}
+ */
+function loadManagedSettings() {
+  try {
+    const managedPath = getManagedSettingsPath()
+    if (fileExists(managedPath)) {
+      return safeJsonParse(readFile(managedPath), {})
+    }
+  } catch {
+    // Graceful fallback
+  }
+  return {}
+}
+
+/**
+ * Load settings from all 5 levels, merged in precedence order:
+ *   user (lowest) → project → local → CLI → managed (highest)
+ *
+ * @returns {Object} Merged settings
+ */
+export function loadSettings() {
+  const sources = _settingSources || ['user', 'project', 'local', 'cli', 'managed']
+  let result = {}
+
+  if (sources.includes('user'))    result = deepMergeSettings(result, loadUserSettings())
+  if (sources.includes('project')) result = deepMergeSettings(result, loadProjectSettings())
+  if (sources.includes('local'))   result = deepMergeSettings(result, loadLocalSettings())
+  if (sources.includes('cli') && _cliSettings) result = deepMergeSettings(result, _cliSettings)
+  if (sources.includes('managed')) result = deepMergeSettings(result, loadManagedSettings())
+
+  return result
 }
 
 /**
@@ -679,6 +864,10 @@ export default {
   removeConfigValue,
   loadSettings,
   saveSettings,
+  setCliSettings,
+  setSettingSources,
+  deepMergeSettings,
+  getManagedSettingsPath,
   loadClaudeMd,
   processImports,
   loadCustomCommands,
