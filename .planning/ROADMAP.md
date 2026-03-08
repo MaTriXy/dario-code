@@ -12,7 +12,7 @@ This roadmap closes the remaining feature gaps between Dario Code and Claude Cod
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Settings Hierarchy** - 5-level settings precedence with deep merge and array concatenation
+- [x] **Phase 1: Settings Hierarchy** - 5-level settings precedence with deep merge and array concatenation (completed 2026-03-08)
 - [ ] **Phase 2: Hook Config Migration** - Nested config format, backward compat, deduplication, and session snapshot
 - [ ] **Phase 3: Hook Events & Handlers** - 6 new event types and 4 new handler types (HTTP, prompt, agent, async)
 - [ ] **Phase 4: Permission Rules** - Advanced permission syntax with Tool(specifier), path patterns, and 3-tier evaluation
@@ -141,7 +141,7 @@ Note: Phase 6 (Checkpointing) is architecturally independent and could execute i
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Settings Hierarchy | 0/2 | Planning complete | - |
+| 1. Settings Hierarchy | 2/2 | Complete   | 2026-03-08 |
 | 2. Hook Config Migration | 0/0 | Not started | - |
 | 3. Hook Events & Handlers | 0/0 | Not started | - |
 | 4. Permission Rules | 0/0 | Not started | - |
