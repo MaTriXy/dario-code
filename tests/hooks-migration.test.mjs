@@ -23,11 +23,16 @@ import {
   loadHooks,
   runHooks,
   HookType,
+  snapshotHooks,
+  getCachedHooks,
+  checkHookIntegrity,
+  clearHookSnapshot,
 } from '../src/core/hooks.mjs'
 
 beforeEach(() => {
   vi.clearAllMocks()
   clearOnceState()
+  clearHookSnapshot()
 })
 
 // ============================================================================
@@ -259,5 +264,101 @@ describe('loadHooks normalization', () => {
     const hooks = loadHooks()
     expect(hooks.PreToolUse[0].hooks).toBeDefined()
     expect(hooks.PreToolUse[0].hooks[0].type).toBe('command')
+  })
+})
+
+// ============================================================================
+// HOOK-06: Session snapshot
+// ============================================================================
+describe('HOOK-06: Session snapshot', () => {
+  const mockHooksConfig = {
+    hooks: {
+      PreToolUse: [{ matcher: 'Bash', command: ['./validate.sh'] }],
+      SessionStart: [{ matcher: undefined, hooks: [{ command: ['./init.sh'] }] }],
+    },
+  }
+
+  it('snapshotHooks captures config and getCachedHooks returns it', () => {
+    loadSettings.mockReturnValue(mockHooksConfig)
+
+    const snapshot = snapshotHooks()
+    const cached = getCachedHooks()
+
+    expect(cached).toEqual(snapshot)
+    expect(cached).not.toBeNull()
+    expect(cached.PreToolUse).toBeDefined()
+    expect(cached.PreToolUse[0].hooks[0].command).toEqual(['./validate.sh'])
+  })
+
+  it('getCachedHooks returns null before snapshot', () => {
+    expect(getCachedHooks()).toBeNull()
+  })
+
+  it('checkHookIntegrity returns changed:false when config unchanged', () => {
+    loadSettings.mockReturnValue(mockHooksConfig)
+
+    snapshotHooks()
+    const result = checkHookIntegrity()
+
+    expect(result.changed).toBe(false)
+    expect(result.warning).toBeNull()
+  })
+
+  it('checkHookIntegrity returns changed:true when config changes mid-session', () => {
+    loadSettings.mockReturnValue(mockHooksConfig)
+    snapshotHooks()
+
+    // Simulate config change
+    loadSettings.mockReturnValue({
+      hooks: {
+        PreToolUse: [{ matcher: 'Bash', command: ['./different.sh'] }],
+      },
+    })
+
+    const result = checkHookIntegrity()
+    expect(result.changed).toBe(true)
+    expect(result.warning).toBeTruthy()
+  })
+
+  it('runHooks uses cached hooks when snapshot exists', async () => {
+    loadSettings.mockReturnValue(mockHooksConfig)
+    snapshotHooks()
+
+    // Change underlying config — runHooks should still use snapshot
+    loadSettings.mockReturnValue({
+      hooks: {
+        PreToolUse: [{ matcher: 'Bash', command: ['./different.sh'] }],
+      },
+    })
+
+    // runHooks should use the cached snapshot (./validate.sh), not the new config
+    // We can verify by checking that loadSettings is NOT called again by runHooks
+    const callCountBefore = loadSettings.mock.calls.length
+    await runHooks(HookType.PRE_TOOL_USE, { toolName: 'Bash' })
+    const callCountAfter = loadSettings.mock.calls.length
+
+    // loadSettings should NOT have been called again (snapshot used)
+    expect(callCountAfter).toBe(callCountBefore)
+  })
+
+  it('runHooks falls back to loadHooks when no snapshot', async () => {
+    loadSettings.mockReturnValue(mockHooksConfig)
+
+    // No snapshot — runHooks should call loadSettings
+    const callCountBefore = loadSettings.mock.calls.length
+    await runHooks(HookType.PRE_TOOL_USE, { toolName: 'Bash' })
+    const callCountAfter = loadSettings.mock.calls.length
+
+    expect(callCountAfter).toBeGreaterThan(callCountBefore)
+  })
+
+  it('clearHookSnapshot resets the cache', () => {
+    loadSettings.mockReturnValue(mockHooksConfig)
+
+    snapshotHooks()
+    expect(getCachedHooks()).not.toBeNull()
+
+    clearHookSnapshot()
+    expect(getCachedHooks()).toBeNull()
   })
 })
