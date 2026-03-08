@@ -56,7 +56,13 @@ export const HookType = {
   STOP: 'Stop',
   SETUP: 'Setup',
   TEAMMATE_IDLE: 'TeammateIdle',
-  TASK_COMPLETED: 'TaskCompleted'
+  TASK_COMPLETED: 'TaskCompleted',
+  POST_TOOL_USE_FAILURE: 'PostToolUseFailure',
+  SUBAGENT_START: 'SubagentStart',
+  INSTRUCTIONS_LOADED: 'InstructionsLoaded',
+  CONFIG_CHANGE: 'ConfigChange',
+  WORKTREE_CREATE: 'WorktreeCreate',
+  WORKTREE_REMOVE: 'WorktreeRemove'
 }
 
 // Hook result actions
@@ -840,6 +846,83 @@ export async function runTeammateIdle(agentId, context = {}, verbose = false) {
 }
 
 /**
+ * Helper for PostToolUseFailure hooks
+ * Fires when a tool call fails with an error
+ */
+export async function runPostToolUseFailure(toolName, input, error, context = {}, verbose = false) {
+  return runHooks(HookType.POST_TOOL_USE_FAILURE, {
+    toolName,
+    input,
+    error: error instanceof Error ? error.message : String(error),
+    ...context
+  }, verbose)
+}
+
+/**
+ * Helper for SubagentStart hooks
+ * Fires before a subagent is spawned; can block spawn if hook returns block action
+ */
+export async function runSubagentStart(agentConfig, context = {}, verbose = false) {
+  return runHooks(HookType.SUBAGENT_START, {
+    agentConfig,
+    ...context
+  }, verbose)
+}
+
+/**
+ * Helper for InstructionsLoaded hooks
+ * Fires after CLAUDE.md content is loaded
+ */
+export async function runInstructionsLoaded(instructions, context = {}, verbose = false) {
+  return runHooks(HookType.INSTRUCTIONS_LOADED, {
+    instructions,
+    ...context
+  }, verbose)
+}
+
+// Re-entrancy guard for ConfigChange
+let _firingConfigChange = false
+
+/**
+ * Helper for ConfigChange hooks
+ * Fires when hook config changes are detected; can return block action.
+ * Has re-entrancy guard to prevent infinite loops.
+ */
+export async function runConfigChange(context = {}, verbose = false) {
+  if (_firingConfigChange) {
+    return { action: 'continue', results: [], modifiedInput: null }
+  }
+  _firingConfigChange = true
+  try {
+    return await runHooks(HookType.CONFIG_CHANGE, context, verbose)
+  } finally {
+    _firingConfigChange = false
+  }
+}
+
+/**
+ * Helper for WorktreeCreate hooks
+ * Fires after a git worktree is created
+ */
+export async function runWorktreeCreate(worktreePath, context = {}, verbose = false) {
+  return runHooks(HookType.WORKTREE_CREATE, {
+    worktreePath,
+    ...context
+  }, verbose)
+}
+
+/**
+ * Helper for WorktreeRemove hooks
+ * Fires before a git worktree is removed
+ */
+export async function runWorktreeRemove(worktreePath, context = {}, verbose = false) {
+  return runHooks(HookType.WORKTREE_REMOVE, {
+    worktreePath,
+    ...context
+  }, verbose)
+}
+
+/**
  * Create a hook configuration
  */
 export function createHook(options) {
@@ -878,4 +961,10 @@ export default {
   executePromptHook,
   executeAgentHook,
   dispatchHook,
+  runPostToolUseFailure,
+  runSubagentStart,
+  runInstructionsLoaded,
+  runConfigChange,
+  runWorktreeCreate,
+  runWorktreeRemove,
 }
