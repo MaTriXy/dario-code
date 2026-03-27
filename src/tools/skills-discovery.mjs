@@ -277,6 +277,10 @@ export function startSkillsHotReload(projectDir = process.cwd()) {
           try { cb(changedPath, eventType) } catch {}
         }
       })
+      watcher.on('error', () => {
+        try { watcher.close() } catch {}
+        _hotReloadWatchers = _hotReloadWatchers.filter(w => w !== watcher)
+      })
       _hotReloadWatchers.push(watcher)
     } catch {
       // Silently skip directories we can't watch (permissions, etc.)
